@@ -1,0 +1,110 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useUser, useClerk } from '@clerk/nextjs';
+import { Modal, Button, Text, Title, Loader } from 'rizzui';
+import { PiWarningCircleBold } from 'react-icons/pi';
+
+interface AdminAuthGuardProps {
+  children: React.ReactNode;
+}
+
+export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
+  const { isLoaded, user } = useUser();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { signOut } = useClerk();
+
+  useEffect(() => {
+    async function checkAdminRole() {
+      if (!isLoaded || !user) {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}`,
+          {
+            cache: 'no-store',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const userRole = data?.data?.role;
+          setIsAdmin(userRole === 'ADMIN');
+        } else {
+          console.error('Failed to fetch user role:', response.status);
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error('Error checking admin role:', error);
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAdminRole();
+  }, [isLoaded, user]);
+
+  // Loading state - show centered spinner
+  if (!isLoaded || loading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="text-center">
+          <Loader variant="spinner" size="xl" />
+          <Text className="mt-4 text-gray-600">Verifying access...</Text>
+        </div>
+      </div>
+    );
+  }
+
+  // Not admin - show unauthorized modal
+  if (isAdmin === false) {
+    return (
+      <>
+        {/* Backdrop to prevent interaction */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-2xl dark:bg-gray-100">
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                <PiWarningCircleBold className="h-8 w-8 text-red-600" />
+              </div>
+            </div>
+
+            <Title as="h2" className="mb-3 text-center text-2xl font-bold">
+              Access Denied
+            </Title>
+
+            <Text className="mb-8 text-center text-gray-600">
+              You are not authorized to access the admin panel. Only
+              administrators can access this area.
+            </Text>
+
+            <div className="space-y-3">
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={() => signOut()}
+                color="danger"
+              >
+                Sign Out
+              </Button>
+
+              <Text className="text-center text-sm text-gray-500">
+                Please contact an administrator if you believe this is an error.
+              </Text>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Is admin - render the app
+  return <>{children}</>;
+}

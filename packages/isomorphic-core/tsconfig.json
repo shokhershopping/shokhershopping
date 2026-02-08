@@ -1,0 +1,12 @@
+{
+  "extends": "typescript-config/react-library.json",
+  "exclude": ["dist", "build", "node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["./src/*"]
+    },
+    "types": ["@types/google.maps"]
+  },
+  "include": [".", "./types/**/*.ts"]
+}

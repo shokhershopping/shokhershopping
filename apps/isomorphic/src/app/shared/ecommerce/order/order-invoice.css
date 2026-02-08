@@ -1,0 +1,252 @@
+/* Non-print styles - keep invoice off-screen but in DOM */
+.print-invoice-content {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 210mm !important;
+  background: white !important;
+  visibility: hidden !important;
+}
+
+/* Print Styles for Order Invoice */
+@media print {
+  /* Hide everything on the page */
+  body > *:not(.print-invoice-content) {
+    display: none !important;
+  }
+
+  /* Show and position the invoice for printing */
+  .print-invoice-content {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    visibility: visible !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .invoice-container {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 10mm 15mm !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Hide elements not needed in print */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Prevent page breaks inside elements */
+  .invoice-table,
+  .invoice-item {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure tables print correctly */
+  table {
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Typography adjustments */
+  body {
+    color: #000 !important;
+    background: #fff !important;
+    font-size: 10pt;
+    line-height: 1.3;
+  }
+
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Remove most backgrounds but keep content color */
+  .print-invoice-content * {
+    box-shadow: none !important;
+  }
+
+  /* Keep some specific backgrounds for readability */
+  .bg-gray-50,
+  .bg-gray-100,
+  .invoice-table th {
+    background: #f3f4f6 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Borders */
+  .border-muted,
+  .border-gray-300 {
+    border-color: #ddd !important;
+  }
+
+  /* Badge colors */
+  .badge {
+    border: 1px solid #333 !important;
+  }
+
+  /* Reduce margins for compact print */
+  .print\\:mb-8 {
+    margin-bottom: 2rem !important;
+  }
+
+  .print\\:mt-4 {
+    margin-top: 1rem !important;
+  }
+
+  .print\\:pt-4 {
+    padding-top: 1rem !important;
+  }
+
+  /* QR Code visibility */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Make sure images print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Links - show URL */
+  a[href]:after {
+    content: none !important;
+  }
+
+  /* Ensure proper spacing */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Table styling for print */
+  .invoice-table table {
+    border-collapse: collapse !important;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    border: 1px solid #ddd !important;
+    padding: 4px 6px !important;
+  }
+
+  .invoice-table th {
+    background-color: #f3f4f6 !important;
+    font-weight: bold !important;
+    font-size: 9pt !important;
+  }
+
+  .invoice-table td {
+    font-size: 9pt !important;
+  }
+
+  /* Ensure proper text color */
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-700 {
+    color: #666 !important;
+  }
+
+  .text-gray-400 {
+    color: #999 !important;
+  }
+
+  /* Red text for discounts */
+  .text-red-500 {
+    color: #dc2626 !important;
+  }
+
+  /* Force proper font weights */
+  .font-semibold {
+    font-weight: 600 !important;
+  }
+
+  .font-bold {
+    font-weight: 700 !important;
+  }
+
+  /* Ensure proper text sizes */
+  .text-xs {
+    font-size: 8pt !important;
+  }
+
+  .text-sm {
+    font-size: 9pt !important;
+  }
+
+  .text-base {
+    font-size: 10pt !important;
+  }
+
+  .text-lg {
+    font-size: 11pt !important;
+  }
+
+  /* Reduce spacing for compact layout */
+  .print\\:mb-1 {
+    margin-bottom: 0.25rem !important;
+  }
+
+  .print\\:mb-2 {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .print\\:mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+
+  .print\\:mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  .print\\:gap-12 {
+    gap: 3rem !important;
+  }
+}
+
+/* Non-print specific invoice styles */
+.invoice-container {
+  background: white;
+}
+
+.invoice-table {
+  overflow-x: auto;
+}

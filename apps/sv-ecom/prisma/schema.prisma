@@ -1,0 +1,527 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PaymentMethod {
+  COD
+  BKASH
+  SSLCOMMERZ
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+}
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CouponStatus {
+  ACTIVE
+  EXPIRED
+  BLOCKED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AffiliateStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AffiliateWithdrawalStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum ReplyBy {
+  USER
+  ADMIN
+}
+
+enum DeliveryOption {
+  STANDARD
+  EXPRESS
+}
+
+enum InvoiceType {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  image     String?  @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(USER)
+
+  // relationships
+  reviews        Review[]
+  addresses      Address[]
+  carts          Cart[]
+  orders         Order[]
+  coupons        Coupon[]                @relation("CouponUsers")
+  coupon         Coupon[]
+  notifications  NotificationRecipient[]
+  wishlist       Wishlist[]
+  affiliate      Affiliate?
+  affiliateClick AffiliateClick[]
+  qnA            QnA[]
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  name      String
+  address   String
+  city      String
+  state     String
+  country   String
+  zip       String
+  phone     String
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  userId            String
+  user              User         @relation(fields: [userId], references: [id])
+  preference        Preference[]
+  billingOrders     Order[]      @relation("OrderBillingAddress")
+  shippingOrders    Order[]      @relation("OrderShippingAddress")
+}
+
+model Category {
+  id                 String                @id @default(uuid())
+  name               String                @unique
+  description        String?
+  isSlide            Boolean               @default(false)
+  isFeatured         Boolean               @default(false)
+  isMenu             Boolean               @default(false)
+  title              String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  // relationships
+  parentId           String?
+  parent             Category?             @relation("CategoryParent", fields: [parentId], references: [id])
+  children           Category[]            @relation("CategoryParent")
+  image              Image?                @relation(fields: [imageFilename], references: [filename])
+  sliderImage        Image?                @relation(name: "CategorySliderImage", fields: [slideImageFilename], references: [filename])
+  imageFilename      String?               @unique
+  slideImageFilename String?               @unique
+  products           CategoriesOnProduct[]
+}
+
+model CategoriesOnProduct {
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([productId, categoryId])
+}
+
+model Product {
+  id               String                @id @default(uuid())
+  name             String
+  description      String
+  images           Image[] // Array of image URLs
+  specifications   Json // JSON field for product specifications
+  sizeGuideId      String?
+  sizeGuide        Image?                @relation(name: "ImageToSizeGuide", fields: [sizeGuideId], references: [filename]) // URL or text for size guide
+  deliveryTime     String? // Estimated delivery time
+  returnTime       String? // Return policy timeframe
+  price            Float // Base price for the product
+  salePrice        Float? // Sale price, if applicable
+  brand            String? // Brand name
+  sku              String?               @unique // SKU for product identification
+  stock            Int                   @default(0)
+  kind             ProductType           @default(PHYSICAL)
+  status           ProductStatus         @default(DRAFT)
+  isSlide          Boolean               @default(false)
+  isFeatured       Boolean               @default(false)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  // relationships
+  variableProducts VariableProduct[]
+  reviews          Review[]
+  carts            CartItem[]
+  orderItem        OrderItem[]
+  wishlistItem     WishlistItem[]
+  qnA              QnA[]
+  categories       CategoriesOnProduct[]
+}
+
+model VariableProduct {
+  id             String        @id @default(uuid())
+  name           String // Example: "Size - Medium", "Color - Red"
+  description    String? // Description of the variation
+  images         Image[] // Array of image URLs for the variation
+  specifications Json // JSON field for variation specifications
+  price          Float // Price for the variation, can override base price
+  salePrice      Float? // Sale price for the variation, if applicable
+  stock          Int           @default(0)
+  sku            String        @unique
+  status         ProductStatus @default(DRAFT)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // relationships
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id])
+  reviews      Review[]
+  carts        CartItem[]
+  orderItem    OrderItem[]
+  wishlistItem WishlistItem[]
+  qnA          QnA[]
+}
+
+model Image {
+  filename     String   @id @unique
+  fieldname    String
+  originalname String
+  encoding     String
+  mimetype     String
+  destination  String
+  path         String
+  size         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // relationships
+  productId      String?
+  product        Product?         @relation(fields: [productId], references: [id])
+  variantId      String?
+  variant        VariableProduct? @relation(fields: [variantId], references: [id])
+  sizeGuide      Product[]        @relation(name: "ImageToSizeGuide")
+  category       Category?
+  sliderCategory Category?        @relation(name: "CategorySliderImage")
+}
+
+model QnA {
+  id        String   @id @default(uuid())
+  question  String
+  replies   Reply[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  userId    String
+  askedBy   User             @relation(fields: [userId], references: [id])
+  productId String?
+  product   Product?         @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   VariableProduct? @relation(fields: [variantId], references: [id])
+}
+
+model Reply {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  repliedBy ReplyBy  @default(ADMIN)
+
+  // relationships
+  qnAId String
+  qnA   QnA    @relation(fields: [qnAId], references: [id])
+}
+
+model Coupon {
+  id          String       @id @default(uuid())
+  code        String       @unique
+  description String?
+  amount      Float
+  type        CouponType   @default(FIXED)
+  start       DateTime     @default(now())
+  end         DateTime     @default(now())
+  expiry      DateTime
+  minimum     Float // Minimum amount required to apply the coupon
+  maximum     Float // Maximum discount amount
+  used        Int          @default(0) // Number of times the coupon has been used
+  limit       Int // Number of times the coupon can be used
+  status      CouponStatus @default(ACTIVE)
+  userId      String?
+  user        User?        @relation(fields: [userId], references: [id])
+  users       User[]       @relation("CouponUsers")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  Order       Order[]
+}
+
+model Review {
+  id        String       @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  status    ReviewStatus @default(PENDING)
+
+  // relationships
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  productId String?
+  product   Product?         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  variantId String?
+  variant   VariableProduct? @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  userId String
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  cartId            String
+  cart              Cart             @relation(fields: [cartId], references: [id])
+  variableProductId String?
+  variableProduct   VariableProduct? @relation(fields: [variableProductId], references: [id])
+  productId         String?
+  product           Product?         @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id                    String         @id @default(uuid())
+  status                OrderStatus    @default(PENDING)
+  deliveryCharge        Float
+  deliveryOption        DeliveryOption @default(STANDARD)
+  total                 Float
+  itemsTotalDiscount    Float
+  couponAppliedDiscount Float
+  totalWithDiscount     Float
+  netTotal              Float
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  // billing info
+  billingAddressId String?
+  billingAddress   Address? @relation(name: "OrderBillingAddress", fields: [billingAddressId], references: [id])
+
+  // shipping info
+  shippingAddressId String?
+  shippingAddress   Address? @relation(name: "OrderShippingAddress", fields: [shippingAddressId], references: [id])
+
+  // relationships
+  userId              String
+  user                User                  @relation(fields: [userId], references: [id])
+  items               OrderItem[]
+  trasactionId        String?
+  transaction         Transaction?
+  couponId            String?
+  coupon              Coupon?               @relation(fields: [couponId], references: [id])
+  affiliatedPurchases AffiliatedPurchases[]
+  invoices            Invoice[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  orderId           String
+  order             Order            @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  variableProductId String?
+  variableProduct   VariableProduct? @relation(fields: [variableProductId], references: [id])
+  productId         String?
+  product           Product?         @relation(fields: [productId], references: [id])
+}
+
+model Transaction {
+  id            String        @id @default(uuid())
+  amount        Float
+  status        String
+  paymentMethod PaymentMethod @default(COD)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // relationships
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  title      String
+  message    String
+  actionLink String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // relationships
+  recipients NotificationRecipient[]
+}
+
+model NotificationRecipient {
+  id             String       @id @default(uuid())
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([userId, notificationId])
+}
+
+model Wishlist {
+  userId    String   @id @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  items WishlistItem[]
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  wishlistId        String
+  wishlist          Wishlist         @relation(fields: [wishlistId], references: [userId])
+  variableProductId String?
+  variableProduct   VariableProduct? @relation(fields: [variableProductId], references: [id])
+  productId         String?
+  product           Product?         @relation(fields: [productId], references: [id])
+}
+
+model Preference {
+  id                   String        @id @default(uuid())
+  notificationChannels String[]
+  paymentMethod        PaymentMethod @default(COD)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  // relationships
+  addressId String?
+  address   Address? @relation(fields: [addressId], references: [id])
+}
+
+model Affiliate {
+  id                   String                 @id @default(uuid())
+  link                 String                 @unique
+  status               AffiliateStatus        @default(INACTIVE)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  totalPoints          Int                    @default(0)
+  // relationships
+  userId               String                 @unique
+  user                 User                   @relation(fields: [userId], references: [id])
+  affiliateClick       AffiliateClick[]
+  affiliatedPurchases  AffiliatedPurchases[]
+  affiliatedWithdrawal AffiliatedWithdrawal[]
+}
+
+model AffiliateClick {
+  id        String   @id @default(uuid())
+  ipAddress String
+  userAgent String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  affiliateId String
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id])
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+}
+
+model AffiliatedPurchases {
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  pointAwarded Int
+  // relationships
+  affiliateId  String
+  affiliate    Affiliate @relation(fields: [affiliateId], references: [id])
+  orderId      String
+  order        Order     @relation(fields: [orderId], references: [id])
+}
+
+model AffiliatedWithdrawal {
+  id        String                    @id @default(uuid())
+  rate      Float
+  points    Int
+  amount    Float
+  status    AffiliateWithdrawalStatus @default(PENDING)
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @updatedAt
+
+  // relationships
+  affiliateId String
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id])
+}
+
+model Invoice {
+  id            String      @id @default(uuid())
+  invoiceNumber String      @unique
+  type          InvoiceType
+  printedBy     String? // User ID who printed
+  printedAt     DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // relationships
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}

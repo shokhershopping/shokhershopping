@@ -1,0 +1,105 @@
+export const socialLinks = [
+  {
+    href: "https://www.facebook.com/share/19fW1hfRoZ/",
+    className: "social-facebook",
+    iconClass: "icon-fb",
+    iconSize: "fs-14",
+  },
+  {
+    href: "https://x.com/shoppingshokher?t=0gLxZ1UBpdnohYzyTehamw&s=09",
+    className: "social-twitter",
+    iconClass: "icon-Icon-x",
+    iconSize: "fs-12",
+  },
+  {
+    href: "https://www.instagram.com/shokhershopping?igsh=OWtteGloYm5jZWph",
+    className: "social-instagram",
+    iconClass: "icon-instagram",
+    iconSize: "fs-14",
+  },
+  {
+    href: "https://www.tiktok.com/@shokhershopping?_t=ZS-8xX5qwdvadd&_r=1",
+    className: "social-tiktok",
+    iconClass: "icon-tiktok",
+    iconSize: "fs-14",
+  },
+  {
+    href: "https://www.pinterest.com/shokhershopping/",
+    className: "social-pinterest",
+    iconClass: "icon-pinterest-1",
+    iconSize: "fs-14",
+  },
+];
+
+export const socialLinksWithBorder = [
+  {
+    href: "https://www.facebook.com/share/19fW1hfRoZ/",
+    className: "social-facebook",
+    iconClass: "icon-fb",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://x.com/shoppingshokher?t=0gLxZ1UBpdnohYzyTehamw&s=09",
+    className: "social-twitter",
+    iconClass: "icon-Icon-x",
+    iconSize: "fs-12",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.instagram.com/shokhershopping?igsh=OWtteGloYm5jZWph",
+    className: "social-instagram",
+    iconClass: "icon-instagram",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.tiktok.com/@shokhershopping?_t=ZS-8xX5qwdvadd&_r=1",
+    className: "social-tiktok",
+    iconClass: "icon-tiktok",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.pinterest.com/shokhershopping/",
+    className: "social-pinterest",
+    iconClass: "icon-pinterest-1",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.linkedin.com/in/shokhershopping",
+    className: "social-linkedin",
+    iconClass: "icon-linkedin",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.threads.com/@shokhershopping",
+    className: "social-threads",
+    iconClass: "icon-threads",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.tumblr.com/shokhershopping",
+    className: "social-tumblr",
+    iconClass: "icon-tumblr",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://github.com/shokhershopping",
+    className: "social-github",
+    iconClass: "icon-github",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+  {
+    href: "https://www.snapchat.com/add/shokhershopping?share_id=7MEwC2AFIUk&locale=en-BD",
+    className: "social-snapchat",
+    iconClass: "icon-snapchat",
+    iconSize: "fs-14",
+    borderClass: "border-line-black",
+  },
+];
