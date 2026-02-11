@@ -11,7 +11,7 @@ import {
   RadioGroup,
   Radio,
 } from 'rizzui';
-import { useAuth, useUser } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import {
   notificationMetadataFormatter,
   notificationMetadataParser,
@@ -56,12 +56,11 @@ const inventoryOptions = [
 
 export default function NotificationSettingsView() {
   const [reminders, setReminders] = useState<Record<string, boolean>>({});
-  const { getToken } = useAuth();
-  const { user } = useUser();
+  const { getToken, user } = useFirebaseAuth();
 
   useEffect(() => {
-    if (user)
-      setReminders((user as any).publicMetadata?.preferences?.reminders || {});
+    // Notification preferences are stored server-side via the API
+    // Will be loaded when Firestore user service is implemented
   }, [user]);
   return (
     <div className="@container">
@@ -94,7 +93,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/metadata`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -140,7 +139,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/metadata`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -186,7 +185,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/metadata`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -220,10 +219,10 @@ export default function NotificationSettingsView() {
             variant="flat"
             labelClassName="font-medium text-sm text-gray-900"
             checked={reminders?.notifyWhenProductIsLowInStock}
-            onChange={async (e) => {
+            onChange={async () => {
               const token = await getToken();
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/metadata`,
+              await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
                 {
                   method: 'PUT',
                   headers: {
@@ -232,12 +231,9 @@ export default function NotificationSettingsView() {
                   },
                   body: JSON.stringify({
                     metadata: {
-                      ...user?.publicMetadata,
                       preferences: {
-                        ...(user?.publicMetadata as any)?.preferences,
                         reminders: {
-                          ...(user?.publicMetadata as any)?.preferences
-                            ?.reminders,
+                          ...reminders,
                           notifyWhenProductIsLowInStock:
                             !reminders?.notifyWhenProductIsLowInStock,
                         },
@@ -258,10 +254,10 @@ export default function NotificationSettingsView() {
             variant="flat"
             checked={reminders?.notifyWeeklySummary}
             labelClassName="font-medium text-sm text-gray-900"
-            onChange={async (e) => {
+            onChange={async () => {
               const token = await getToken();
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.id}/metadata`,
+              await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
                 {
                   method: 'PUT',
                   headers: {
@@ -270,12 +266,9 @@ export default function NotificationSettingsView() {
                   },
                   body: JSON.stringify({
                     metadata: {
-                      ...user?.publicMetadata,
                       preferences: {
-                        ...(user?.publicMetadata as any)?.preferences,
                         reminders: {
-                          ...(user?.publicMetadata as any)?.preferences
-                            ?.reminders,
+                          ...reminders,
                           notifyWeeklySummary: !reminders.notifyWeeklySummary,
                         },
                       },

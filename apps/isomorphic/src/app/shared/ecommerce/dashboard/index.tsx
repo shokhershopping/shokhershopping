@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useUser } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import { routes } from '@/config/routes';
 import { Button } from 'rizzui/button';
 import WelcomeBanner from '@core/components/banners/welcome';
@@ -19,7 +19,7 @@ import welcomeImg from '@public/shop-illustration.png';
 import HandWaveIcon from '@core/components/icons/hand-wave';
 
 export default function EcommerceDashboard() {
-  const { user } = useUser();
+  const { user } = useFirebaseAuth();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const userName = user?.firstName || user?.fullName || 'Admin';

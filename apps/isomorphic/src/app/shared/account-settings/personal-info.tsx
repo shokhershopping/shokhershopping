@@ -13,7 +13,7 @@ import {
   PersonalInfoFormTypes,
 } from '@/validators/personal-info.schema';
 
-import { useUser } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import Image from 'next/image';
 // const Select = dynamic(() => import('rizzui').then((mod) => mod.Select), {
 //   ssr: false,
@@ -29,21 +29,16 @@ const QuillEditor = dynamic(() => import('@core/ui/quill-editor'), {
 });
 
 export default function PersonalInfoView() {
-  const { isLoaded, user } = useUser();
+  const { isLoaded, user, updateUserProfile } = useFirebaseAuth();
 
-  console.log('User ->', user);
   const onSubmit: SubmitHandler<PersonalInfoFormTypes> = async (data) => {
-    await user?.update({
-      firstName: data.first_name,
-      lastName: data.last_name,
-      unsafeMetadata: {
-        bio: data.bio,
-      },
-    });
-    toast.success(<Text as="b">Successfully added!</Text>);
-    console.log('Profile settings data ->', {
-      ...data,
-    });
+    try {
+      const displayName = [data.first_name, data.last_name].filter(Boolean).join(' ');
+      await updateUserProfile({ displayName });
+      toast.success(<Text as="b">Successfully updated!</Text>);
+    } catch (error: any) {
+      toast.error(<Text as="b">{error.message || 'Update failed'}</Text>);
+    }
   };
 
   if (!isLoaded || !user) {
@@ -101,7 +96,7 @@ export default function PersonalInfoView() {
                 <Input
                   readOnly
                   className="col-span-full"
-                  defaultValue={user?.primaryEmailAddress?.emailAddress ?? ''}
+                  defaultValue={user?.email ?? ''}
                   prefix={
                     <PiEnvelopeSimple className="h-6 w-6 text-gray-500" />
                   }
@@ -118,26 +113,15 @@ export default function PersonalInfoView() {
                 className="pt-7 @2xl:pt-9 @3xl:grid-cols-12 @3xl:pt-11"
               >
                 <div className="flex flex-col gap-6 @container @3xl:col-span-2">
-                  <Image
-                    src={user?.imageUrl}
-                    width={100}
-                    height={100}
-                    className="h-24 w-24 rounded-full border-2 border-gray-200"
-                    alt="profile image"
-                  />
-
-                  <FileInput
-                    label="Upload Photo"
-                    onChange={async (e) => {
-                      await user.setProfileImage({
-                        file: e.target.files?.[0] as File,
-                      });
-                      toast.success('Profile image updated successfully');
-                    }}
-                    multiple={false}
-                    className="col-span-full cursor-pointer"
-                    error={errors.avatar?.message}
-                  />
+                  {user?.imageUrl && (
+                    <Image
+                      src={user.imageUrl}
+                      width={100}
+                      height={100}
+                      className="h-24 w-24 rounded-full border-2 border-gray-200"
+                      alt="profile image"
+                    />
+                  )}
                 </div>
               </FormGroup>
 
@@ -229,7 +213,7 @@ export default function PersonalInfoView() {
                 <Controller
                   control={control}
                   name="bio"
-                  defaultValue={(user?.unsafeMetadata?.bio as string) ?? ''}
+                  defaultValue=""
                   render={({ field: { onChange, value } }) => (
                     <QuillEditor
                       value={value}

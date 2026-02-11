@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import Image from 'next/image';
 import { DatePicker } from '@core/ui/datepicker';
 import WidgetCard from '@core/components/cards/widget-card';
@@ -18,7 +18,7 @@ const previousMonthDate = new Date(
 );
 
 export default function BestSellers({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [rangeDate, setRangeDate] = useState<[Date | null, Date | null]>([
     previousMonthDate,
     currentDate,

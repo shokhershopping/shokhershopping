@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import { ordersColumns } from '@/app/shared/ecommerce/order/order-list/columns';
 import WidgetCard from '@core/components/cards/widget-card';
 import Table from '@core/components/table';
@@ -15,7 +15,7 @@ import { getRecentOrders } from '@/lib/dashboard-api';
 export type OrdersDataType = any;
 
 export default function RecentOrder({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [orders, setOrders] = useState<OrdersDataType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

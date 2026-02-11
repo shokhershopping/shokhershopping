@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import WidgetCard from '@core/components/cards/widget-card';
 import { CustomTooltip } from '@core/components/charts/custom-tooltip';
 import { CustomYAxisTick } from '@core/components/charts/custom-yaxis-tick';
@@ -22,7 +22,7 @@ import { getSalesReport } from '@/lib/dashboard-api';
 import type { SalesReportData } from '@/types/dashboard';
 
 export default function SalesReport({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const isTablet = useMedia('(max-width: 820px)', false);
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [salesData, setSalesData] = useState<SalesReportData[]>([]);

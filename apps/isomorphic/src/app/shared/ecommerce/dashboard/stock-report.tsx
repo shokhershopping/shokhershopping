@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import Image from 'next/image';
 import WidgetCard from '@core/components/cards/widget-card';
 import cn from '@core/utils/class-names';
@@ -11,7 +11,7 @@ import { getStockReport } from '@/lib/dashboard-api';
 import type { StockReportProduct } from '@/types/dashboard';
 
 export default function StockReport({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [products, setProducts] = useState<StockReportProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUser, useClerk } from '@clerk/nextjs';
-import { Modal, Button, Text, Title, Loader } from 'rizzui';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
+import { Button, Text, Title, Loader } from 'rizzui';
 import { PiWarningCircleBold } from 'react-icons/pi';
 
 interface AdminAuthGuardProps {
@@ -10,10 +10,9 @@ interface AdminAuthGuardProps {
 }
 
 export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
-  const { isLoaded, user } = useUser();
+  const { isLoaded, user, signOut } = useFirebaseAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
-  const { signOut } = useClerk();
 
   useEffect(() => {
     async function checkAdminRole() {
@@ -23,7 +22,7 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.uid}`,
           {
             cache: 'no-store',
             headers: {

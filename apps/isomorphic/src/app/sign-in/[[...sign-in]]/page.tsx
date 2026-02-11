@@ -2,7 +2,8 @@ import AuthWrapperOne from '@/app/shared/auth-layout/auth-wrapper-one';
 import Image from 'next/image';
 import UnderlineShape from '@core/components/shape/underline';
 import { metaObject } from '@/config/site.config';
-import { SignIn as ClerkSignIn } from '@clerk/nextjs';
+import { FirebaseSignInForm } from '@/components/firebase-sign-in-form';
+
 export const metadata = {
   ...metaObject('Sign In'),
 };
@@ -41,7 +42,7 @@ export default function SignIn() {
         </div>
       }
     >
-      <ClerkSignIn />
+      <FirebaseSignInForm />
     </AuthWrapperOne>
   );
 }

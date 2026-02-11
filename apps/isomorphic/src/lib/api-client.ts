@@ -21,7 +21,7 @@ export interface ApiError {
 }
 
 /**
- * API client with Clerk authentication
+ * API client with Firebase authentication
  */
 export class ApiClient {
   private baseUrl: string;
@@ -32,7 +32,7 @@ export class ApiClient {
   }
 
   /**
-   * Set the token getter function (usually from Clerk's useAuth)
+   * Set the token getter function (from useFirebaseAuth)
    */
   setTokenGetter(getter: () => Promise<string | null>) {
     this.getToken = getter;

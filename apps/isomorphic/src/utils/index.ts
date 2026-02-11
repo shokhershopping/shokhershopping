@@ -1,21 +1,23 @@
-import { User } from '@clerk/nextjs/server';
+interface UserWithMetadata {
+  publicMetadata?: Record<string, any>;
+  [key: string]: any;
+}
 
 export const notificationMetadataFormatter = (
   category: string, // order, transaction, inventory
   optionName: string, // title
   option: string, // email, push, sms
-  user: User | null
+  user: UserWithMetadata | null
 ) => {
   return {
     ...user?.publicMetadata,
     preferences: {
       ...(user?.publicMetadata?.preferences || {}),
       notifications: {
-        ...((user?.publicMetadata?.preferences as any)?.notifications || {}),
+        ...(user?.publicMetadata?.preferences?.notifications || {}),
         [category]: {
-          ...((user?.publicMetadata?.preferences as any)?.notifications?.[
-            category
-          ] || {}),
+          ...(user?.publicMetadata?.preferences?.notifications?.[category] ||
+            {}),
           [optionName]: option,
         },
       },
@@ -24,7 +26,7 @@ export const notificationMetadataFormatter = (
 };
 
 export const notificationMetadataParser = (
-  user: User | null,
+  user: UserWithMetadata | null,
   category: string,
   optionName: string
 ) => {

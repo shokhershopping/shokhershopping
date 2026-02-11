@@ -3,7 +3,7 @@ import cn from '@core/utils/class-names';
 import Link from 'next/link';
 import { SidebarMenu } from './sidebar-menu';
 import Image from 'next/image';
-import { UserButton } from '@clerk/nextjs';
+
 export default function Sidebar({ className }: { className?: string }) {
   return (
     <aside

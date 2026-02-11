@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import WorldMap from 'react-svg-worldmap';
 import WidgetCard from '@core/components/cards/widget-card';
 import { Badge, Text } from 'rizzui';
@@ -20,7 +20,7 @@ const colorPalette = [
 ];
 
 export default function UserLocation({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [ref, { width }] = useElementSize();
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [locationData, setLocationData] = useState<UserLocationData[]>([]);

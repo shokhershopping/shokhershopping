@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import MetricCard from '@core/components/cards/metric-card';
 import { Button, Text } from 'rizzui';
 import cn from '@core/utils/class-names';
@@ -50,7 +50,7 @@ function formatNumber(num: number): string {
 }
 
 export default function StatCards({ className }: { className?: string }) {
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [monthStats, setMonthStats] = useState<DashboardStats | null>(null);
   const [totalStats, setTotalStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);

@@ -23,7 +23,7 @@ import UploadZone from '@core/ui/file-upload/upload-zone';
 import { useLayout } from '@/layouts/use-layout';
 import { useBerylliumSidebars } from '@/layouts/beryllium/beryllium-utils';
 import { LAYOUT_OPTIONS } from '@/config/enums';
-import { useUser } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 const QuillEditor = dynamic(() => import('@core/ui/quill-editor'), {
   ssr: false,
 });
@@ -213,7 +213,7 @@ export function ProfileHeader({
 }: React.PropsWithChildren<{ title: string; description?: string }>) {
   const { layout } = useLayout();
   const { expandedLeft } = useBerylliumSidebars();
-  const { user } = useUser();
+  const { user } = useFirebaseAuth();
   return (
     <div
       className={cn(

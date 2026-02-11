@@ -13,7 +13,7 @@ import {
   categoryFormSchema,
 } from '@/validators/create-category.schema';
 import UploadZone from '@core/ui/file-upload/upload-zone';
-import { useAuth } from '@clerk/nextjs';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -78,7 +78,7 @@ export default function CreateCategory({
   category?: CategoryFormInput;
 }) {
   const [isLoading, setLoading] = useState(false);
-  const { getToken } = useAuth();
+  const { getToken } = useFirebaseAuth();
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [existingCategories, setExistingCategories] = useState<any[]>([]);
   // Don't use category prop for edit mode - we'll fetch from API instead
