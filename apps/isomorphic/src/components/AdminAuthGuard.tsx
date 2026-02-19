@@ -22,7 +22,7 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/users/${user.uid}`,
+          `/api/users/${user.uid}`,
           {
             cache: 'no-store',
             headers: {

@@ -24,11 +24,11 @@ export const api = {
     delete: (id: string) => `/transactions/${id}`,
   },
   dashboard: {
-    stats: '/dashboard/stats',
-    salesReport: '/dashboard/sales-report',
-    topProducts: '/dashboard/top-products',
-    customerAnalytics: '/dashboard/customer-analytics',
-    userLocation: '/dashboard/user-location',
-    stockReport: '/dashboard/stock-report',
+    stats: '/dashboard?type=stats',
+    salesReport: '/dashboard?type=stats',
+    topProducts: '/dashboard?type=top-products',
+    customerAnalytics: '/dashboard?type=stats',
+    userLocation: '/dashboard?type=stats',
+    stockReport: '/dashboard?type=stock-report',
   },
 };

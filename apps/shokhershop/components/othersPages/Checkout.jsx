@@ -1,6 +1,6 @@
 "use client";
 import { useContextElement } from "@/context/Context";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -8,8 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function Checkout() {
   const { cartProducts, setCartProducts, user, isLoadingUser } = useContextElement();
-  const { userId, isLoaded: isAuthLoaded } = useAuth();
-  const { user: clerkUser } = useUser();
+  const { user: firebaseUser, isLoaded: isAuthLoaded, isSignedIn } = useFirebaseAuth();
   const router = useRouter();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
   const [loading, setLoading] = useState(false);
@@ -38,25 +37,28 @@ export default function Checkout() {
 
   // Check authentication and redirect if needed
   useEffect(() => {
-    if (isAuthLoaded && !userId) {
+    if (isAuthLoaded && !isSignedIn) {
       // Redirect to login with callback to return to checkout
       router.push("/login?redirect_url=/checkout");
     }
-  }, [isAuthLoaded, userId, router]);
+  }, [isAuthLoaded, isSignedIn, router]);
 
-  // Pre-fill form with user data from Clerk
+  // Pre-fill form with user data from Firebase
   useEffect(() => {
-    if (clerkUser) {
+    if (firebaseUser) {
+      const nameParts = (firebaseUser.displayName || "").split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
       setFormData(prev => ({
         ...prev,
-        billingFirstName: clerkUser.firstName || "",
-        billingLastName: clerkUser.lastName || "",
-        billingEmail: clerkUser.primaryEmailAddress?.emailAddress || "",
-        shippingFirstName: clerkUser.firstName || "",
-        shippingLastName: clerkUser.lastName || "",
+        billingFirstName: firstName,
+        billingLastName: lastName,
+        billingEmail: firebaseUser.email || "",
+        shippingFirstName: firstName,
+        shippingLastName: lastName,
       }));
     }
-  }, [clerkUser]);
+  }, [firebaseUser]);
 
   // Calculate total price of products
   const totalPrice = cartProducts.reduce(
@@ -117,7 +119,7 @@ export default function Checkout() {
     e.preventDefault();
 
     // Validate authentication
-    if (!userId) {
+    if (!isSignedIn) {
       setError("You must be logged in to place an order");
       router.push("/login?redirect_url=/checkout");
       return;
@@ -164,7 +166,7 @@ export default function Checkout() {
 
       const orderData = {
         order: {
-          userId: userId, // Use Clerk user ID
+          userId: firebaseUser?.uid,
           deliveryCharge: deliveryCharge,
         },
         items: cartProducts.map((product) => ({
@@ -217,7 +219,7 @@ export default function Checkout() {
   }
 
   // If not authenticated, show message (should redirect via useEffect)
-  if (!userId) {
+  if (!isSignedIn) {
     return (
       <section className="flat-spacing-11">
         <div className="container">

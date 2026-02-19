@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { FirebaseAuthProvider } from "@/lib/firebase-auth-provider";
 import { Toaster } from "react-hot-toast";
 import "../public/scss/main.scss";
 import "photoswipe/dist/photoswipe.css";
@@ -169,28 +162,7 @@ export default function RootLayout({ children }) {
   }, []); // Only runs once on component mount
 
   return (
-    <ClerkProvider
-      appearance={{
-        elements: {
-          cardBox: "shadow-none text-base",
-          card: `bg-background px-3 py-4`,
-          headerTitle: `text-xl`,
-          // headerSubtitle: `hidden`,
-          socialButtons: `flex gap-3`,
-          socialButtonsBlockButton: `bg-white py-3 outline-none !shadow-none`,
-          socialButtonsBlockButtonText: `text-base`,
-          socialButtonsProviderIcon: `w-5 h-5 max-w-5`,
-          formFieldLabel: `font-light`,
-          // // formFieldAction: 'hidden',
-          formFieldInput:
-            " py-6 text-sm outline-none !border !border-[#1D0748]",
-          checkbox: `py-0`,
-          formButtonPrimary: `py-2`,
-          footerAction: "d-none",
-          footer: "d-none",
-        },
-      }}
-    >
+    <FirebaseAuthProvider>
       <html lang="en">
         <body className="preload-wrapper">
           <div className="preload preload-container" id="preloader">
@@ -252,6 +224,6 @@ export default function RootLayout({ children }) {
           <WhatsAppButton />
         </body>
       </html>
-    </ClerkProvider>
+    </FirebaseAuthProvider>
   );
 }

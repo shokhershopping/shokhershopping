@@ -5,6 +5,7 @@ import CreateCategory from '@/app/shared/ecommerce/category/create-category';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
 import { Metadata } from 'next';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -42,7 +43,7 @@ const pageHeader = {
 export default async function EditCategoryPage({ params }: any) {
   const id = (await params).id;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`,
+    `${getBaseUrl()}/api/categories/${id}`,
     {
       cache: 'no-store',
     }
@@ -59,9 +60,7 @@ export default async function EditCategoryPage({ params }: any) {
     isFeatured: data.data.isFeatured ?? false,
     isSlide: data.data.isSlide ?? false,
     isMenu: data.data.isMenu ?? false,
-    image: data.data.image
-      ? `${process.env.NEXT_PUBLIC_API_URL}/${data.data.image.path}`
-      : null,
+    image: data.data.image?.url || data.data.image?.path || null,
   };
   return (
     <>

@@ -1,7 +1,7 @@
 "use client";
 import { allProducts } from "@/data/products";
 import { openCartModal } from "@/utlis/openCartModal";
-import { useUser } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useContext, useState } from "react";
@@ -27,27 +27,31 @@ export default function Context({ children }) {
     setTotalPrice(subtotal);
   }, [cartProducts]);
 
-  // Get authenticated user from Clerk
-  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
+  // Get authenticated user from Firebase
+  const { user: firebaseUser, isLoaded: isUserLoaded, isSignedIn, getToken } = useFirebaseAuth();
   const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
 
-  // Fetch user from database using Clerk user ID
+  // Fetch user from database using Firebase user ID
   useEffect(() => {
     const fetchUserFromDatabase = async () => {
-      if (!isUserLoaded || !clerkUser) {
+      if (!isUserLoaded || !firebaseUser) {
         setUser(null);
         return;
       }
 
       setIsLoadingUser(true);
       try {
+        const token = await getToken();
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/users/${clerkUser.id}`
+          `/api/users/${firebaseUser.uid}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
         );
 
         if (!response.ok) {
-          console.error('User not found in database. Please ensure Clerk webhook is configured correctly.');
+          console.error('User not found in database.');
           setUser(null);
         } else {
           const data = await response.json();
@@ -62,7 +66,7 @@ export default function Context({ children }) {
     };
 
     fetchUserFromDatabase();
-  }, [clerkUser, isUserLoaded]);
+  }, [firebaseUser, isUserLoaded]);
 
   console.log("Authenticated User:", user);
 
@@ -123,15 +127,15 @@ export default function Context({ children }) {
   };
 
   const addToWishlist = async (product) => {
-    // Check if user is authenticated using Clerk
+    // Check if user is authenticated
     if (!isUserLoaded) {
       toast.error("Please wait while we load your session...");
       return;
     }
 
-    if (!clerkUser) {
+    if (!firebaseUser) {
       toast.error("Please sign in to add items to your wishlist");
-      router.push("/sign-in");
+      router.push("/login");
       return;
     }
 
@@ -223,15 +227,15 @@ export default function Context({ children }) {
   };
 
   const removeFromWishlist = async (product) => {
-    // Check if user is authenticated using Clerk
+    // Check if user is authenticated
     if (!isUserLoaded) {
       toast.error("Please wait while we load your session...");
       return;
     }
 
-    if (!clerkUser) {
+    if (!firebaseUser) {
       toast.error("Please sign in to manage your wishlist");
-      router.push("/sign-in");
+      router.push("/login");
       return;
     }
 

@@ -61,7 +61,7 @@ export default function CreateEditProduct({
 
   const onSubmit: SubmitHandler<CreateProductInput> = async (data) => {
     setLoading(true);
-    let url = `${process.env.NEXT_PUBLIC_API_URL}/products`;
+    let url = `/api/products`;
     let method = 'POST';
 
     if (slug) {

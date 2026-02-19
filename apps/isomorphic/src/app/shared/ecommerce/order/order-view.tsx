@@ -87,21 +87,17 @@ export default function OrderView({ order }: OrderViewProps) {
   const orderItems = useMemo(() => {
     if (!order?.items) return cartItems;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
     return order.items.map((item: any) => {
       const product = item.product || item.variableProduct;
       const image = product?.images?.[0];
 
-      // Construct image URL properly
+      // Use Firebase Storage URL directly, or fallback to placeholder
       let imageUrl =
         'https://isomorphic-furyroad.s3.amazonaws.com/public/products/modern/7.webp'; // Default placeholder
-      if (image?.path) {
-        // Remove leading slash if present to avoid double slashes
-        const imagePath = image.path.startsWith('/')
-          ? image.path.slice(1)
-          : image.path;
-        imageUrl = `${apiUrl}/${imagePath}`;
+      if (image?.url) {
+        imageUrl = image.url;
+      } else if (image?.path) {
+        imageUrl = image.path;
       }
 
       return {

@@ -92,7 +92,7 @@ export default function CreateCategory({
 
         // Fetch all categories for parent category dropdown
         const categoriesRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories?limit=10000`,
+          `/api/categories?limit=10000`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -108,7 +108,7 @@ export default function CreateCategory({
         // If editing (id exists), fetch the current category data
         if (id) {
           const categoryRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`,
+            `/api/categories/${id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -165,10 +165,10 @@ export default function CreateCategory({
 
       console.log('Submitting category data:', requestBody);
 
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/categories`;
+      let url = `/api/categories`;
       if (id && category) {
         // If editing an existing category, include the ID in the URL
-        url = `${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`;
+        url = `/api/categories/${id}`;
       }
 
       const res = await fetch(url, {
@@ -359,10 +359,11 @@ export default function CreateCategory({
                 />
                 {existingCategories.find((cat) => cat.id === id)?.image && (
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/${
-                      existingCategories.find((cat) => cat.id === id)?.image
-                        .path
-                    }`}
+                    src={
+                      existingCategories.find((cat) => cat.id === id)?.image?.url ||
+                      existingCategories.find((cat) => cat.id === id)?.image?.path ||
+                      'https://placehold.co/600x400.png'
+                    }
                     alt="Category Image"
                     width={600}
                     height={400}

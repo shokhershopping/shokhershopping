@@ -40,7 +40,7 @@ export default function PrintInvoiceButton({
 
       // Create invoice record in backend
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/invoices`,
+        `/api/invoices`,
         {
           method: 'POST',
           headers: {

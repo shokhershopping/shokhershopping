@@ -177,7 +177,7 @@ export default function CreateOrder({
       console.log('Sending order update:', orderUpdateData);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`,
+        `/api/orders/${id}`,
         {
           method: 'PUT',
           headers: {

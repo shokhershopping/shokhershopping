@@ -95,12 +95,9 @@ export default function StockReport({ className }: { className?: string }) {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredProducts.map((product) => {
-                  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
                   const imageUrl = product.thumbnail?.startsWith('http')
                     ? product.thumbnail
-                    : product.thumbnail
-                      ? `${API_BASE_URL}/${product.thumbnail}`
-                      : '/placeholder.png';
+                    : product.thumbnail || '/placeholder.png';
 
                   return (
                     <tr key={product.id}>

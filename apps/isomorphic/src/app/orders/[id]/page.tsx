@@ -4,18 +4,16 @@ import PageHeader from '@/app/shared/page-header';
 import Link from 'next/link';
 import OrderView from '@/app/shared/ecommerce/order/order-view';
 import PrintInvoiceButton from '@/app/shared/ecommerce/order/print-invoice-button';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 export default async function OrderDetailsPage({ params }: any) {
   const id = (await params).id;
-
-  // Get API URL with fallback
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
   let order = null;
 
   try {
     // Fetch order data from API
-    const orderResponse = await fetch(`${apiUrl}/orders/${id}`, {
+    const orderResponse = await fetch(`${getBaseUrl()}/api/orders/${id}`, {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',

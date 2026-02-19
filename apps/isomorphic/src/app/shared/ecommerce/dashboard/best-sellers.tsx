@@ -95,10 +95,9 @@ export default function BestSellers({ className }: { className?: string }) {
       ) : (
         <div className="custom-scrollbar -me-2 mt-[18px] grid max-h-[460px] gap-4 overflow-y-auto @sm:gap-5">
           {products.map((product) => {
-            const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-            const imageUrl = product.thumbnail.startsWith('http')
+            const imageUrl = product.thumbnail?.startsWith('http')
               ? product.thumbnail
-              : `${API_BASE_URL}/${product.thumbnail}`;
+              : product.thumbnail || '/placeholder.png';
 
             const displayPrice = product.salePrice || product.price;
             const formattedPrice = `৳${new Intl.NumberFormat('en-US').format(displayPrice)}`;

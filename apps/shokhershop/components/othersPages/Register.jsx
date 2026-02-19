@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSignUp, useAuth } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import { useRouter } from "next/navigation";
 
 export default function Register() {
-  const { signUp, isLoaded, setActive } = useSignUp();
-  const { isLoaded: isAuthLoaded, userId } = useAuth();
+  const { signUp, isLoaded, isSignedIn } = useFirebaseAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -15,17 +14,15 @@ export default function Register() {
     email: "",
     password: ""
   });
-  const [verifying, setVerifying] = useState(false);
-  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthLoaded && userId) {
+    if (isLoaded && isSignedIn) {
       router.push("/my-account");
     }
-  }, [isAuthLoaded, userId, router]);
+  }, [isLoaded, isSignedIn, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,112 +37,21 @@ export default function Register() {
     setError("");
 
     try {
-      await signUp.create({
-        emailAddress: formData.email,
-        password: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-      });
+      await signUp(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      );
 
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code"
-      });
-
-      setVerifying(true);
+      router.push("/my-account");
     } catch (err) {
       console.error("Registration error:", err);
-      setError(err.errors?.[0]?.message || "Registration failed. Please try again.");
+      setError(err.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    if (!isLoaded) return;
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await signUp.attemptEmailAddressVerification({
-        code
-      });
-
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/my-account");
-      }
-    } catch (err) {
-      console.error("Verification error:", err);
-      setError(err.errors?.[0]?.message || "Verification failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (verifying) {
-    return (
-      <section className="flat-spacing-10">
-        <div className="container">
-          <div className="form-register-wrap">
-            <div className="flat-title align-items-start gap-0 mb_30 px-0">
-              <h5 className="mb_18">Verify Your Email</h5>
-              <p className="text_black-2">
-                We've sent a verification code to {formData.email}. Please enter it below.
-              </p>
-            </div>
-            <div>
-              <form onSubmit={handleVerify} className="">
-                {error && (
-                  <div className="alert alert-danger mb_15" role="alert">
-                    {error}
-                  </div>
-                )}
-                <div className="tf-field style-1 mb_15">
-                  <input
-                    className="tf-field-input tf-input"
-                    placeholder=" "
-                    type="text"
-                    id="verification-code"
-                    name="code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                  />
-                  <label
-                    className="tf-field-label fw-4 text_black-2"
-                    htmlFor="verification-code"
-                  >
-                    Verification Code *
-                  </label>
-                </div>
-                <div className="mb_20">
-                  <button
-                    type="submit"
-                    className="tf-btn w-100 radius-3 btn-fill animate-hover-btn justify-content-center"
-                    disabled={loading || !code}
-                  >
-                    {loading ? "Verifying..." : "Verify Email"}
-                  </button>
-                </div>
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => setVerifying(false)}
-                    className="tf-btn btn-line"
-                  >
-                    Back to registration
-                    <i className="icon icon-arrow1-top-left" />
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="flat-spacing-10">

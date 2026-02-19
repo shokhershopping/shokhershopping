@@ -7,6 +7,7 @@ import PageHeader from '@/app/shared/page-header';
 import CreateOrder from '@/app/shared/ecommerce/order/create-order';
 import { orderData } from '@/app/shared/ecommerce/order/order-form/form-utils';
 import toast from 'react-hot-toast';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -47,7 +48,7 @@ export default async function EditOrderPage({ params }: any) {
   const id = (await params).id;
 
   const orderResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`,
+    `${getBaseUrl()}/api/orders/${id}`,
     {
       cache: 'no-store',
     }

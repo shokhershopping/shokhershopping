@@ -8,6 +8,7 @@ import { metaObject } from '@/config/site.config';
 import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
 import toast from 'react-hot-toast';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -47,7 +48,7 @@ export default async function EditProductPage({ params }: any) {
 
   // Fetch product data based on slug
   const productResponse = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}`,
+    `${getBaseUrl()}/api/products/${slug}`,
     {
       cache: 'no-store',
     }
@@ -78,7 +79,7 @@ export default async function EditProductPage({ params }: any) {
         ...img,
         name: img.originalname,
         url:
-          `${process.env.NEXT_PUBLIC_API_URL}/${img.path}` ||
+          img.url || img.path ||
           'https://placehold.co/600x400.png',
       };
     }),
@@ -94,7 +95,7 @@ export default async function EditProductPage({ params }: any) {
               ...img,
               name: img.originalname,
               url:
-                `${process.env.NEXT_PUBLIC_API_URL}/${img.path}` ||
+                img.url || img.path ||
                 'https://placehold.co/600x400.png',
             };
           }) || [],

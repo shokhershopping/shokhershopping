@@ -39,7 +39,7 @@ export default function CategoryTable() {
     const fetchCategories = async () => {
       // Replace this with your actual API call
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories?limit=10000`,
+        `/api/categories?limit=10000`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -55,9 +55,7 @@ export default function CategoryTable() {
       setData(
         data.data.map((cat: any) => ({
           id: cat.id,
-          image: cat.image
-            ? `${process.env.NEXT_PUBLIC_API_URL}/${cat.image.path}`
-            : 'https://placehold.co/600x400.png',
+          image: cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
           name: cat.name,
           description: cat.description,
           isFeatured: cat.isFeatured ?? false,

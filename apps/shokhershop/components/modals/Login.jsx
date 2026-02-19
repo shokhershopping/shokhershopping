@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
-  const { signIn, isLoaded, setActive } = useSignIn();
+  const { signIn, isLoaded } = useFirebaseAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -21,26 +21,20 @@ export default function Login() {
     setError("");
 
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password: password,
-      });
+      await signIn(email, password);
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        // Close modal
-        const modalElement = document.getElementById("login");
-        const bootstrap = require("bootstrap");
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) modal.hide();
+      // Close modal
+      const modalElement = document.getElementById("login");
+      const bootstrap = require("bootstrap");
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      if (modal) modal.hide();
 
-        // Check for redirect URL in query params
-        const redirectUrl = searchParams.get("redirect_url") || "/my-account";
-        router.push(redirectUrl);
-      }
+      // Check for redirect URL in query params
+      const redirectUrl = searchParams.get("redirect_url") || "/my-account";
+      router.push(redirectUrl);
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.errors?.[0]?.message || "Invalid email or password.");
+      setError(err.message || "Invalid email or password.");
     } finally {
       setLoading(false);
     }

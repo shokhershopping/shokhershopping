@@ -9,7 +9,7 @@ import type {
   StockReportProduct,
 } from '@/types/dashboard';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_BASE_URL = '/api';
 
 /**
  * Generic fetch function with error handling and authentication

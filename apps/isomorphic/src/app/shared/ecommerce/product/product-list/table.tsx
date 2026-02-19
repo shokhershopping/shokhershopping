@@ -69,7 +69,7 @@ export default function ProductsTable({
             ? async (row) => {
                 try {
                   const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/products/${row.id}`,
+                    `/api/products/${row.id}`,
                     {
                       method: 'DELETE',
                     }
@@ -94,7 +94,7 @@ export default function ProductsTable({
                 try {
                   const deletePromises = rows.map((row: any) =>
                     fetch(
-                      `${process.env.NEXT_PUBLIC_API_URL}/products/${row.id}`,
+                      `/api/products/${row.id}`,
                       {
                         method: 'DELETE',
                       }

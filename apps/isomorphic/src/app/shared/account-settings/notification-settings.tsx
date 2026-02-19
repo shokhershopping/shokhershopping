@@ -93,7 +93,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
+                    `/api/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -139,7 +139,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
+                    `/api/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -185,7 +185,7 @@ export default function NotificationSettingsView() {
                 onChange={async (option) => {
                   const token = await getToken();
                   const res = fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
+                    `/api/users/${user?.uid}/metadata`,
                     {
                       method: 'PUT',
                       headers: {
@@ -222,7 +222,7 @@ export default function NotificationSettingsView() {
             onChange={async () => {
               const token = await getToken();
               await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
+                `/api/users/${user?.uid}/metadata`,
                 {
                   method: 'PUT',
                   headers: {
@@ -257,7 +257,7 @@ export default function NotificationSettingsView() {
             onChange={async () => {
               const token = await getToken();
               await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/users/${user?.uid}/metadata`,
+                `/api/users/${user?.uid}/metadata`,
                 {
                   method: 'PUT',
                   headers: {

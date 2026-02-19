@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import CartLength from "../common/CartLength";
 import WishlistLength from "../common/WishlistLength";
-import { useAuth } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 export default function Header1() {
-  const { userId } = useAuth();
+  const { isSignedIn } = useFirebaseAuth();
   return (
     <header id="header" className="header-default header-absolute">
       <div className="px_15 lg-px_40">
@@ -64,7 +64,7 @@ export default function Header1() {
               </li>
               <li className="nav-account">
                 <Link
-                  href={userId ? "/my-account" : "/login"}
+                  href={isSignedIn ? "/my-account" : "/login"}
                   className="nav-icon-item"
                 >
                   <i className="icon icon-account" />

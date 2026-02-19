@@ -1,6 +1,4 @@
-import { env } from '@/env.mjs';
-
-const API_URL = env.NEXT_PUBLIC_API_URL;
+const API_URL = '/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;

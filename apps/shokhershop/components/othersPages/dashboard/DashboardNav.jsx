@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 
 const accountLinks = [
   { href: "/my-account", label: "Dashboard" },
@@ -14,7 +14,7 @@ const accountLinks = [
 export default function DashboardNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useClerk();
+  const { signOut } = useFirebaseAuth();
 
   const handleLogout = async (e) => {
     e.preventDefault();

@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSignIn, useAuth } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
-  const { signIn, isLoaded, setActive } = useSignIn();
-  const { isLoaded: isAuthLoaded, userId } = useAuth();
+  const { signIn, isLoaded, isSignedIn } = useFirebaseAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -17,10 +16,10 @@ export default function Login() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthLoaded && userId) {
+    if (isLoaded && isSignedIn) {
       router.push("/my-account");
     }
-  }, [isAuthLoaded, userId, router]);
+  }, [isLoaded, isSignedIn, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,21 +29,14 @@ export default function Login() {
     setError("");
 
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password: password,
-      });
+      await signIn(email, password);
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-
-        // Check for redirect URL in query params
-        const redirectUrl = searchParams.get("redirect_url") || "/my-account";
-        router.push(redirectUrl);
-      }
+      // Check for redirect URL in query params
+      const redirectUrl = searchParams.get("redirect_url") || "/my-account";
+      router.push(redirectUrl);
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.errors?.[0]?.message || "Invalid email or password. Please try again.");
+      setError(err.message || "Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }

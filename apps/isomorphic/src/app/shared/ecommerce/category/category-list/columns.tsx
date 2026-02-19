@@ -124,7 +124,7 @@ export const categoriesColumns = [
           description={`Are you sure you want to delete this ${row.original.name} category?`}
           onDelete={async () => {
             const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/categories/${row.original.id}`,
+              `/api/categories/${row.original.id}`,
               {
                 method: 'DELETE',
                 headers: {

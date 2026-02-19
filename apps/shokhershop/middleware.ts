@@ -1,13 +1,12 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
+const publicRoutes = [
   "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
   "/login",
   "/register",
-  "/product-detail/(.*)",
-  "/shop(.*)",
+  "/product-detail",
+  "/shop",
   "/contact",
   "/about-us",
   "/faq-1",
@@ -15,14 +14,38 @@ const isPublicRoute = createRouteMatcher([
   "/privacy-policy",
   "/shipping-delivery",
   "/delivery-return",
-]);
+];
 
-export default clerkMiddleware(async (auth, req) => {
-  // Protect all routes except public ones
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+function isPublicRoute(pathname: string): boolean {
+  return publicRoutes.some((route) => {
+    if (route === "/") return pathname === "/";
+    return pathname === route || pathname.startsWith(route + "/");
+  });
+}
+
+export default function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Allow API routes to handle their own auth
+  if (pathname.startsWith("/api/")) {
+    return NextResponse.next();
   }
-});
+
+  // Allow public routes
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  // Check for session cookie
+  const session = req.cookies.get("__session");
+  if (!session?.value) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("redirect_url", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

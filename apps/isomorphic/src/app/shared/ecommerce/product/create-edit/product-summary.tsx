@@ -33,7 +33,7 @@ export default function ProductSummary({ className }: { className?: string }) {
     const fetchCategories = async () => {
       // Replace with actual API call
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories?limit=10000`,
+        `/api/categories?limit=10000`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -49,9 +49,7 @@ export default function ProductSummary({ className }: { className?: string }) {
           id: cat.id,
           value: cat.id,
           label: cat.name,
-          image: cat.image
-            ? `${process.env.NEXT_PUBLIC_API_URL}/${cat.image.path}`
-            : 'https://placehold.co/600x400.png',
+          image: cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
         }))
       );
     };

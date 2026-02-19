@@ -8,6 +8,7 @@ import { metaObject } from '@/config/site.config';
 import ExportButton from '@/app/shared/export-button';
 import toast from 'react-hot-toast';
 import { any } from 'zod';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 export const metadata = {
   ...metaObject('Products'),
@@ -32,7 +33,7 @@ const pageHeader = {
 
 export default async function ProductsPage() {
   const products = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/products?limit=1000000`,
+    `${getBaseUrl()}/api/products?limit=1000000`,
     {
       cache: 'no-store',
     }
@@ -62,7 +63,7 @@ export default async function ProductsPage() {
     // Extract category name from the categories array
     category: product.categories?.[0]?.category?.name || 'Uncategorized',
     image: product.images?.length
-      ? `${process.env.NEXT_PUBLIC_API_URL}/${product.images[0].path}`
+      ? (product.images[0].url || product.images[0].path || 'https://placehold.co/600x400.png')
       : 'https://placehold.co/600x400.png',
     sku: product.sku || 'N/A',
     stock: product.stock || 0,

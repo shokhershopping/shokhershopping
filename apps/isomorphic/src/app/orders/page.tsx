@@ -8,6 +8,7 @@ import { orderData } from '@/data/order-data';
 import { metaObject } from '@/config/site.config';
 import ExportButton from '@/app/shared/export-button';
 import toast from 'react-hot-toast';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 export const metadata = {
   ...metaObject('Orders'),
@@ -32,7 +33,7 @@ const pageHeader = {
 
 export default async function OrdersPage() {
   const orders = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/orders?limit=1000000`,
+    `${getBaseUrl()}/api/orders?limit=1000000`,
     {
       cache: 'no-store',
     }

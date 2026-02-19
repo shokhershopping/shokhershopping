@@ -1,17 +1,17 @@
 "use client";
 import React from "react";
 import { useContextElement } from "../../../context/Context";
-import { useUser } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 import Link from "next/link";
 
 export default function MyAccount() {
   const { user } = useContextElement();
-  const { user: clerkUser } = useUser();
+  const { user: firebaseUser } = useFirebaseAuth();
 
-  // Get user name from context first, fallback to Clerk user
+  // Get user name from context first, fallback to Firebase user
   const userName = user?.name ||
-                   (clerkUser ? `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() : '') ||
-                   clerkUser?.emailAddresses?.[0]?.emailAddress ||
+                   firebaseUser?.displayName ||
+                   firebaseUser?.email ||
                    '';
 
   return (

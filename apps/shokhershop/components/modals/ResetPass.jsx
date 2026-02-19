@@ -1,14 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
+import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
 
 export default function ResetPass() {
-  const { signIn, isLoaded } = useSignIn();
+  const { resetPassword, isLoaded } = useFirebaseAuth();
 
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
-  const [password, setPassword] = useState("");
-  const [step, setStep] = useState("email"); // email, code, success
+  const [step, setStep] = useState("email"); // email, success
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,40 +18,11 @@ export default function ResetPass() {
     setError("");
 
     try {
-      await signIn.create({
-        strategy: "reset_password_email_code",
-        identifier: email,
-      });
-
-      setStep("code");
+      await resetPassword(email);
+      setStep("success");
     } catch (err) {
       console.error("Reset request error:", err);
-      setError(err.errors?.[0]?.message || "Failed to send reset email.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-    if (!isLoaded) return;
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await signIn.attemptFirstFactor({
-        strategy: "reset_password_email_code",
-        code: code,
-        password: password,
-      });
-
-      if (result.status === "complete") {
-        setStep("success");
-      }
-    } catch (err) {
-      console.error("Password reset error:", err);
-      setError(err.errors?.[0]?.message || "Password reset failed.");
+      setError(err.message || "Failed to send reset email.");
     } finally {
       setLoading(false);
     }
@@ -67,8 +36,6 @@ export default function ResetPass() {
 
     // Reset state
     setEmail("");
-    setCode("");
-    setPassword("");
     setStep("email");
     setError("");
   };
@@ -83,8 +50,7 @@ export default function ResetPass() {
           <div className="header">
             <div className="demo-title">
               {step === "email" && "Reset your password"}
-              {step === "code" && "Enter reset code"}
-              {step === "success" && "Password reset successful"}
+              {step === "success" && "Check your email"}
             </div>
             <span
               className="icon-close icon-close-popup"
@@ -103,7 +69,7 @@ export default function ResetPass() {
               <form onSubmit={handleRequestReset} className="">
                 <div>
                   <p>
-                    Enter your email address and we'll send you a code to reset
+                    Enter your email address and we'll send you a link to reset
                     your password.
                   </p>
                 </div>
@@ -137,65 +103,7 @@ export default function ResetPass() {
                       className="tf-btn btn-fill animate-hover-btn radius-3 w-100 justify-content-center"
                       disabled={loading}
                     >
-                      <span>{loading ? "Sending..." : "Send reset code"}</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-
-            {step === "code" && (
-              <form onSubmit={handleResetPassword} className="">
-                <div>
-                  <p className="mb_15">
-                    We've sent a reset code to {email}. Enter the code and your
-                    new password below.
-                  </p>
-                </div>
-                <div className="tf-field style-1">
-                  <input
-                    className="tf-field-input tf-input"
-                    placeholder=" "
-                    type="text"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    required
-                  />
-                  <label className="tf-field-label" htmlFor="">
-                    Reset Code *
-                  </label>
-                </div>
-                <div className="tf-field style-1">
-                  <input
-                    className="tf-field-input tf-input"
-                    placeholder=" "
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="new-password"
-                    required
-                  />
-                  <label className="tf-field-label" htmlFor="">
-                    New Password *
-                  </label>
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setStep("email")}
-                    className="btn-link link"
-                  >
-                    Back
-                  </button>
-                </div>
-                <div className="bottom">
-                  <div className="w-100">
-                    <button
-                      type="submit"
-                      className="tf-btn btn-fill animate-hover-btn radius-3 w-100 justify-content-center"
-                      disabled={loading}
-                    >
-                      <span>{loading ? "Resetting..." : "Reset password"}</span>
+                      <span>{loading ? "Sending..." : "Send reset link"}</span>
                     </button>
                   </div>
                 </div>
@@ -205,7 +113,10 @@ export default function ResetPass() {
             {step === "success" && (
               <div className="">
                 <div className="mb_20">
-                  <p>Your password has been reset successfully!</p>
+                  <p>
+                    We've sent a password reset link to {email}. Please check
+                    your email and follow the instructions to reset your password.
+                  </p>
                 </div>
                 <div className="bottom">
                   <div className="w-100">
@@ -213,8 +124,9 @@ export default function ResetPass() {
                       href="#login"
                       data-bs-toggle="modal"
                       className="tf-btn btn-fill animate-hover-btn radius-3 w-100 justify-content-center"
+                      onClick={closeModal}
                     >
-                      <span>Log in with new password</span>
+                      <span>Back to login</span>
                     </a>
                   </div>
                 </div>
