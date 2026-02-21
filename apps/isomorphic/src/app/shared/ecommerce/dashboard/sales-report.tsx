@@ -36,7 +36,7 @@ export default function SalesReport({ className }: { className?: string }) {
         const year = startDate?.getFullYear() || new Date().getFullYear();
         const token = await getToken();
         const response = await getSalesReport(year, token);
-        setSalesData(response.data);
+        setSalesData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
         console.error('Error fetching sales report:', err);

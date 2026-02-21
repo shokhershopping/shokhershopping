@@ -41,7 +41,7 @@ export default function OrderInvoice({
   const invNumber = invoiceNumber || `INV-${order.id.slice(0, 8).toUpperCase()}`;
 
   // Prepare items for table
-  const invoiceItems = order.items?.map((item: any, index: number) => {
+  const invoiceItems = (order.items || []).map((item: any, index: number) => {
     const product = item.product || item.variableProduct;
     const price = product?.salePrice || product?.price || 0;
     const total = price * item.quantity;

@@ -16,6 +16,9 @@ import { BarChart, Bar, ResponsiveContainer } from 'recharts';
 import { getDashboardStats } from '@/lib/dashboard-api';
 import type { DashboardStats, StatCardChartData } from '@/types/dashboard';
 
+const emptyStatGroup = { current: 0, previous: 0, percentageChange: 0, weeklyData: [] as Array<{ day: string; value: number }> };
+const emptyStats: DashboardStats = { orders: emptyStatGroup, sales: emptyStatGroup, products: emptyStatGroup };
+
 type ViewMode = 'month' | 'total';
 
 interface StatCardData {
@@ -70,8 +73,10 @@ export default function StatCards({ className }: { className?: string }) {
           getDashboardStats(1095, token), // 3 years for "all time"
         ]);
 
-        setMonthStats(monthResponse.data);
-        setTotalStats(totalResponse.data);
+        const ms = monthResponse.data;
+        const ts = totalResponse.data;
+        setMonthStats(ms?.orders && ms?.sales && ms?.products ? ms : emptyStats);
+        setTotalStats(ts?.orders && ts?.sales && ts?.products ? ts : emptyStats);
         setError(null);
       } catch (err) {
         console.error('Error fetching dashboard stats:', err);

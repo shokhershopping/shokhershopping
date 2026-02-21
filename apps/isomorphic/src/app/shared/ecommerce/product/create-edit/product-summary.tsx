@@ -44,8 +44,9 @@ export default function ProductSummary({ className }: { className?: string }) {
         throw new Error('Failed to fetch categories');
       }
       const data: any = await res.json();
+      const items = Array.isArray(data?.data) ? data.data : [];
       setCategories(
-        data.data.map((cat: any) => ({
+        items.map((cat: any) => ({
           id: cat.id,
           value: cat.id,
           label: cat.name,

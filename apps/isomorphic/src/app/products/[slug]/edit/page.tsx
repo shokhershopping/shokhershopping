@@ -74,7 +74,7 @@ export default async function EditProductPage({ params }: any) {
     price: productData.price,
     salePrice: productData.salePrice,
     currentStock: productData.stock,
-    productImages: productData.images.map((img: any) => {
+    productImages: (productData.images || []).map((img: any) => {
       return {
         ...img,
         name: img.originalname,
@@ -85,12 +85,12 @@ export default async function EditProductPage({ params }: any) {
     }),
     brand: productData.brand,
     productVariants:
-      productData.variableProducts.map((vp: any) => ({
+      (productData.variableProducts || []).map((vp: any) => ({
         id: vp.id,
         name: vp.name,
         description: vp.description || 'No description provided',
         images:
-          vp.images.map((img: any) => {
+          (vp.images || []).map((img: any) => {
             return {
               ...img,
               name: img.originalname,
@@ -98,15 +98,15 @@ export default async function EditProductPage({ params }: any) {
                 img.url || img.path ||
                 'https://placehold.co/600x400.png',
             };
-          }) || [],
-        color: vp.specifications.color || 'Default Color',
-        size: vp.specifications.size || 'Default Size',
+          }),
+        color: vp.specifications?.color || 'Default Color',
+        size: vp.specifications?.size || 'Default Size',
         price: vp.price || 0,
         salePrice: vp.salePrice || vp.price || 0,
         stock: parseInt(String(vp.stock || 0)) || 0,
         sku: vp.sku || 'SKU-' + Date.now(),
         status: vp.status || 'draft',
-      })) || [],
+      })),
     pageTitle: productData.pageTitle || '',
     metaDescription: productData.metaDescription || '',
     metaKeywords: productData.metaKeywords || '',

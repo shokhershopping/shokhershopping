@@ -38,7 +38,7 @@ export default function RepeatCustomerRate({
         const year = startDate?.getFullYear() || new Date().getFullYear();
         const token = await getToken();
         const response = await getCustomerAnalytics(year, token);
-        setAnalyticsData(response.data);
+        setAnalyticsData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
         console.error('Error fetching customer analytics:', err);

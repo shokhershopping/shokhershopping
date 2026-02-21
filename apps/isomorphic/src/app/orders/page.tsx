@@ -45,17 +45,18 @@ export default async function OrdersPage() {
   const data: any = await orders.json();
   console.log('Orders Data:', data);
 
-  const ordersData = data.data.map((order: any) => ({
+  const rawOrders = Array.isArray(data?.data) ? data.data : [];
+  const ordersData = rawOrders.map((order: any) => ({
     id: order.id,
     name: order.user?.name,
     email: order.user?.email,
     avatar: order.user?.image || 'https://placehold.co/600x400.png',
-    items: order.items.length,
+    items: order.items?.length ?? 0,
     price: order.netTotal,
     status: order.status,
-    createdAt: new Date(order.createdAt).toLocaleDateString(),
-    updatedAt: new Date(order.updatedAt).toLocaleDateString(),
-    products: order.items.map((item: any) => {
+    createdAt: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+    updatedAt: order.updatedAt ? new Date(order.updatedAt).toLocaleDateString() : '',
+    products: (order.items || []).map((item: any) => {
       const product = item.product || item.variableProduct;
       return {
         id: product?.id,

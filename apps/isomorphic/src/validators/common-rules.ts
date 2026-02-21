@@ -5,11 +5,11 @@ export const fileSchema = z.object({
   name: z.string(),
   url: z.string(),
   size: z.number(),
-  filename: z.string(),
-  path: z.string(),
-  destination: z.string(),
+  filename: z.string().optional(),
+  path: z.string().optional(),
+  destination: z.string().optional(),
   enconding: z.string().optional(),
-  mimetype: z.string(),
+  mimetype: z.string().optional(),
 });
 
 export type FileSchema = z.infer<typeof fileSchema>;

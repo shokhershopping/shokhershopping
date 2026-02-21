@@ -37,7 +37,7 @@ export default function BestSellers({ className }: { className?: string }) {
           startDate: rangeDate[0]?.toISOString(),
           endDate: rangeDate[1]?.toISOString(),
         }, token);
-        setProducts(response.data);
+        setProducts(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
         console.error('Error fetching top products:', err);

@@ -52,8 +52,9 @@ export default function CategoryTable() {
 
       const data: any = await res.json();
 
+      const items = Array.isArray(data?.data) ? data.data : [];
       setData(
-        data.data.map((cat: any) => ({
+        items.map((cat: any) => ({
           id: cat.id,
           image: cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
           name: cat.name,
@@ -61,7 +62,7 @@ export default function CategoryTable() {
           isFeatured: cat.isFeatured ?? false,
           isSlide: cat.isSlide ?? false,
           isMenu: cat.isMenu ?? false,
-          products: cat.products.length ?? 0,
+          products: cat.products?.length ?? 0,
         }))
       );
     };

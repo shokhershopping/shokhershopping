@@ -53,9 +53,9 @@ export default async function ProductsPage() {
     console.log('Sample product with variants:', JSON.stringify(firstProductWithVariants, null, 2));
   }
 
-  console.log('🔍 Raw API data sample:', JSON.stringify(data.data[0], null, 2));
+  const rawItems = Array.isArray(data?.data) ? data.data : [];
 
-  const productsData = data.data.map((product: any) => {
+  const productsData = rawItems.map((product: any) => {
     console.log(`Processing product: ${product.name}, categories:`, product.categories);
     return {
     id: product.id,

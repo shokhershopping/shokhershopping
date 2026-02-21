@@ -66,31 +66,28 @@ export default function CreateEditProduct({
 
     if (slug) {
       url += `/${slug}`;
+      method = 'PATCH';
     }
 
     const transformedData: any = {
-      product: {
-        name: data.title,
-        description: data.description || 'No description provided',
-        sku: data.sku || 'SKU-' + Date.now(),
-
-        imageIds: data.productImages?.map((image) => image.filename) || [],
-        specifications: {
-          color: data.color || 'Default Color',
-          size: data.size || 'Default Size',
-        },
-        sizeGuideId: '1751744365099-6392ffb48736.png',
-        deliveryTime: '5 Days',
-        returnTime: '15 Days',
-        price: data.price,
-        salePrice: data.salePrice || data.price,
-        stock: parseInt(String(data?.currentStock ?? '')) || 0,
-        kind: data.type || 'PHYSICAL',
-        status: 'PUBLISHED',
-        brand: data.brand || 'Shokher Shop',
-        categoryIds: [data.categories],
+      name: data.title,
+      description: data.description || 'No description provided',
+      sku: data.sku || 'SKU-' + Date.now(),
+      imageUrls: data.productImages?.map((image: any) => image.url).filter(Boolean) || [],
+      specifications: {
+        color: data.color || 'Default Color',
+        size: data.size || 'Default Size',
       },
-      productVariables: [],
+      deliveryTime: '5 Days',
+      returnTime: '15 Days',
+      price: data.price,
+      salePrice: data.salePrice || data.price,
+      stock: parseInt(String(data?.currentStock ?? '')) || 0,
+      kind: data.type || 'PHYSICAL',
+      status: 'PUBLISHED',
+      brand: data.brand || 'Shokher Shop',
+      categoryIds: [data.categories].filter(Boolean),
+      variants: [],
     };
 
     if (slug) {
@@ -98,12 +95,12 @@ export default function CreateEditProduct({
     }
 
     if (data.productVariants && data.productVariants.length > 0) {
-      transformedData.productVariables = data.productVariants.map(
+      transformedData.variants = data.productVariants.map(
         (variant) => ({
           id: variant.id || undefined,
           name: variant.name,
           description: variant.description || 'No description provided',
-          imageIds: variant.images?.map((image) => image.filename) || [],
+          imageUrls: variant.images?.map((image: any) => image.url).filter(Boolean) || [],
           specifications: {
             color: variant.color || 'Default Color',
             size: variant.size || 'Default Size',
@@ -112,7 +109,7 @@ export default function CreateEditProduct({
           salePrice: variant.salePrice || variant.price || 0,
           stock: parseInt(String(variant.stock || 0)) || 0,
           sku: variant.sku || 'SKU-' + Date.now(),
-          status: variant.status || transformedData.product.status,
+          status: variant.status || transformedData.status,
         })
       );
     }

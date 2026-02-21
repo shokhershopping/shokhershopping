@@ -143,36 +143,34 @@ export default function CreateCategory({
       setLoading(true);
       const token = await getToken();
 
-      // Create the request body in the correct format
+      // Create the request body — flat format matching createCategory service
       const requestBody = {
-        category: {
-          name: data.name,
-          description: data.description,
-          isFeatured: data.isFeatured || false,
-          isSlide: data.isSlide || false,
-          isMenu: data.isMenu || false,
-          ...(data.parentCategory && {
-            parentId:
-              existingCategories.find((cat) => cat.id === data.parentCategory)
-                ?.id || null,
-          }),
-        },
-        // Include image filename if files were uploaded
-        ...(uploadedFiles[0]?.filename && {
-          imageFilename: uploadedFiles[0].filename,
+        name: data.name,
+        description: data.description,
+        isFeatured: data.isFeatured || false,
+        isSlide: data.isSlide || false,
+        isMenu: data.isMenu || false,
+        ...(data.parentCategory && {
+          parentId:
+            existingCategories.find((cat) => cat.id === data.parentCategory)
+              ?.id || null,
+        }),
+        // Include image URL from Firebase Storage upload
+        ...(uploadedFiles[0]?.url && {
+          imageUrl: uploadedFiles[0].url,
         }),
       };
 
       console.log('Submitting category data:', requestBody);
 
       let url = `/api/categories`;
-      if (id && category) {
+      if (id) {
         // If editing an existing category, include the ID in the URL
         url = `/api/categories/${id}`;
       }
 
       const res = await fetch(url, {
-        method: id ? 'PUT' : 'POST', // Use PUT for updates, POST for new categories
+        method: id ? 'PATCH' : 'POST', // Use PATCH for updates, POST for new categories
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -244,24 +242,35 @@ export default function CreateCategory({
                 <Controller
                   name="parentCategory"
                   control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <Select
-                      dropdownClassName="!z-0"
-                      options={existingCategories.map((cat) => ({
+                  render={({ field: { onChange, value } }) => {
+                    // Filter out current category (can't be its own parent)
+                    const filteredCategories = id
+                      ? existingCategories.filter((cat) => cat.id !== id)
+                      : existingCategories;
+
+                    const parentOptions = [
+                      { value: '', label: 'None (Root Category)' },
+                      ...filteredCategories.map((cat) => ({
                         value: cat.id,
                         label: cat.name,
-                      }))}
-                      value={
-                        existingCategories.find((cat) => cat.id === value)
-                          ?.name || ''
-                      }
-                      onChange={onChange}
-                      label="Parent Category"
-                      error={errors?.parentCategory?.message as string}
-                      getOptionValue={(option) => option.value}
-                      getOptionDisplayValue={(option) => option.label}
-                    />
-                  )}
+                      })),
+                    ];
+
+                    const selectedOption = parentOptions.find((opt) => opt.value === value);
+
+                    return (
+                      <Select
+                        dropdownClassName="!z-0"
+                        options={parentOptions}
+                        value={selectedOption?.label || 'None (Root Category)'}
+                        onChange={(option: any) => onChange(option?.value ?? '')}
+                        label="Parent Category"
+                        error={errors?.parentCategory?.message as string}
+                        getOptionValue={(option) => option.value}
+                        getOptionDisplayValue={(option) => option.label}
+                      />
+                    );
+                  }}
                 />
 
                 <div className="col-span-2">

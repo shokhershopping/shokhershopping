@@ -33,7 +33,7 @@ export default function UserLocation({ className }: { className?: string }) {
         setLoading(true);
         const token = await getToken();
         const response = await getUserLocation(token);
-        setLocationData(response.data);
+        setLocationData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
         console.error('Error fetching user location:', err);

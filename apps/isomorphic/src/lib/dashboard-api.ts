@@ -22,28 +22,29 @@ async function fetchAPI<T>(
   token?: string | null,
   options?: RequestInit
 ): Promise<DashboardApiResponse<T>> {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-        ...options?.headers,
-      },
-    });
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    redirect: 'manual',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options?.headers,
+    },
+  });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: `HTTP ${response.status}: ${response.statusText}`,
-      }));
-      throw new Error(error.message || 'API request failed');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Dashboard API Error:', error);
-    throw error;
+  // Handle redirects (middleware redirect to sign-in when session not ready)
+  if (response.type === 'opaqueredirect' || response.status === 307 || response.status === 302) {
+    return { status: 'error', message: 'Authentication required', data: null as any };
   }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({
+      message: `HTTP ${response.status}: ${response.statusText}`,
+    }));
+    return { status: 'error', message: error.message || 'API request failed', data: null as any };
+  }
+
+  return await response.json();
 }
 
 /**

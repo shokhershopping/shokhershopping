@@ -61,24 +61,25 @@ export class ApiClient {
       }
     }
 
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers,
-      });
+    const response = await fetch(url, {
+      ...options,
+      redirect: 'manual',
+      headers,
+    });
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({
-          message: response.statusText,
-        }));
-        throw new Error(error.message || 'API request failed');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('API request error:', error);
-      throw error;
+    // Handle redirects (middleware redirect to sign-in when session not ready)
+    if (response.type === 'opaqueredirect' || response.status === 307 || response.status === 302) {
+      return { success: false, data: null as any, message: 'Authentication required' };
     }
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: response.statusText,
+      }));
+      return { success: false, data: null as any, message: error.message || 'API request failed' };
+    }
+
+    return await response.json();
   }
 
   /**

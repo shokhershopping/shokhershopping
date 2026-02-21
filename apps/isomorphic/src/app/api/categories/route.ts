@@ -45,7 +45,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const result = await createCategory(body);
+    // Support both flat format and wrapped { category: {...} } format
+    const categoryData = body.category ? { ...body.category, ...(body.imageUrl && { imageUrl: body.imageUrl }) } : body;
+    const result = await createCategory(categoryData);
 
     const statusCode = result.status === 'success' ? 201 : (result.code || 500);
     return NextResponse.json(result, { status: statusCode });

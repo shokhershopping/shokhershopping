@@ -36,7 +36,7 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── (hydrogen)/        # Hydrogen layout route group
 │   ├── (other-pages)/     # Other pages layout group
-│   ├── api/               # API routes (uploadthing)
+│   ├── api/               # API routes (Firebase services)
 │   ├── products/          # Product management pages
 │   ├── orders/            # Order management pages
 │   ├── categories/        # Category management pages
@@ -106,10 +106,12 @@ src/
 - API endpoints defined in `src/config/api.ts`
 
 **Authentication**
-- Clerk authentication (`@clerk/nextjs`)
-- Middleware in `src/middleware.ts` handles auth protection
-- User session available via `useAuth()` and `useUser()` hooks
-- Sign-in page at `/sign-in`
+- Firebase Auth via `FirebaseAuthProvider` (`src/lib/firebase-auth-provider.tsx`)
+- Session cookies (`__session`) for server-side auth
+- Middleware in `src/middleware.ts` checks session cookie presence
+- User state available via `useFirebaseAuth()` hook (user, isSignedIn, getToken, signOut)
+- Sign-in page at `/sign-in` with email/password and Google sign-in
+- Auth API routes: `/api/auth/session` (create session), `/api/auth/signout` (clear session)
 
 **State Management**
 - Jotai for global state (lightweight atomic state management)
@@ -130,10 +132,10 @@ src/
   ```
 
 **File Uploads**
-- UploadThing integration for file uploads
-- Configuration in `src/server/uploadthing.ts`
-- API routes at `/api/uploadthing`
-- Delete file utility in `src/server/delete-file.ts`
+- Firebase Storage for file uploads via API routes
+- Upload routes: `/api/uploads` (single), `/api/uploads/multiple` (batch)
+- Delete/download: `/api/uploads/[...filePath]`
+- Legacy UploadThing routes still available at `/api/uploadthing`
 
 **Shared Components**
 - Extensive shared component library in `src/app/shared/`
@@ -175,31 +177,25 @@ src/
 Required environment variables (see `.env.local.example`):
 
 ```bash
-# Google Maps (optional)
+# Firebase Client SDK (public)
+NEXT_PUBLIC_FIREBASE_API_KEY=""
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=""
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=""
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=""
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=""
+NEXT_PUBLIC_FIREBASE_APP_ID=""
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=""
+
+# Firebase Admin SDK (server-side - keep secret!)
+FIREBASE_PROJECT_ID=""
+FIREBASE_CLIENT_EMAIL=""
+FIREBASE_PRIVATE_KEY=""
+FIREBASE_STORAGE_BUCKET=""
+
+# Other config
 NEXT_PUBLIC_GOOGLE_MAP_API_KEY=""
-
-# NextAuth (if using)
-NEXTAUTH_SECRET=""
-NEXTAUTH_URL=""
-GOOGLE_CLIENT_ID=""
-GOOGLE_CLIENT_SECRET=""
-
-# SMTP (for email functionality)
-SMTP_HOST=""
-SMTP_PORT=""
-SMTP_USER=""
-SMTP_PASSWORD=""
-SMTP_FROM_EMAIL=""
-
-# App Name
-NEXT_PUBLIC_APP_NAME="Isomorphic"
-
-# Clerk (for authentication)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=""
-CLERK_SECRET_KEY=""
+NEXT_PUBLIC_SHOKHERSHOP_URL="http://localhost:3000"
 ```
-
-Validated using `@t3-oss/env-nextjs` in `src/env.mjs`
 
 ### Image Domains
 
@@ -212,7 +208,6 @@ Allowed image domains (configured in `next.config.mjs`):
 - `utfs.io` - UploadThing
 - `images.unsplash.com` - Unsplash images
 - `s3.amazonaws.com` - AWS S3
-- `img.clerk.com` - Clerk images
 - `placehold.co` - Placeholder service
 - `api.shokhershopping.com` - Backend API images
 - `localhost` - Local development
@@ -238,9 +233,10 @@ Example: Product Management
 ### Data Management
 
 **Backend Integration**
-- API base URL should be configured to point to `sv-ecom` backend
-- Uses standard REST API calls with fetch/axios
+- API routes in `src/app/api/` call firebase-config service functions directly
+- No separate backend server needed - all data via Firestore
 - API endpoint patterns defined in `src/config/api.ts`
+- Services imported from `firebase-config/services/*`
 
 **Mock Data**
 - Static/demo data in `src/data/` directory
@@ -292,7 +288,9 @@ Example: Product Management
 4. Handle submission with server action or API call
 
 **Adding API Integration**
-1. Define endpoint in `src/config/api.ts`
-2. Create fetch/axios call (consider using SWR or React Query)
-3. Handle loading, error, and success states
-4. Update types in `src/types/`
+1. Create or update service in `packages/firebase-config/src/services/`
+2. Export from `packages/firebase-config/src/index.ts`
+3. Create API route in `src/app/api/{feature}/route.ts`
+4. Define endpoint in `src/config/api.ts`
+5. Call from components using fetch to `/api/{feature}`
+6. Handle loading, error, and success states

@@ -39,7 +39,7 @@ export default function RecentOrder({ className }: { className?: string }) {
           name: order.user?.name || order.user?.email || 'Unknown',
           avatar: order.user?.image || '',
           email: order.user?.email || '',
-          items: Array.isArray(order.items) ? order.items.length : order.items || 0,
+          items: Array.isArray(order.items) ? order.items.length : 0,
           price: order.netTotal || order.total || 0,
         }));
 

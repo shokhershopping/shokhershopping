@@ -29,7 +29,7 @@ export default function StockReport({ className }: { className?: string }) {
           limit: 5,
           threshold: 10,
         }, token);
-        setProducts(response.data);
+        setProducts(Array.isArray(response.data) ? response.data : []);
         setTotalPages(response.totalPages || 1);
         setError(null);
       } catch (err) {
@@ -45,7 +45,7 @@ export default function StockReport({ className }: { className?: string }) {
 
   const filteredProducts = searchTerm
     ? products.filter((p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name?.toLowerCase()?.includes(searchTerm.toLowerCase())
       )
     : products;
   return (

@@ -121,6 +121,7 @@ function transformProductWithoutVariants(product: ProductData): StockViewRow {
  * Converts product list to stock view format
  */
 export function transformToStockView(products: ProductData[]): StockViewRow[] {
+  if (!Array.isArray(products)) return [];
   const rows: StockViewRow[] = [];
 
   console.log('🔄 Transforming to stock view, products count:', products.length);

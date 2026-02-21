@@ -78,10 +78,9 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser: FirebaseUser | null) => {
       setFirebaseUser(fbUser);
       setUser(parseFirebaseUser(fbUser));
-      setIsLoaded(true);
 
       if (fbUser) {
-        // Create/refresh session cookie on the server
+        // Create/refresh session cookie on the server BEFORE marking as loaded
         try {
           const idToken = await fbUser.getIdToken();
           await fetch('/api/auth/session', {
@@ -93,6 +92,9 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
           console.error('Failed to create session:', error);
         }
       }
+
+      // Mark as loaded only after session cookie is set
+      setIsLoaded(true);
     });
 
     return () => unsubscribe();

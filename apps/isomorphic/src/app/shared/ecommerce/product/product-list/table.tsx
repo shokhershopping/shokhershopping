@@ -44,7 +44,7 @@ export default function ProductsTable({
       console.log('📊 Stock view data generated:', stockData.length, 'rows');
       return stockData;
     }
-    console.log('📋 Product view data:', productsData.length, 'products');
+    console.log('📋 Product view data:', productsData?.length || 0, 'products');
     return productsData;
   }, [productsData, viewMode]);
 

@@ -52,15 +52,19 @@ export default async function EditCategoryPage({ params }: any) {
     throw new Error('Failed to fetch category data');
   }
   const data: any = await res.json();
+  const cat = data?.data;
+  if (!cat) {
+    return <div>Category not found</div>;
+  }
   const categoryData = {
-    id: data.data.id,
-    name: data.data.name,
-    description: data.data.description,
-    parentCategory: data.data.parentId ? data.data.parentId : '',
-    isFeatured: data.data.isFeatured ?? false,
-    isSlide: data.data.isSlide ?? false,
-    isMenu: data.data.isMenu ?? false,
-    image: data.data.image?.url || data.data.image?.path || null,
+    id: cat.id,
+    name: cat.name,
+    description: cat.description,
+    parentCategory: cat.parentId ? cat.parentId : '',
+    isFeatured: cat.isFeatured ?? false,
+    isSlide: cat.isSlide ?? false,
+    isMenu: cat.isMenu ?? false,
+    image: cat.image?.url || cat.image?.path || null,
   };
   return (
     <>

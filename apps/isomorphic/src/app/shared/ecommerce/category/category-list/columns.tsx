@@ -57,7 +57,7 @@ export const categoriesColumns = [
     cell: ({ row }) => (
       <Text
         dangerouslySetInnerHTML={{
-          __html: row.original.description
+          __html: (row.original.description || '')
             .replace(/<[^>]+>/g, '')
             .slice(0, 50)
             .concat('...'),

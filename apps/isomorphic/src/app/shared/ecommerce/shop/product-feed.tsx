@@ -41,7 +41,7 @@ export default function ProductFeed() {
           ))}
       </div>
 
-      {nextPage < filteredData?.length && (
+      {nextPage < (filteredData?.length ?? 0) && (
         <div className="mb-4 mt-5 flex flex-col items-center xs:pt-6 sm:pt-8">
           <Button isLoading={isLoading} onClick={() => handleLoadMore()}>
             Load More
