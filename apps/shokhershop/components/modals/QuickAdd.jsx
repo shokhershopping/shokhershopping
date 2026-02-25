@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContextElement } from "@/context/Context";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function QuickAdd() {
   const {
@@ -20,8 +21,6 @@ export default function QuickAdd() {
   const [availableColors, setAvailableColors] = useState([]);
   const [availableSizes, setAvailableSizes] = useState([]);
 
-  // Get base URL for images
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
   // No need for pre-initialization - ProductCard handles opening programmatically
 
@@ -204,12 +203,12 @@ export default function QuickAdd() {
     // If variant selected and has images, use variant image
     if (selectedVariant?.images?.[0]) {
       const image = selectedVariant.images[0];
-      return image.path ? `${baseUrl}/${image.path}` : quickAddItem.imgSrc;
+      return image.path ? getImageUrl(image.path) : quickAddItem.imgSrc;
     }
 
     // Otherwise use product main image
     if (quickAddItem.images?.[0]?.path) {
-      return `${baseUrl}/${quickAddItem.images[0].path}`;
+      return getImageUrl(quickAddItem.images[0].path);
     }
 
     // Fallback to imgSrc if available
@@ -363,7 +362,7 @@ export default function QuickAdd() {
                       }
                     }
                   } catch (error) {
-                    console.error('Error closing modal:', error);
+                    // Silently handle modal close error
                   }
                 }
               }}

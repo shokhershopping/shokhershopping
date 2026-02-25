@@ -52,8 +52,8 @@ export default function BoughtTogether() {
               </select>
             </div>
             <div className="tf-product-bundle-price">
-              <div className="compare-at-price">$10.00</div>
-              <div className="price-on-sale">$8.00</div>
+              <div className="compare-at-price">৳10.00</div>
+              <div className="price-on-sale">৳8.00</div>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function BoughtTogether() {
               Oversized Motif T-shirt
             </a>
             <div className="tf-product-bundle-price">
-              <div className="price">$25.00</div>
+              <div className="price">৳25.00</div>
             </div>
           </div>
         </div>
@@ -125,15 +125,15 @@ export default function BoughtTogether() {
               </select>
             </div>
             <div className="tf-product-bundle-price">
-              <div className="price">$18.00</div>
+              <div className="price">৳18.00</div>
             </div>
           </div>
         </div>
       </div>
       <div className="tf-product-bundle-total-submit">
         <span className="text">Total price:</span>
-        <div className="compare-at-price">$51.00 USD</div>
-        <div className="price-on-sale">$53.00 USD</div>
+        <div className="compare-at-price">৳51.00 BDT</div>
+        <div className="price-on-sale">৳53.00 BDT</div>
       </div>
       <a
         href="#"

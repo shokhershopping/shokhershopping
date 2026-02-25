@@ -47,7 +47,7 @@ export default function Details3({ product }) {
                     </h5>
                   </div>
                   <div className="tf-product-info-price">
-                    <div className="price">${product.price.toFixed(2)}</div>
+                    <div className="price">৳{product.price.toFixed(2)}</div>
                   </div>
                   <div className="tf-product-info-liveview">
                     <div className="liveview-count">20</div>

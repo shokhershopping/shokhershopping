@@ -22,7 +22,7 @@ export default function DeliveryReturn() {
                 All orders shipped with UPS Express.
               </p>
               <p className="text-paragraph">
-                Always free shipping for orders over US $250.
+                Always free shipping for orders over ৳250.
               </p>
               <p className="text-paragraph">
                 All orders are shipped with a UPS tracking number.

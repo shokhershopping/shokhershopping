@@ -5,15 +5,12 @@ import toast from "react-hot-toast";
 import isEmpty from "lodash/isEmpty";
 import prettyBytes from "pretty-bytes";
 import { useCallback, useEffect, useState } from "react";
-import { useDropzone } from "@uploadthing/react";
+import { useDropzone } from "react-dropzone";
 import { PiCheckBold, PiTrashBold, PiUploadSimpleBold } from "react-icons/pi";
-import { generateClientDropzoneAccept } from "uploadthing/client";
-import { useUploadThing } from "../../utils/uploadthing";
 import { Button, Text, FieldError } from "rizzui";
 import cn from "../../utils/class-names";
 import UploadIcon from "../../components/shape/upload";
 import { endsWith } from "lodash";
-import { FileWithPath } from "react-dropzone";
 
 interface UploadedFile {
   fieldname: string;
@@ -62,8 +59,7 @@ export default function UploadZone({
   }, [uploadedFiles]);
 
   const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
-      console.log("acceptedFiles", acceptedFiles);
+    (acceptedFiles: File[]) => {
       setFiles([
         ...acceptedFiles.map((file) =>
           Object.assign(file, {
@@ -94,14 +90,16 @@ export default function UploadZone({
       const fileToDelete = getValues(name)[index];
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/uploads/${fileToDelete.path}`,
+        `/api/uploads/${fileToDelete.path}`,
         {
           method: "DELETE",
         }
       );
 
       if (!res.ok) {
-        throw new Error("Failed to delete file");
+        toast.error("Failed to delete file");
+        setIsUploading(false);
+        return;
       }
 
       // delete from the state
@@ -113,15 +111,13 @@ export default function UploadZone({
         (item: FileType, i: number) => i !== index
       );
       setValue(name, updatedItems);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Error deleting file");
     }
     setIsUploading(false);
   }
 
   const uploadedItems = isEmpty(getValues(name)) ? [] : getValues(name);
-  console.log("uploadedItems", uploadedItems);
   const notUploadedItems = files.filter(
     (file) =>
       !uploadedItems?.some(
@@ -129,54 +125,23 @@ export default function UploadZone({
       )
   );
 
-  // const { startUpload, routeConfig, isUploading } = useUploadThing(
-  //   "generalMedia",
-  //   {
-  //     onClientUploadComplete: (
-  //       res: ClientUploadedFileData<any>[] | undefined
-  //     ) => {
-  //       console.log("res", res);
-  //       console.log("files", files);
-  //       if (setValue) {
-  //         // const respondedUrls = res?.map((r) => r.url);
-  //         setFiles([]);
-  //         const respondedUrls = res?.map((r) => ({
-  //           name: r.name,
-  //           size: r.size,
-  //           url: r.url,
-  //         }));
-  //         setValue(name, getValues(name).concat(respondedUrls));
-  //       }
-  //       toast.success(
-  //         <Text as="b" className="font-semibold">
-  //           portfolio Images updated
-  //         </Text>
-  //       );
-  //     },
-  //     onUploadError: (error: Error) => {
-  //       console.error(error);
-  //       toast.error(error.message);
-  //     },
-  //   }
-  // );
-
-  const fileTypes = ["image/*", "application/pdf"];
-
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: fileTypes ? generateClientDropzoneAccept(fileTypes) : undefined,
+    accept: {
+      "image/*": [],
+      "application/pdf": [],
+    },
   });
 
   const startUpload = async (files: File[]) => {
-    console.log("files", files);
     setIsUploading(true);
     try {
       const formData = new FormData();
       files.forEach((file) => {
-        formData.append("images", file);
+        formData.append("files", file);
       });
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/uploads/multiple`,
+        `/api/uploads/multiple`,
         {
           method: "POST",
           body: formData,
@@ -184,51 +149,33 @@ export default function UploadZone({
       );
 
       if (!res.ok) {
-        throw new Error("Failed to upload files");
+        toast.error("Failed to upload files. Please check your storage configuration.");
+        setIsUploading(false);
+        return;
       }
 
       const data = (await res.json()) as any;
-      const uf = data.files as UploadedFile[];
+      // Firebase API returns { data: [...] } instead of { files: [...] }
+      const uf = (data.data || data.files || []) as any[];
       setFiles([]);
+
+      const mapFile = (file: any) => ({
+        name: file.originalname || file.filename || file.name || 'uploaded-file',
+        size: file.size || 0,
+        url: file.url,
+        filename: file.filename || '',
+        path: file.path || '',
+        mimetype: file.mimetype || '',
+      });
+
       if (getValues(name)) {
         setUploadedFiles([...uploadedFiles, ...uf]);
-        setValue(
-          name,
-          getValues(name).concat(
-            uf.map((file) => {
-              return {
-                name: file.originalname,
-                size: file.size,
-                url: `${process.env.NEXT_PUBLIC_API_URL}/${file.path}`,
-                filename: file.filename,
-                path: file.path,
-                destination: file.destination,
-                enconding: file.encoding,
-                mimetype: file.mimetype,
-              };
-            })
-          )
-        );
+        setValue(name, getValues(name).concat(uf.map(mapFile)));
       } else {
         setUploadedFiles(uf);
-        setValue(
-          name,
-          uf.map((file) => {
-            return {
-              name: file.originalname,
-              size: file.size,
-              url: `${process.env.NEXT_PUBLIC_API_URL}/${file.path}`,
-              fileName: file.filename,
-              path: file.path,
-              destination: file.destination,
-              enconding: file.encoding,
-              mimetype: file.mimetype,
-            };
-          })
-        );
+        setValue(name, uf.map(mapFile));
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Error uploading files");
     }
     setIsUploading(false);

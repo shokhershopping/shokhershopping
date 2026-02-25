@@ -100,7 +100,7 @@ export default function Collections() {
               <div className="collection-content">
                 <div className="top wow fadeInUp" data-wow-delay="0s">
                   <h5 className="heading">Footwear Collection</h5>
-                  <p className="subheading">Start from $199</p>
+                  <p className="subheading">Start from ৳199</p>
                 </div>
                 <div className="bottom wow fadeInUp" data-wow-delay="0s">
                   <button className="tf-btn btn-line collection-other-link fw-6">
@@ -126,7 +126,7 @@ export default function Collections() {
               <div className="collection-content">
                 <div className="top wow fadeInUp" data-wow-delay="0s">
                   <h5 className="heading text_white">Shoes Collection</h5>
-                  <p className="subheading text_white">Start from $88</p>
+                  <p className="subheading text_white">Start from ৳88</p>
                 </div>
                 <div className="bottom wow fadeInUp" data-wow-delay="0s">
                   <button className="tf-btn btn-line btn-line-light collection-other-link fw-6">

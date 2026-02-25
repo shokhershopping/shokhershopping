@@ -45,7 +45,7 @@ export async function paginateQuery<T extends DocumentData>(
     if (transform) {
       return transform(doc);
     }
-    return { id: doc.id, ...doc.data() } as T;
+    return { id: doc.id, ...doc.data() } as unknown as T;
   });
 
   const totalPages = Math.ceil(total / limit);

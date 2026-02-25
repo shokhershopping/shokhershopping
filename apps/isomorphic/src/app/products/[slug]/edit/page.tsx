@@ -1,13 +1,11 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { PiPlusBold } from 'react-icons/pi';
-import { productData } from '@/app/shared/ecommerce/product/create-edit/form-utils';
 import CreateEditProduct from '@/app/shared/ecommerce/product/create-edit';
 import PageHeader from '@/app/shared/page-header';
 import { metaObject } from '@/config/site.config';
 import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
-import toast from 'react-hot-toast';
 import { getBaseUrl } from '@/lib/get-base-url';
 
 type Props = {
@@ -54,14 +52,11 @@ export default async function EditProductPage({ params }: any) {
     }
   );
   if (!productResponse.ok) {
-    toast.error('Failed to fetch product data');
     throw new Error('Failed to fetch product data');
   }
   const data: any = await productResponse.json();
   const productData = data.data;
-  console.log('Product Data:', productData);
   if (!productData) {
-    toast.error('Product not found');
     return <div>Product not found</div>;
   }
 
@@ -69,36 +64,30 @@ export default async function EditProductPage({ params }: any) {
     title: productData.name,
     sku: productData.sku,
     type: productData.kind,
-    categories: productData.categories?.[0]?.categoryId || '',
+    categories: productData.categoryIds?.[0] || '',
     description: productData.description,
     price: productData.price,
     salePrice: productData.salePrice,
     currentStock: productData.stock,
-    productImages: (productData.images || []).map((img: any) => {
-      return {
-        ...img,
-        name: img.originalname,
-        url:
-          img.url || img.path ||
-          'https://placehold.co/600x400.png',
-      };
-    }),
+    productImages: (productData.imageUrls || []).map((url: string, i: number) => ({
+      id: `img-${i}`,
+      name: `image-${i}`,
+      url: url || 'https://placehold.co/600x400.png',
+    })),
     brand: productData.brand,
+    color: productData.specifications?.color || '',
+    size: productData.specifications?.size || '',
     productVariants:
       (productData.variableProducts || []).map((vp: any) => ({
         id: vp.id,
         name: vp.name,
         description: vp.description || 'No description provided',
         images:
-          (vp.images || []).map((img: any) => {
-            return {
-              ...img,
-              name: img.originalname,
-              url:
-                img.url || img.path ||
-                'https://placehold.co/600x400.png',
-            };
-          }),
+          (vp.imageUrls || []).map((url: string, i: number) => ({
+            id: `vimg-${i}`,
+            name: `variant-image-${i}`,
+            url: url || 'https://placehold.co/600x400.png',
+          })),
         color: vp.specifications?.color || 'Default Color',
         size: vp.specifications?.size || 'Default Size',
         price: vp.price || 0,
@@ -113,7 +102,7 @@ export default async function EditProductPage({ params }: any) {
     productUrl: productData.productUrl || '',
     tags: productData.tags || [],
   };
-  console.log('Transformed Product Data:', transformedProductData);
+
   return (
     <>
       <PageHeader title={pageHeader.title} breadcrumb={pageHeader.breadcrumb}>

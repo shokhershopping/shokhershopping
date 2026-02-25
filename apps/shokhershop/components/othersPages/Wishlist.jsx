@@ -6,8 +6,6 @@ import Link from "next/link";
 export default function Wishlist() {
   const { wishList } = useContextElement();
 
-  console.log("Wishlist items from context:", wishList);
-
   return (
     <section className="flat-spacing-2">
       <div className="container">

@@ -7,7 +7,6 @@ export default function ProductGrid({
   gridItems = 4,
   allproducts = products1,
 }) {
-  console.log("allproducts", allproducts);
   return (
     <>
       <div

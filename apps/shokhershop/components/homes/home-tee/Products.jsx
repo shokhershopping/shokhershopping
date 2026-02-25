@@ -146,7 +146,7 @@ export default function Products() {
                   >
                     {slide.title}
                   </Link>
-                  <span className="price">${slide.price.toFixed(2)}</span>
+                  <span className="price">৳{slide.price.toFixed(2)}</span>
                 </div>
               </div>
             </SwiperSlide>

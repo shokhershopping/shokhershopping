@@ -89,7 +89,7 @@ export default function Lookbook() {
                     type="submit"
                     className="tf-btn w-100 justify-content-center style-2 btn-fill radius-3 animate-hover-btn"
                   >
-                    Add selected to cart - $48.00 USD
+                    Add selected to cart - ৳48.00 BDT
                   </button>
                 </form>
               </div>

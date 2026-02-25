@@ -101,10 +101,10 @@ export default function ProductCard7({ product }) {
           {product.originalPrice ? (
             <>
               <span className="fw-4 text-sale">{product.originalPrice}</span>
-              <span className="text_primary">${product.price.toFixed(2)}</span>
+              <span className="text_primary">৳{product.price.toFixed(2)}</span>
             </>
           ) : (
-            <>${product.price.toFixed(2)}</>
+            <>৳{product.price.toFixed(2)}</>
           )}
         </span>
         <ul className="list-color-product">

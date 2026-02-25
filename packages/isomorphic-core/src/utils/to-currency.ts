@@ -3,7 +3,7 @@ export function toCurrency(
   disableDecimal = false,
   decimalPlaces = 2
 ) {
-  const formatter = new Intl.NumberFormat('en-US', {
+  const formatter = new Intl.NumberFormat('bn-BD', {
     style: 'currency',
     currency: 'BDT',
     minimumFractionDigits: disableDecimal ? 0 : decimalPlaces,

@@ -103,7 +103,7 @@ export default function ProductCard12({ product }) {
           {product.oldPrice && (
             <span className="old-price">{product.oldPrice}</span>
           )}
-          <span className="new-price">${product.price.toFixed(2)}</span>
+          <span className="new-price">৳{product.price.toFixed(2)}</span>
         </span>
         <ul className="list-color-product justify-content-center">
           {product.colors?.map((color, i) => (

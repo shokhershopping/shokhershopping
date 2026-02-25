@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getImageUrl } from "@/lib/getImageUrl";
 export default function ShopCart() {
   const { cartProducts, totalPrice, setCartProducts, setQuickViewItem } =
     useContextElement();
@@ -26,16 +27,12 @@ export default function ShopCart() {
     setCartProducts((pre) => [...pre.filter((elm) => elm.id != id)]);
     toast.success("Removed from cart");
   };
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   const getImageSrc = (product) => {
-    const safeBaseUrl = baseUrl || "";
     const imagePath =
       product.images?.[0]?.path ||
       product.imgSrc ||
-      "default-product-image.jpg";
-    // Ensure no double slashes in the URL
-    return `${baseUrl}/${imagePath}`;
+      null;
+    return getImageUrl(imagePath);
   };
 
   const getVariantText = (product) => {
@@ -51,8 +48,6 @@ export default function ShopCart() {
   const addNoteRef = useRef();
   const addGiftRef = useRef();
   const addShipingRef = useRef();
-
-  console.log("cartProducts from shopping cart", cartProducts);
 
   const [agree, setAgree] = useState(false); // Track agreement state
   const [error, setError] = useState(false); // Track error state

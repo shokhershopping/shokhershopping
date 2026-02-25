@@ -157,7 +157,7 @@ export default function SalesByCategory({ className }: { className?: string }) {
                     value: formatNumber(Number(payload.value)),
                   };
                   return (
-                    <CustomYAxisTick prefix={'$'} payload={pl} {...rest} />
+                    <CustomYAxisTick prefix={'৳'} payload={pl} {...rest} />
                   );
                 }}
               />

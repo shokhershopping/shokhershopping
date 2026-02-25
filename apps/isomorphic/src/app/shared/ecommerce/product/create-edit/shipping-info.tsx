@@ -51,7 +51,7 @@ export default function ShippingInfo({ className }: { className?: string }) {
         placeholder="150.00"
         {...register('shippingPrice')}
         error={errors.shippingPrice?.message as string}
-        prefix={'$'}
+        prefix={'৳'}
         type="number"
       />
       <Controller

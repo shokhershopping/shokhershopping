@@ -7,22 +7,22 @@ import ShopDetailsTab from "@/components/shopDetails/ShopDetailsTab";
 import React from "react";
 import Link from "next/link";
 import DetailsOuterZoom from "@/components/shopDetails/DetailsOuterZoom";
-import { useContextElement } from "@/context/Context";
 export const metadata = {
   title: "Shop Details || Ecomus - Ultimate Nextjs Ecommerce Template",
   description: "Ecomus - Ultimate Nextjs Ecommerce Template",
 };
 import { allProducts } from "@/data/products";
 import ProductSinglePrevNext from "@/components/common/ProductSinglePrevNext";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export default async function page({ params }) {
-  const { id } = params;
+  const { id } = await params;
   let product = allProducts.find((elm) => elm.id == id) || allProducts[0];
   let fetchError = null;
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/products/${id}`
+      `${getBaseUrl()}/api/products/${id}`
     );
 
     if (!response.ok) {
@@ -33,10 +33,8 @@ export default async function page({ params }) {
     // Use the fetched product if available
     if (res.data) {
       product = res.data;
-      console.log("Fatched product", product);
     }
   } catch (err) {
-    console.log(err);
     fetchError = err.message;
   }
 

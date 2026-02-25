@@ -69,8 +69,6 @@ const sizeColumns = ALL_SIZES.map((size) =>
   })
 );
 
-console.log('📏 Size columns created:', sizeColumns.length, 'columns for sizes:', ALL_SIZES);
-
 export const stockViewColumns = [
   columnHelper.accessor('productName', {
     id: 'product',

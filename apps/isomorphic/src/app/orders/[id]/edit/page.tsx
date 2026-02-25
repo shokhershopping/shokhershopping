@@ -60,12 +60,9 @@ export default async function EditOrderPage({ params }: any) {
   const data: any = await orderResponse.json();
   let orderData = data.data;
 
-  console.log('Raw order data from backend:', JSON.stringify(orderData, null, 2));
-
   // CRITICAL FIX: Handle legacy orders without billingAddress
   // If billingAddress is missing but shippingAddress exists, use shipping as billing
   if (!orderData?.billingAddress && orderData?.shippingAddress) {
-    console.log('⚠️  Legacy order detected: No billingAddress, using shippingAddress');
     orderData = {
       ...orderData,
       billingAddress: orderData.shippingAddress,
@@ -130,14 +127,6 @@ export default async function EditOrderPage({ params }: any) {
     paymentMethod: orderData?.paymentMethod || 'Cash on Delivery',
     orderStatus: orderData?.status || 'PENDING',
   };
-
-  console.log('Transformed Order Data:', transformedOrderData);
-  console.log('✅ Address Check:', {
-    hasBillingAddress: !!transformedOrderData?.billingAddress,
-    hasShippingAddress: !!transformedOrderData?.shippingAddress,
-    billingAddressId: transformedOrderData?.billingAddress?.id,
-    shippingAddressId: transformedOrderData?.shippingAddress?.id,
-  });
 
   return (
     <>

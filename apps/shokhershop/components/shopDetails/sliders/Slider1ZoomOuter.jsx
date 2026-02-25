@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import { Navigation, Thumbs } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function Slider1ZoomOuter({
   currentColor = "",
@@ -22,10 +23,6 @@ export default function Slider1ZoomOuter({
     }
   }, [currentColor, currentVariantImages]);
 
-  const getImageUrl = (image) => {
-    if (!image?.path) return "/default-product-image.jpg";
-    return `${process.env.NEXT_PUBLIC_APP_URL}/${image.path}`;
-  };
   useEffect(() => {
     // Function to initialize Drift
     const imageZoom = () => {
@@ -109,9 +106,9 @@ export default function Slider1ZoomOuter({
             >
               <Image
                 className="lazyload"
-                data-src={getImageUrl(image)}
+                data-src={getImageUrl(image?.path)}
                 alt="Product thumbnail"
-                src={getImageUrl(image)}
+                src={getImageUrl(image?.path)}
                 width={100}
                 height={150}
                 loading="lazy"
@@ -138,8 +135,8 @@ export default function Slider1ZoomOuter({
           {currentVariantImages.map((image, index) => (
             <SwiperSlide key={image.id || index}>
               <Item
-                original={getImageUrl(image)}
-                thumbnail={getImageUrl(image)}
+                original={getImageUrl(image?.path)}
+                thumbnail={getImageUrl(image?.path)}
                 width={800}
                 height={600}
               >
@@ -147,11 +144,11 @@ export default function Slider1ZoomOuter({
                   <a className="item" onClick={open}>
                     <Image
                       className="tf-image-zoom lazyload"
-                      data-zoom={getImageUrl(image)}
-                      data-src={getImageUrl(image)}
+                      data-zoom={getImageUrl(image?.path)}
+                      data-src={getImageUrl(image?.path)}
                       ref={ref}
                       alt="Product image"
-                      src={getImageUrl(image)}
+                      src={getImageUrl(image?.path)}
                       width={800}
                       height={600}
                       loading="eager"

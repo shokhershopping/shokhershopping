@@ -140,7 +140,7 @@ export default function ProductCard6({ product }) {
             </li>
           ))}
         </ul>
-        <div className="price">${product.price.toFixed(2)}</div>
+        <div className="price">৳{product.price.toFixed(2)}</div>
       </div>
       <div className="tf-price-table-contents">
         <ul>

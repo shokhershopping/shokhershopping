@@ -48,9 +48,9 @@ export default function Details22({ product }) {
                   </div>
                   <div className="tf-product-info-price">
                     <div className="price-on-sale">
-                      ${product.price.toFixed(2)}
+                      ৳{product.price.toFixed(2)}
                     </div>
-                    <div className="compare-at-price">$10.00</div>
+                    <div className="compare-at-price">৳10.00</div>
                     <div className="badges-on-sale">
                       <span>20</span>% OFF
                     </div>

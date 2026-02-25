@@ -3,6 +3,7 @@ import { products1 } from "@/data/products";
 import React, { useState, useEffect } from "react";
 import { ProductCard } from "../../shopCards/ProductCard";
 import { fetchProducts } from "./productService";
+import { getImageUrl as resolveImageUrl } from "@/lib/getImageUrl";
 
 export default function Products() {
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export default function Products() {
           hasNextPage: data.length === prev.limit, // If we got a full page, assume more exists
         }));
       } catch (error) {
-        console.error("Error loading products:", error);
+        // Silently handle fetch error
       } finally {
         setLoading(false);
       }
@@ -49,7 +50,7 @@ export default function Products() {
         hasNextPage: data.length === prev.limit, // Only show more button if we got a full page
       }));
     } catch (error) {
-      console.error("Error loading more products:", error);
+      // Silently handle fetch error
     } finally {
       setLoading(false);
     }
@@ -59,12 +60,11 @@ export default function Products() {
 
     return apiProducts.map((product) => {
       const defaultImageUrl = "/default-product-image.jpg";
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
 
       // Helper function to get image URL with fallbacks
       const getImageUrl = (image) => {
         if (!image?.path) return null;
-        return `${baseUrl}/${image.path}`;
+        return resolveImageUrl(image.path);
       };
 
       // Main product images
@@ -82,7 +82,6 @@ export default function Products() {
             const variantImageUrl =
               getImageUrl(variantImage) || primaryImageUrl;
 
-            console.log("Variant Image URL:", variantImageUrl);
             return {
               name: variant.specifications?.color,
               colorClass:

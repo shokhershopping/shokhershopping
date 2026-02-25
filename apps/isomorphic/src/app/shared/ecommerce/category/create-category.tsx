@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import toast from 'react-hot-toast';
 import { SubmitHandler, Controller } from 'react-hook-form';
 import SelectLoader from '@core/components/loader/select-loader';
 import QuillLoader from '@core/components/loader/quill-loader';
@@ -79,7 +80,6 @@ export default function CreateCategory({
 }) {
   const [isLoading, setLoading] = useState(false);
   const { getToken } = useFirebaseAuth();
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [existingCategories, setExistingCategories] = useState<any[]>([]);
   // Don't use category prop for edit mode - we'll fetch from API instead
   const [currentCategory, setCurrentCategory] = useState<CategoryFormInput | undefined>(id ? undefined : category);
@@ -131,8 +131,8 @@ export default function CreateCategory({
             isMenu: cat.isMenu ?? false,
           });
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } catch {
+        // silently handle fetch error
       }
     };
     fetchData();
@@ -155,13 +155,11 @@ export default function CreateCategory({
             existingCategories.find((cat) => cat.id === data.parentCategory)
               ?.id || null,
         }),
-        // Include image URL from Firebase Storage upload
-        ...(uploadedFiles[0]?.url && {
-          imageUrl: uploadedFiles[0].url,
+        // Use image URL from the form's images field (set by UploadZone after upload)
+        ...((data.images as any)?.[0]?.url && {
+          imageUrl: (data.images as any)[0].url,
         }),
       };
-
-      console.log('Submitting category data:', requestBody);
 
       let url = `/api/categories`;
       if (id) {
@@ -179,17 +177,18 @@ export default function CreateCategory({
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create category');
+        toast.error(id ? 'Failed to update category' : 'Failed to create category');
+        setLoading(false);
+        return;
       }
 
-      const response = await res.json();
-      console.log('Category created:', response);
+      await res.json();
+      toast.success(id ? 'Category updated successfully' : 'Category created successfully');
 
       // Reset form after successful submission
       window.location.reload();
-    } catch (error) {
-      console.error('Error creating category:', error);
-      // You might want to show an error message to the user here
+    } catch {
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
     }
@@ -217,7 +216,7 @@ export default function CreateCategory({
       }}
       className="isomorphic-form flex flex-grow flex-col @container"
     >
-      {({ register, control, formState: { errors, isValid }, setValue }) => (
+      {({ register, control, formState: { errors, isValid }, setValue, getValues }) => (
         <>
           <div className="flex-grow pb-10">
             <div
@@ -256,18 +255,18 @@ export default function CreateCategory({
                       })),
                     ];
 
-                    const selectedOption = parentOptions.find((opt) => opt.value === value);
-
                     return (
                       <Select
-                        dropdownClassName="!z-0"
+                        dropdownClassName="h-auto"
                         options={parentOptions}
-                        value={selectedOption?.label || 'None (Root Category)'}
-                        onChange={(option: any) => onChange(option?.value ?? '')}
+                        value={value}
+                        onChange={onChange}
                         label="Parent Category"
                         error={errors?.parentCategory?.message as string}
                         getOptionValue={(option) => option.value}
-                        getOptionDisplayValue={(option) => option.label}
+                        displayValue={(selected) =>
+                          parentOptions.find((opt) => opt.value === selected)?.label ?? 'None (Root Category)'
+                        }
                       />
                     );
                   }}
@@ -355,16 +354,11 @@ export default function CreateCategory({
               >
                 <UploadZone
                   name="images"
-                  getValues={() => uploadedFiles} // Pass current uploaded files
+                  getValues={() => (getValues as any)('images') || []}
                   setValue={(name: any, files: any) => {
-                    setUploadedFiles(files);
                     setValue('images', files, { shouldValidate: true });
                   }}
                   className="col-span-full"
-                  onUploadedFileChange={(files) => {
-                    setUploadedFiles(files);
-                    setValue('images', files, { shouldValidate: true });
-                  }}
                 />
                 {existingCategories.find((cat) => cat.id === id)?.image && (
                   <Image
@@ -404,7 +398,7 @@ export default function CreateCategory({
             <Button
               type="submit"
               isLoading={isLoading}
-              disabled={!isValid || isLoading}
+              disabled={isLoading}
               className="w-full @xl:w-auto"
             >
               {id ? 'Update' : 'Create'} Category

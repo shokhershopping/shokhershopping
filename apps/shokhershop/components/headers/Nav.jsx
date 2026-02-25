@@ -8,6 +8,7 @@ import { ProductCard } from "../shopCards/ProductCard";
 import { Navigation } from "swiper/modules";
 import { allStore } from "@/data/menu";
 import { usePathname } from "next/navigation";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
   const [categories, setCategories] = useState([]);
@@ -21,17 +22,19 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/categories?limit=1000`
+          `/api/categories?limit=1000`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          setLoading(false);
+          return;
         }
         const data = await response.json();
 
-        const parentCategories = data.data.filter(
+        const allCategories = data.data || [];
+        const parentCategories = allCategories.filter(
           (category) => category.parentId === null
         );
-        const subCategories = data.data.filter(
+        const subCategories = allCategories.filter(
           (category) => category.parentId !== null
         );
 
@@ -70,24 +73,25 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
     const fetchLatestProducts = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/products/top-selling?page=1&limit=12`
+          `/api/products/top-selling?page=1&limit=12`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch latest products");
+          // Silently fail - products in nav are optional
+          return;
         }
         const result = await response.json();
 
         // Transform API products to match ProductCard expectations
-        const transformedProducts = result.data.map((product) => ({
+        const transformedProducts = (result.data || []).map((product) => ({
           id: product.id,
           title: product.name,
           price: product.price,
           salePrice: product.salePrice,
           imgSrc: product.images?.[0]?.path
-            ? `${process.env.NEXT_PUBLIC_APP_URL}/${product.images[0].path}`
+            ? getImageUrl(product.images[0].path)
             : "/default-product-image.jpg",
           imgHoverSrc: product.images?.[1]?.path
-            ? `${process.env.NEXT_PUBLIC_APP_URL}/${product.images[1].path}`
+            ? getImageUrl(product.images[1].path)
             : "/default-product-image.jpg",
           colors:
             product.variableProducts?.map((variant) => ({
@@ -96,20 +100,19 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
                 variant.specifications?.color || "default"
               ).toLowerCase(),
               imgSrc: variant.images?.[0]?.path
-                ? `${process.env.NEXT_PUBLIC_APP_URL}/${variant.images[0].path}`
+                ? getImageUrl(variant.images[0].path)
                 : "/default-product-image.jpg",
             })) || [],
         }));
 
         setLatestProducts(transformedProducts);
       } catch (error) {
-        console.error("Error fetching latest products:", error);
+        // Silently fail - products in nav are optional
       }
     };
 
     fetchLatestProducts();
   }, []);
-  console.log("Latest Products for nav:", latestProducts);
   const isMenuActive = (menuData, basePath = "") => {
     const currentPath = pathname;
     if (basePath && currentPath.startsWith(basePath)) return true;

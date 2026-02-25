@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminDb } from '../admin';
 import { Collections } from '../collections/index';
 import { successResponse, errorResponse } from '../helpers/response';
@@ -11,11 +11,29 @@ import type { PaginatedResult } from '../helpers/pagination';
 import type { QueryFilter } from '../helpers/query-builder';
 
 const productsCollection = adminDb.collection(Collections.PRODUCTS);
+const categoriesCollection = adminDb.collection(Collections.CATEGORIES);
+
+/**
+ * Update productCount on categories when products are created/deleted.
+ */
+async function updateCategoryProductCounts(categoryIds: string[], increment: number): Promise<void> {
+  if (!categoryIds || categoryIds.length === 0) return;
+  try {
+    const batch = adminDb.batch();
+    for (const catId of categoryIds) {
+      const catRef = categoriesCollection.doc(catId);
+      batch.update(catRef, { productCount: FieldValue.increment(increment) });
+    }
+    await batch.commit();
+  } catch {
+    // Non-critical: silently handle count sync errors
+  }
+}
 
 // ─── Product CRUD ────────────────────────────────────────────────────────────
 
 /**
- * Get a paginated list of products with optional filters.
+ * Get a paginated list of products with optional filters, including variants.
  */
 export async function getProducts(
   limit: number = 10,
@@ -40,7 +58,10 @@ export async function getProducts(
 
     const result = await paginateQuery<FirestoreProduct>(query, { limit, page });
 
-    return successResponse(result.data, 'Products retrieved successfully', {
+    // Fetch variants for each product
+    const productsWithVariants = await attachVariantsToProducts(result.data);
+
+    return successResponse(productsWithVariants, 'Products retrieved successfully', {
       total: result.total,
       page: result.page,
       limit: result.limit,
@@ -52,19 +73,31 @@ export async function getProducts(
 }
 
 /**
- * Get a single product by ID.
+ * Get a single product by ID, including its variants subcollection.
  */
 export async function getProductById(
   id: string
 ): Promise<IResponse<FirestoreProduct | null>> {
   try {
-    const doc = await productsCollection.doc(id).get();
+    const docRef = productsCollection.doc(id);
+    const doc = await docRef.get();
 
     if (!doc.exists) {
       return errorResponse('Product not found', 404);
     }
 
-    const product = { id: doc.id, ...doc.data() } as FirestoreProduct;
+    // Fetch variants from subcollection
+    const variantsSnapshot = await docRef
+      .collection(Collections.VARIANTS)
+      .orderBy('createdAt', 'desc')
+      .get();
+
+    const variableProducts = variantsSnapshot.docs.map((vDoc) => ({
+      id: vDoc.id,
+      ...vDoc.data(),
+    } as FirestoreVariant));
+
+    const product = { id: doc.id, ...doc.data(), variableProducts } as FirestoreProduct & { variableProducts: FirestoreVariant[] };
     return successResponse(product, 'Product retrieved successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -79,14 +112,31 @@ export async function getLatestProducts(
   limit: number = 10
 ): Promise<IResponse<FirestoreProduct[]>> {
   try {
-    const snapshot = await productsCollection
-      .where('status', '==', 'PUBLISHED')
-      .orderBy('createdAt', 'desc')
-      .limit(limit)
-      .get();
+    let snapshot;
+    try {
+      snapshot = await productsCollection
+        .where('status', '==', 'PUBLISHED')
+        .orderBy('createdAt', 'desc')
+        .limit(limit)
+        .get();
+    } catch {
+      // Fallback without status filter if composite index is missing
+      try {
+        snapshot = await productsCollection
+          .orderBy('createdAt', 'desc')
+          .limit(limit)
+          .get();
+      } catch {
+        // Bare minimum fallback - no ordering
+        snapshot = await productsCollection
+          .limit(limit)
+          .get();
+      }
+    }
 
     const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FirestoreProduct));
-    return successResponse(products, 'Latest products retrieved successfully');
+    const productsWithVariants = await attachVariantsToProducts(products);
+    return successResponse(productsWithVariants, 'Latest products retrieved successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to retrieve latest products', 500, message);
@@ -100,14 +150,54 @@ export async function getTopSellingProducts(
   limit: number = 10
 ): Promise<IResponse<FirestoreProduct[]>> {
   try {
-    const snapshot = await productsCollection
-      .where('status', '==', 'PUBLISHED')
-      .orderBy('orderCount', 'desc')
-      .limit(limit)
-      .get();
+    let snapshot;
+
+    // Try 1: status + orderCount (needs composite index)
+    try {
+      snapshot = await productsCollection
+        .where('status', '==', 'PUBLISHED')
+        .orderBy('orderCount', 'desc')
+        .limit(limit)
+        .get();
+    } catch {
+      // Try 2: status + createdAt (needs composite index)
+      try {
+        snapshot = await productsCollection
+          .where('status', '==', 'PUBLISHED')
+          .orderBy('createdAt', 'desc')
+          .limit(limit)
+          .get();
+      } catch {
+        // Try 3: no filter, just get latest
+        try {
+          snapshot = await productsCollection
+            .orderBy('createdAt', 'desc')
+            .limit(limit)
+            .get();
+        } catch {
+          // Try 4: bare minimum - no ordering
+          snapshot = await productsCollection
+            .limit(limit)
+            .get();
+        }
+      }
+    }
+
+    // If no PUBLISHED products found, try without status filter
+    if (snapshot.empty) {
+      try {
+        snapshot = await productsCollection
+          .orderBy('createdAt', 'desc')
+          .limit(limit)
+          .get();
+      } catch {
+        snapshot = await productsCollection.limit(limit).get();
+      }
+    }
 
     const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FirestoreProduct));
-    return successResponse(products, 'Top selling products retrieved successfully');
+    const productsWithVariants = await attachVariantsToProducts(products);
+    return successResponse(productsWithVariants, 'Top selling products retrieved successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to retrieve top selling products', 500, message);
@@ -121,12 +211,29 @@ export async function getFeaturedProducts(
   limit: number = 10
 ): Promise<IResponse<FirestoreProduct[]>> {
   try {
-    const snapshot = await productsCollection
-      .where('isFeatured', '==', true)
-      .where('status', '==', 'PUBLISHED')
-      .orderBy('createdAt', 'desc')
-      .limit(limit)
-      .get();
+    let snapshot;
+    try {
+      snapshot = await productsCollection
+        .where('isFeatured', '==', true)
+        .where('status', '==', 'PUBLISHED')
+        .orderBy('createdAt', 'desc')
+        .limit(limit)
+        .get();
+    } catch {
+      // Fallback without status filter
+      try {
+        snapshot = await productsCollection
+          .where('isFeatured', '==', true)
+          .limit(limit)
+          .get();
+      } catch {
+        // Final fallback: just get latest products
+        snapshot = await productsCollection
+          .orderBy('createdAt', 'desc')
+          .limit(limit)
+          .get();
+      }
+    }
 
     const products = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as FirestoreProduct));
     return successResponse(products, 'Featured products retrieved successfully');
@@ -253,6 +360,9 @@ export async function createProduct(data: {
     const docRef = await productsCollection.add(productData);
     const product = { id: docRef.id, ...productData } as FirestoreProduct;
 
+    // Increment productCount on associated categories
+    await updateCategoryProductCounts(productData.categoryIds, 1);
+
     return successResponse(product, 'Product created successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -314,6 +424,8 @@ export async function deleteProduct(
       return errorResponse('Product not found', 404);
     }
 
+    const productData = doc.data() as FirestoreProduct;
+
     // Delete all variants in subcollection
     const variantsSnapshot = await docRef.collection(Collections.VARIANTS).get();
     const batch = adminDb.batch();
@@ -321,11 +433,40 @@ export async function deleteProduct(
     batch.delete(docRef);
     await batch.commit();
 
+    // Decrement productCount on associated categories
+    await updateCategoryProductCounts(productData.categoryIds || [], -1);
+
     return successResponse(null, 'Product deleted successfully');
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to delete product', 500, message);
   }
+}
+
+/**
+ * Fetch variants for a list of products and attach them.
+ */
+async function attachVariantsToProducts(products: FirestoreProduct[]): Promise<(FirestoreProduct & { variableProducts: FirestoreVariant[] })[]> {
+  return Promise.all(
+    products.map(async (product) => {
+      try {
+        const variantsSnapshot = await productsCollection
+          .doc(product.id)
+          .collection(Collections.VARIANTS)
+          .orderBy('createdAt', 'desc')
+          .get();
+
+        const variableProducts = variantsSnapshot.docs.map((vDoc) => ({
+          id: vDoc.id,
+          ...vDoc.data(),
+        } as FirestoreVariant));
+
+        return { ...product, variableProducts };
+      } catch {
+        return { ...product, variableProducts: [] as FirestoreVariant[] };
+      }
+    })
+  );
 }
 
 // ─── Variant Operations (subcollection) ──────────────────────────────────────

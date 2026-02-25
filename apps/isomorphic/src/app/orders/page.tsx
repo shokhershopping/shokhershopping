@@ -7,7 +7,6 @@ import { PiPlusBold } from 'react-icons/pi';
 import { orderData } from '@/data/order-data';
 import { metaObject } from '@/config/site.config';
 import ExportButton from '@/app/shared/export-button';
-import toast from 'react-hot-toast';
 import { getBaseUrl } from '@/lib/get-base-url';
 
 export const metadata = {
@@ -39,33 +38,38 @@ export default async function OrdersPage() {
     }
   );
   if (!orders.ok) {
-    toast.error('Failed to fetch orders');
     throw new Error('Failed to fetch orders');
   }
   const data: any = await orders.json();
-  console.log('Orders Data:', data);
 
   const rawOrders = Array.isArray(data?.data) ? data.data : [];
+
+  // Helper to parse Firestore timestamps
+  const parseTimestamp = (ts: any): string => {
+    if (!ts) return '';
+    // Firestore Timestamp with _seconds
+    if (ts._seconds) return new Date(ts._seconds * 1000).toLocaleDateString();
+    // Already a string or number
+    return new Date(ts).toLocaleDateString();
+  };
+
   const ordersData = rawOrders.map((order: any) => ({
     id: order.id,
-    name: order.user?.name,
-    email: order.user?.email,
-    avatar: order.user?.image || 'https://placehold.co/600x400.png',
-    items: order.items?.length ?? 0,
-    price: order.netTotal,
+    name: order.userName || order.user?.name || 'N/A',
+    email: order.userEmail || order.user?.email || '',
+    avatar: 'https://placehold.co/600x400.png',
+    items: order.items?.length ?? '-',
+    price: order.netTotal ?? order.total ?? 0,
     status: order.status,
-    createdAt: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
-    updatedAt: order.updatedAt ? new Date(order.updatedAt).toLocaleDateString() : '',
-    products: (order.items || []).map((item: any) => {
-      const product = item.product || item.variableProduct;
-      return {
-        id: product?.id,
-        name: product?.name,
-        image: product?.image || 'https://placehold.co/600x400.png',
-        price: product?.salePrice,
-        quantity: item.quantity,
-      };
-    }),
+    createdAt: parseTimestamp(order.createdAt),
+    updatedAt: parseTimestamp(order.updatedAt),
+    products: (order.items || []).map((item: any) => ({
+      id: item.productId,
+      name: item.productName || 'Unknown Product',
+      image: item.productImageUrl || 'https://placehold.co/600x400.png',
+      price: item.productPrice ?? 0,
+      quantity: item.quantity,
+    })),
   }));
   return (
     <>

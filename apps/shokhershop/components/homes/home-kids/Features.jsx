@@ -53,7 +53,7 @@ export default function Features() {
                 </div>
                 <div className="content">
                   <div className="title">Free Shipping</div>
-                  <p>Free shipping over order $120</p>
+                  <p>Free shipping over order ৳120</p>
                 </div>
               </div>
             </SwiperSlide>

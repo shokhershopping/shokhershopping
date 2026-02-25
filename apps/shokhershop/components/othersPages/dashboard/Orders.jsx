@@ -12,26 +12,23 @@ export default function Orders() {
   const [orderToCancel, setOrderToCancel] = useState(null);
   const { user } = useContextElement();
   const userId = user?.id;
-  console.log("User ID:", userId);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = '/api';
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
           `${baseUrl}/orders/user/${userId}?limit=1000`
         );
+        if (!response.ok) return;
         const data = await response.json();
-        const result = data.data;
-        console.log("Fetched orders:", result);
-        setOrders(result);
+        setOrders(data.data || []);
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        // Silently fail
       }
     };
 
-    fetchOrders();
+    if (userId) fetchOrders();
   }, [userId, baseUrl]);
-  console.log("Orders:", orders);
 
   const openCancelModal = (orderId) => {
     setOrderToCancel(orderId);
@@ -48,7 +45,7 @@ export default function Orders() {
   const handleCancelOrder = async (orderId) => {
     setCancellingOrderId(orderId);
     try {
-      const response = await fetch(`${baseUrl}/orders/${orderId}/status`, {
+      const response = await fetch(`${baseUrl}/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +66,6 @@ export default function Orders() {
         toast.error(`Failed to cancel order: ${errorData.message || "Unknown error"}`);
       }
     } catch (error) {
-      console.error("Error cancelling order:", error);
       toast.error("Failed to cancel order. Please try again.");
     } finally {
       setCancellingOrderId(null);
@@ -95,7 +91,7 @@ export default function Orders() {
               orders.map((order) => (
                 <tr key={order?.id} className="tf-order-item">
                   <td>#{order?.id}</td>
-                  <td>{new Date(order?.createdAt).toLocaleDateString()}</td>
+                  <td>{order?.createdAt?._seconds ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : new Date(order?.createdAt).toLocaleDateString()}</td>
                   <td>{order?.status}</td>
                   <td>{order?.netTotal?.toFixed(2)}</td>
                   <td>

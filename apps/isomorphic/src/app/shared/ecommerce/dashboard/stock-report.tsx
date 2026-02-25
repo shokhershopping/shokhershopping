@@ -33,7 +33,6 @@ export default function StockReport({ className }: { className?: string }) {
         setTotalPages(response.totalPages || 1);
         setError(null);
       } catch (err) {
-        console.error('Error fetching stock report:', err);
         setError('Failed to load stock report');
       } finally {
         setLoading(false);

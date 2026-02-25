@@ -107,7 +107,7 @@ export default function Products() {
                     >
                       {product.title}
                     </Link>
-                    <span className="price">${product.price.toFixed(2)}</span>
+                    <span className="price">৳{product.price.toFixed(2)}</span>
                     <div className="tf-product-btns">
                       <a
                         href="#quick_add"

@@ -108,6 +108,7 @@ export function useTanStackTable<T extends Record<string, any>>({
       columnFilters,
     },
     ...options,
+    autoResetPageIndex: false,
     getRowCanExpand: () => true,
     onSortingChange: setSorting,
     onExpandedChange: setExpanded,

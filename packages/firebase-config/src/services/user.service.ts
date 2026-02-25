@@ -96,7 +96,7 @@ export async function createUser(data: {
  */
 export async function updateUser(
   id: string,
-  data: Partial<Pick<FirestoreUser, 'email' | 'name' | 'image' | 'role'>>
+  data: Partial<Pick<FirestoreUser, 'email' | 'name' | 'image' | 'role'>> & { addresses?: any[] }
 ): Promise<IResponse<FirestoreUser | null>> {
   try {
     const docRef = usersCollection.doc(id);

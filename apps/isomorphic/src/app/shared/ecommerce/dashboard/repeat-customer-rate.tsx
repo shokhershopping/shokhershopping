@@ -41,7 +41,6 @@ export default function RepeatCustomerRate({
         setAnalyticsData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching customer analytics:', err);
         setError('Failed to load customer analytics');
       } finally {
         setLoading(false);

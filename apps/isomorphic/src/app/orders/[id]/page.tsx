@@ -23,11 +23,8 @@ export default async function OrderDetailsPage({ params }: any) {
     if (orderResponse.ok) {
       const orderData: any = await orderResponse.json();
       order = orderData.data;
-    } else {
-      console.error('Failed to fetch order:', orderResponse.status);
     }
-  } catch (error) {
-    console.error('Error fetching order:', error);
+  } catch {
     // Continue without order data - will fall back to cart state
   }
 

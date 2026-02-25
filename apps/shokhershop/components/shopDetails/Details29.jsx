@@ -296,7 +296,7 @@ export default function Details29({ product }) {
             <div className="tf-sticky-atc-infos">
               <form className="">
                 <div className="tf-sticky-atc-variant-price text-center">
-                  <span className="price fs-16">$30.00</span>
+                  <span className="price fs-16">৳30.00</span>
                 </div>
                 <div className="tf-sticky-atc-btns">
                   <div className="tf-product-info-quantity">

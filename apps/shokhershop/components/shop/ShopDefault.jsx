@@ -7,6 +7,7 @@ import Pagination from "../common/Pagination";
 import ShopFilter from "./ShopFilter";
 import Sorting from "./Sorting";
 import { usePathname } from "next/navigation";
+import { getImageUrl as resolveImageUrl } from "@/lib/getImageUrl";
 
 export default function ShopDefault() {
   const pathname = usePathname();
@@ -32,10 +33,10 @@ export default function ShopDefault() {
         let apiUrl;
         if (isShopRoot) {
           // Fetch latest products for /shop route
-          apiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/products/latest?limit=${itemsPerPage}&page=${currentPage}`;
+          apiUrl = `/api/products/latest?limit=${itemsPerPage}&page=${currentPage}`;
         } else {
           // Fetch products for specific category (backend handles recursive subcategories)
-          apiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/products?limit=${itemsPerPage}&page=${currentPage}&category=${categoryId}`;
+          apiUrl = `/api/products?limit=${itemsPerPage}&page=${currentPage}&category=${categoryId}`;
         }
 
         const response = await fetch(apiUrl);
@@ -50,7 +51,7 @@ export default function ShopDefault() {
         setProducts(transformed);
         setFinalSorted(transformed);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        // Silently handle fetch error
       } finally {
         setLoading(false);
       }
@@ -63,12 +64,11 @@ export default function ShopDefault() {
   const transformProducts = (apiProducts) => {
     if (!apiProducts || !Array.isArray(apiProducts)) return [];
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
     const defaultImageUrl = "/default-product-image.jpg";
 
     const getImageUrl = (image) => {
       if (!image?.path) return null;
-      return `${baseUrl}/${image.path}`;
+      return resolveImageUrl(image.path);
     };
 
     return apiProducts.map((product) => {
@@ -89,10 +89,10 @@ export default function ShopDefault() {
 
       const colors = Array.isArray(product.variableProducts)
         ? product.variableProducts.map((variant) => {
-            // Get all images for this specific variant
-            const variantImages = imagesByVariant[variant.id] || [];
-            // Use the first image if available
-            const variantImage = variantImages[0];
+            // Try variant-level images first, then product-level images grouped by variantId
+            const variantOwnImages = Array.isArray(variant.images) ? variant.images : [];
+            const variantGroupedImages = imagesByVariant[variant.id] || [];
+            const variantImage = variantOwnImages[0] || variantGroupedImages[0];
             const variantImageUrl =
               getImageUrl(variantImage) || defaultImageUrl;
 

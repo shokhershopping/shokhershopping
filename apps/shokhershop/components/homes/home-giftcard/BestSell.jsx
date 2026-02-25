@@ -84,7 +84,7 @@ export default function BestSell() {
                       </div>
                       <div className="tf-product-info-price">
                         <div className="price">
-                          ${currentPrice.price.toFixed(2)}
+                          ৳{currentPrice.price.toFixed(2)}
                         </div>
                       </div>
                       <div className="tf-product-info-liveview">
@@ -114,7 +114,7 @@ export default function BestSell() {
                           <div className="variant-picker-label">
                             Denominations:
                             <span className="fw-6 variant-picker-label-value">
-                              ${currentPrice.price.toFixed(2)}
+                              ৳{currentPrice.price.toFixed(2)}
                             </span>
                           </div>
                           <form className="variant-picker-values">
@@ -131,7 +131,7 @@ export default function BestSell() {
                                   onClick={() => setCurrentPrice(color)}
                                   className="style-text"
                                 >
-                                  <p>${color.price.toFixed(2)}</p>
+                                  <p>৳{color.price.toFixed(2)}</p>
                                 </label>
                               </React.Fragment>
                             ))}

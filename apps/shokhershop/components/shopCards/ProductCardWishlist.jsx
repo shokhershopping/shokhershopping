@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useContextElement } from "@/context/Context";
 import CountdownComponent from "../common/Countdown";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export const ProductCardWishlist = ({ product }) => {
   // Handle both structures: product.product (wishlist item) or direct product
@@ -26,11 +27,8 @@ export const ProductCardWishlist = ({ product }) => {
     isAddedtoCompareItem,
   } = useContextElement();
 
-  console.log("ProductCardWishlist product:", wishProduct);
-
   // Safety check after hooks - don't render if no valid product
   if (!wishProduct || !wishProduct.id) {
-    console.error("ProductCardWishlist: Invalid product data", product);
     return null;
   }
 
@@ -43,16 +41,16 @@ export const ProductCardWishlist = ({ product }) => {
         >
           <Image
             className="lazyload img-product"
-            data-src={`${process.env.NEXT_PUBLIC_APP_URL}/${currentImage}`}
-            src={`${process.env.NEXT_PUBLIC_APP_URL}/${currentImage}`}
+            data-src={getImageUrl(currentImage)}
+            src={getImageUrl(currentImage)}
             alt="image-product"
             width={720}
             height={1005}
           />
           <Image
             className="lazyload img-hover"
-            data-src={`${process.env.NEXT_PUBLIC_APP_URL}/${hoverImage}`}
-            src={`${process.env.NEXT_PUBLIC_APP_URL}/${hoverImage}`}
+            data-src={getImageUrl(hoverImage)}
+            src={getImageUrl(hoverImage)}
             alt="image-product"
             width={720}
             height={1005}

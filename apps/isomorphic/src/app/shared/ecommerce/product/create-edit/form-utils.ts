@@ -1,6 +1,5 @@
 import { CreateProductInput } from '@/validators/create-product.schema';
 import isEmpty from 'lodash/isEmpty';
-import { spec } from 'node:test/reporters';
 
 export const customFields = [
   {

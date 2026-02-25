@@ -135,8 +135,7 @@ export const categoriesColumns = [
             if (!res.ok) {
               throw new Error('Failed to delete category');
             }
-            const data = await res.json();
-            console.log(data);
+            await res.json();
             meta?.handleDeleteRow?.(row.original);
           }}
         />

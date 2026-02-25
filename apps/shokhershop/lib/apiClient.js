@@ -19,14 +19,13 @@ class ApiClient {
     }
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/categories`
+        `/api/categories`
       );
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) return [];
       const data = await response.json();
 
       // Process categories into nested structure
-      const processedData = this.buildCategoryTree(data.data);
+      const processedData = this.buildCategoryTree(data.data || []);
 
       if (this.cacheEnabled) {
         this.cache.set(cacheKey, {
@@ -37,8 +36,7 @@ class ApiClient {
 
       return processedData;
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
-      throw error;
+      return [];
     }
   }
 
@@ -78,12 +76,10 @@ class ApiClient {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/products/search?${params.toString()}`
+        `/api/products/search?${params.toString()}`
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) return { data: [], total: 0 };
 
       const data = await response.json();
 
@@ -97,8 +93,7 @@ class ApiClient {
 
       return data;
     } catch (error) {
-      console.error("Failed to search products:", error);
-      throw error;
+      return { data: [], total: 0 };
     }
   }
 }

@@ -87,9 +87,9 @@ export default function SingleProduct() {
                   </div>
                 </div>
                 <div className="tf-product-info-price">
-                  <div className="price-on-sale">$269.99</div>
+                  <div className="price-on-sale">৳269.99</div>
                   <div className="compare-at-price">
-                    ${productBestcell[1].price}
+                    ৳{productBestcell[1].price}
                   </div>
                   <div className="badges-on-sale bg_red-2">
                     <span>9</span>% OFF

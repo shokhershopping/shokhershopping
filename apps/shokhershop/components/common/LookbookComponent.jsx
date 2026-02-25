@@ -24,7 +24,7 @@ export default function LookbookComponent({ product = lookbookProducts[0] }) {
           <div className="product-title">
             <a href="#">{product.title}</a>
           </div>
-          <div className="price">${product.price.toFixed(2)}</div>
+          <div className="price">৳{product.price.toFixed(2)}</div>
         </div>
         <a
           href="#quick_view"

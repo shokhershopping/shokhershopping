@@ -442,8 +442,8 @@ export default function Detaila20({ product }) {
                     </select>
                   </div>
                   <div className="tf-product-bundle-price">
-                    <div className="compare-at-price">$30.00</div>
-                    <div className="price-on-sale">$25.00</div>
+                    <div className="compare-at-price">৳30.00</div>
+                    <div className="price-on-sale">৳25.00</div>
                   </div>
                 </div>
                 <div className="tf-product-bundle-infos">
@@ -470,7 +470,7 @@ export default function Detaila20({ product }) {
                     </select>
                   </div>
                   <div className="tf-product-bundle-price">
-                    <div className="price">$18.00</div>
+                    <div className="price">৳18.00</div>
                   </div>
                 </div>
                 <div className="tf-product-bundle-infos">
@@ -488,7 +488,7 @@ export default function Detaila20({ product }) {
                     Oversized Motif T-shirt
                   </a>
                   <div className="tf-product-bundle-price">
-                    <div className="price">$25.00</div>
+                    <div className="price">৳25.00</div>
                   </div>
                 </div>
                 <div className="tf-product-bundle-infos">
@@ -515,7 +515,7 @@ export default function Detaila20({ product }) {
                     </select>
                   </div>
                   <div className="tf-product-bundle-price">
-                    <div className="price">$18.00</div>
+                    <div className="price">৳18.00</div>
                   </div>
                 </div>
               </div>
@@ -523,8 +523,8 @@ export default function Detaila20({ product }) {
             <div className="tf-fbt-col-total-price">
               <div className="tf-product-bundle-total-submit flex-wrap justify-content-center">
                 <div className="text w-100 text-center">Total price:</div>
-                <div className="compare-at-price">$86.00</div>
-                <div className="price-on-sale">$91.00</div>
+                <div className="compare-at-price">৳86.00</div>
+                <div className="price-on-sale">৳91.00</div>
               </div>
               <a
                 href="#"

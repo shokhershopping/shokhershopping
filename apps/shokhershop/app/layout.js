@@ -42,10 +42,9 @@ export default function RootLayout({ children }) {
         .then((bootstrap) => {
           // Attach Bootstrap to window for global access
           window.bootstrap = bootstrap;
-          console.log("Bootstrap loaded and attached to window");
         })
-        .catch((error) => {
-          console.error("Error loading Bootstrap:", error);
+        .catch(() => {
+          // Silently handle Bootstrap load error
         });
     }
   }, []);
@@ -163,8 +162,8 @@ export default function RootLayout({ children }) {
 
   return (
     <FirebaseAuthProvider>
-      <html lang="en">
-        <body className="preload-wrapper">
+      <html lang="en" suppressHydrationWarning>
+        <body className="preload-wrapper" suppressHydrationWarning>
           <div className="preload preload-container" id="preloader">
             <div className="preload-logo">
               <div className="spinner"></div>

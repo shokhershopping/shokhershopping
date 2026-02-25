@@ -71,7 +71,10 @@ data/
 └── ... (other static data)
 
 lib/
-└── apiClient.js           # API client for backend communication
+├── apiClient.js           # API client utilities (categories, search)
+├── firebase-auth-provider.jsx  # Firebase Auth context provider
+├── getBaseUrl.js          # Base URL resolver for server components
+└── getImageUrl.js         # Image URL resolver helper
 
 utlis/                     # Utility functions
 ├── openCartModal.js
@@ -99,11 +102,13 @@ public/
 Route groups allow different layouts without affecting URLs.
 
 **Authentication**
-- Clerk authentication (`@clerk/nextjs`)
-- Middleware in `middleware.ts` handles route protection
-- Public routes: `/`, `/sign-in`, `/product-detail/*`, `/shop/*`, `/checkout`
+- Firebase Auth via `FirebaseAuthProvider` (`lib/firebase-auth-provider.jsx`)
+- Session cookies (`__session`) for server-side auth
+- Middleware in `middleware.ts` checks session cookie presence
+- Public routes: `/`, `/login`, `/register`, `/product-detail/*`, `/shop/*`, `/checkout`
 - All other routes require authentication
-- Clerk components: `SignedIn`, `SignedOut`, `UserButton` used throughout
+- Auth API routes: `/api/auth/session` (create session), `/api/auth/signout` (clear session)
+- User state via `useFirebaseAuth()` hook
 
 **Global State Management**
 - Context API in `context/Context.jsx`
@@ -113,7 +118,7 @@ Route groups allow different layouts without affecting URLs.
   - Compare items (`compareItem`)
   - Quick view item (`quickViewItem`)
   - Total price calculation (`totalPrice`)
-  - Demo user data (`user`)
+  - Authenticated user data from Firebase (`user`)
 - Context accessed via `useContextElement()` hook
 
 **Cart Management**
@@ -143,16 +148,19 @@ Comprehensive modal system in `components/modals/`:
 All modals are included in root layout and controlled via state/utils.
 
 **API Integration**
-- API client in `lib/apiClient.js`
-- Features:
-  - Optional caching (5-minute cache duration)
-  - Category tree building
-  - Fetches from `process.env.NEXT_PUBLIC_APP_URL`
-- Example:
-  ```javascript
-  import { apiClient } from '@/lib/apiClient';
-  const categories = await apiClient.fetchCategories();
-  ```
+- Next.js API Routes in `app/api/` calling firebase-config services
+- API client in `lib/apiClient.js` for category/product utilities
+- Image URL helper in `lib/getImageUrl.js`
+- All API calls use internal `/api/` routes (no external backend)
+- Available API routes:
+  - `/api/products` - Products (list, search, latest, top-selling, [id])
+  - `/api/categories` - Categories (list, [slug])
+  - `/api/orders` - Orders (list, [id], user/[userId])
+  - `/api/reviews` - Reviews (product/[productId])
+  - `/api/wishlists` - Wishlists ([userId], add, remove)
+  - `/api/coupons` - Coupon validation by code
+  - `/api/users` - Users ([id], ensure)
+  - `/api/auth` - Auth (session, signout)
 
 **Component Patterns**
 
@@ -197,21 +205,31 @@ Data files in `data/` directory:
 - `faqs.js` - FAQ content
 
 *Dynamic Data*
-- Fetched from backend API via `apiClient`
-- Backend URL: `process.env.NEXT_PUBLIC_APP_URL`
-- User data fetched and stored in context
+- Fetched from Firestore via internal `/api/` routes
+- User data fetched from `/api/users/{uid}` and stored in context
 
 ### Environment Variables
 
-Required environment variables:
+Required environment variables (see `.env.local.example`):
 
 ```bash
-# Backend API URL
-NEXT_PUBLIC_APP_URL="http://localhost:4000"
+# Firebase Client SDK (public)
+NEXT_PUBLIC_FIREBASE_API_KEY=""
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=""
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=""
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=""
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=""
+NEXT_PUBLIC_FIREBASE_APP_ID=""
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=""
 
-# Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=""
-CLERK_SECRET_KEY=""
+# Firebase Admin SDK (server-side - keep secret!)
+FIREBASE_PROJECT_ID=""
+FIREBASE_CLIENT_EMAIL=""
+FIREBASE_PRIVATE_KEY=""
+FIREBASE_STORAGE_BUCKET=""
+
+# Image base URL (for legacy image paths)
+NEXT_PUBLIC_IMAGE_BASE_URL=""
 ```
 
 ### Page Types
@@ -272,9 +290,9 @@ CLERK_SECRET_KEY=""
 - react-image-zoom alternative zoom
 
 **Authentication**
-- Clerk for user authentication
-- Route protection via middleware
-- User profile via `UserButton` component
+- Firebase Auth for user authentication
+- Route protection via middleware (session cookie check)
+- User profile via `useFirebaseAuth()` hook
 
 **Styling & Animation**
 - SCSS compilation
@@ -296,7 +314,7 @@ CLERK_SECRET_KEY=""
 4. **Data Sources**:
    - Use static data from `data/` for development/fallback
    - Fetch dynamic data from backend via `apiClient`
-   - Check `NEXT_PUBLIC_APP_URL` is set correctly
+   - API calls use internal `/api/` routes (no external backend needed)
 
 5. **Product Structure**: Products should have:
    - id, name, description, price, images
@@ -337,10 +355,12 @@ CLERK_SECRET_KEY=""
 3. Modal is globally available via root layout
 
 **Integrating with Backend**
-1. Add method to `lib/apiClient.js`
-2. Call from components/pages
-3. Handle loading and error states
-4. Update context if needed (for cart, wishlist, etc.)
+1. Create or update service in `packages/firebase-config/src/services/`
+2. Export from `packages/firebase-config/src/index.ts`
+3. Create API route in `app/api/{feature}/route.js`
+4. Call from components using fetch to `/api/{feature}`
+5. Handle loading and error states
+6. Update context if needed (for cart, wishlist, etc.)
 
 **Styling Changes**
 1. Edit SCSS in `public/scss/`
@@ -354,6 +374,6 @@ CLERK_SECRET_KEY=""
 - **Context Performance**: Cart/wishlist state in context - consider optimization for large catalogs
 - **Image Optimization**: Currently disabled (`unoptimized: true`) - enable for better performance
 - **Bootstrap Dependency**: Bootstrap JS imported dynamically - ensure components work with dynamic imports
-- **Clerk Integration**: Middleware protects routes - test both authenticated and public access
-- **Demo Data**: Demo user fetched from API on mount - handle API failures gracefully
+- **Firebase Auth**: Middleware checks `__session` cookie - test both authenticated and public access
+- **User Data**: User record fetched from Firestore via `/api/users/{uid}` on mount - handle API failures gracefully
 - **Modal Management**: All modals in root layout - optimize modal loading if performance issues

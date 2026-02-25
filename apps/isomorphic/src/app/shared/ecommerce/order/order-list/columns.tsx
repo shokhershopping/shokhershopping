@@ -29,7 +29,7 @@ export const ordersColumns = (expanded: boolean = true) => {
         <TableAvatar
           src={row.original.avatar}
           name={row.original.name}
-          description={row.original.email.toLowerCase()}
+          description={(row.original.email || '').toLowerCase()}
         />
       ),
     }),

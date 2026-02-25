@@ -29,7 +29,7 @@ export default function BuyXgetY() {
             </div>
             <div className="pr-item-price-total">
               <span className="total-label fw-5">Total</span>
-              <span className="price-nomal text_black-2 fw-5">$159.99</span>
+              <span className="price-nomal text_black-2 fw-5">৳159.99</span>
             </div>
           </div>
           <span className="box-badge">Buy 1</span>
@@ -62,9 +62,9 @@ export default function BuyXgetY() {
             <div className="pr-item-price-total">
               <span className="total-label fw-5">Total</span>
               <span className="price-nomal price-old text_black-2 fw-5">
-                $0.00
+                ৳0.00
               </span>
-              <span className="price-nomal price-new fw-5">$449.10</span>
+              <span className="price-nomal price-new fw-5">৳449.10</span>
             </div>
           </div>
           <span className="box-badge">Get 1 off 10%</span>

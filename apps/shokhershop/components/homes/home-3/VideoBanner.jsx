@@ -14,7 +14,7 @@ export default function VideoBanner() {
         <div className="box-content text-center">
           <div className="container wow fadeInUp" data-wow-delay="0s">
             <p className="subheading text-white fw-7">
-              FREE SHIPPING OVER ORDER $120
+              FREE SHIPPING OVER ORDER ৳120
             </p>
             <h1 className="heading text-white">Spring Collection</h1>
             <p className="description text-white">

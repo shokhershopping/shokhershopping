@@ -56,8 +56,8 @@ export class ApiClient {
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-      } catch (error) {
-        console.error('Failed to get auth token:', error);
+      } catch {
+        // Auth token fetch failed — proceed without auth header
       }
     }
 

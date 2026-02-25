@@ -12,7 +12,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = '/api';
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -27,7 +27,6 @@ export default function OrderDetailPage() {
         const data = await response.json();
         setOrder(data.data);
       } catch (err) {
-        console.error("Error fetching order:", err);
         setError(err.message);
       } finally {
         setLoading(false);

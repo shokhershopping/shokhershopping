@@ -43,11 +43,9 @@ export default function AdminAuthGuard({ children }: AdminAuthGuardProps) {
           const data = await response.json();
           setIsAdmin(data?.data?.role === 'ADMIN');
         } else {
-          console.error('Failed to fetch user role:', response.status);
           setIsAdmin(false);
         }
       } catch (error) {
-        console.error('Error checking admin role:', error);
         setIsAdmin(false);
       } finally {
         setLoading(false);

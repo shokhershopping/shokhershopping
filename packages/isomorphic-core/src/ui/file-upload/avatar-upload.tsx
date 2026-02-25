@@ -3,16 +3,12 @@
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { useCallback, useState } from "react";
-import { useDropzone } from "@uploadthing/react";
-import { generateClientDropzoneAccept } from "uploadthing/client";
-import { useUploadThing } from "../../utils/uploadthing";
+import { useDropzone } from "react-dropzone";
 import UploadIcon from "../../components/shape/upload";
 import { FieldError, Loader, Text } from "rizzui";
 import cn from "../../utils/class-names";
 import { PiPencilSimple } from "react-icons/pi";
 import { LoadingSpinner } from "../../ui/file-upload/upload-zone";
-import { FileWithPath } from "react-dropzone";
-import { ClientUploadedFileData } from "uploadthing/types";
 
 interface UploadZoneProps {
   name: string;
@@ -29,55 +25,55 @@ export default function AvatarUpload({
   getValues,
   setValue,
 }: UploadZoneProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const formValue = getValues(name);
 
-  const { startUpload, routeConfig, isUploading } = useUploadThing("avatar", {
-    onClientUploadComplete: (res: ClientUploadedFileData<any>[] | undefined) => {
-      if (setValue) {
-        const respondedUrls = res?.map((r) => ({
-          name: r.name,
-          size: r.size,
-          url: r.url,
-        }));
-        setValue(name, respondedUrls?.[0]);
-      }
-      toast.success(
-        <Text
-          as="b"
-          className="font-semibold"
-        >
-          Avatar updated
-        </Text>
-      );
-    },
-    onUploadError: (error: Error) => {
-      console.error(error);
-      toast.error(error.message);
-    },
-  });
-
-  const fileTypes = routeConfig ? Object.keys(routeConfig) : [];
-
   const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
-      setFiles([
-        ...acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        ),
-      ]);
-      startUpload(files);
+    async (acceptedFiles: File[]) => {
+      if (!acceptedFiles.length) return;
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("files", acceptedFiles[0]);
+
+        const res = await fetch(`/api/uploads/multiple`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Failed to upload avatar");
+
+        const data = (await res.json()) as any;
+        const uploaded = (data.data || data.files || [])[0];
+
+        if (uploaded && setValue) {
+          setValue(name, {
+            name: uploaded.originalname || uploaded.filename || "avatar",
+            size: uploaded.size || 0,
+            url: uploaded.url,
+          });
+          toast.success(
+            <Text as="b" className="font-semibold">
+              Avatar updated
+            </Text>
+          );
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Error uploading avatar");
+      }
+      setIsUploading(false);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [files]
+    [name, setValue]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: fileTypes ? generateClientDropzoneAccept(fileTypes) : undefined,
+    accept: {
+      "image/*": [],
+    },
+    maxFiles: 1,
   });
 
   return (

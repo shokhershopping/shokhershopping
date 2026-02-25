@@ -59,3 +59,115 @@ export {
   deleteUser,
   updateUserMetadata,
 } from './services/user.service';
+
+export {
+  getAllCategories,
+  getCategoryById,
+  getFeaturedCategories,
+  getSlideCategories,
+  getMenuCategories,
+  getSubcategories,
+  getAllDescendantIds,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from './services/category.service';
+
+export {
+  getProducts,
+  getProductById,
+  getLatestProducts,
+  getTopSellingProducts,
+  getFeaturedProducts,
+  getSlideProducts,
+  searchProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getProductVariants,
+  createVariant,
+  updateVariant,
+  deleteVariant,
+} from './services/product.service';
+
+export {
+  getReviews,
+  getReviewById,
+  getReviewsByProductId,
+  getReviewsByUserId,
+  getReviewStats,
+  createReview,
+  updateReviewStatus,
+  deleteReview,
+} from './services/review.service';
+
+export {
+  getWishlistByUserId,
+  addToWishlist,
+  removeFromWishlist,
+} from './services/wishlist.service';
+
+export {
+  getCoupons,
+  getCouponById,
+  getCouponByCode,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon,
+} from './services/coupon.service';
+
+export {
+  getOrders,
+  getOrderById,
+  getOrdersByUserId,
+  createOrder,
+  updateOrder,
+  updateOrderStatus,
+  deleteOrder,
+} from './services/order.service';
+
+export {
+  getInvoicesByOrderId,
+  getInvoiceById,
+  createInvoice,
+} from './services/invoice.service';
+
+export {
+  getNotificationsByUserId,
+  createNotification,
+  markAsRead,
+  deleteNotification,
+} from './services/notification.service';
+
+export {
+  getDashboardStats,
+  getSalesReport,
+  getTopProducts,
+  getStockReport,
+} from './services/dashboard.service';
+
+export {
+  getCartByUserId,
+  addToCart,
+  updateCartItem,
+  removeFromCart,
+  clearCart,
+} from './services/cart.service';
+
+export {
+  getBanners,
+  getActiveBanners,
+  getBannerById,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+} from './services/banner.service';
+
+export {
+  getMarquees,
+  getActiveMarquees,
+  getMarqueeById,
+  createMarquee,
+  updateMarquee,
+  deleteMarquee,
+} from './services/marquee.service';

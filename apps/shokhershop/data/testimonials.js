@@ -363,7 +363,7 @@ export const testimonialData = [
     authorMeta: "Customer from Bangladesh",
     productImgSrc: "/images/products/decor-17.jpg",
     productTitle: "Jersey thong body",
-    productPrice: "$105.95",
+    productPrice: "৳105.95",
   },
   {
     rating: 5,
@@ -373,7 +373,7 @@ export const testimonialData = [
     authorMeta: "Customer from Bangladesh",
     productImgSrc: "/images/products/decor-12.jpg",
     productTitle: "Cotton jersey top",
-    productPrice: "$7.95",
+    productPrice: "৳7.95",
   },
   {
     rating: 5,
@@ -393,7 +393,7 @@ export const testimonialData = [
     authorMeta: "Customer from Bangladesh",
     productImgSrc: "/images/products/decor-4.jpg",
     productTitle: "Customer from Bangladesh",
-    productPrice: "$16.95",
+    productPrice: "৳16.95",
   },
 ];
 
@@ -406,7 +406,7 @@ export const testimonials7 = [
     authorMeta: "Customer from Bangladesh",
     productImage: "/images/collections/electronic-16.jpg",
     productTitle: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-    productPrice: "$105.95",
+    productPrice: "৳105.95",
   },
   {
     rating: 5,
@@ -416,7 +416,7 @@ export const testimonials7 = [
     authorMeta: "Customer from Bangladesh",
     productImage: "/images/collections/electronic-12.png",
     productTitle: "SoundForm Rise",
-    productPrice: "$7.95",
+    productPrice: "৳7.95",
   },
   {
     rating: 5,
@@ -436,7 +436,7 @@ export const testimonials7 = [
     authorMeta: "Customer from Bangladesh",
     productImage: "/images/collections/electronic-10.png",
     productTitle: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-    productPrice: "$16.95",
+    productPrice: "৳16.95",
   },
 ];
 
@@ -453,7 +453,7 @@ export const testimonials8 = [
       imgSrc: "/images/collections/setup-gear-1.jpg",
       imgAlt: "",
       title: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-      price: "$105.95",
+      price: "৳105.95",
     },
     delay: "0s",
   },
@@ -469,7 +469,7 @@ export const testimonials8 = [
       imgSrc: "/images/collections/setup-gear-2.jpg",
       imgAlt: "",
       title: "SoundForm Rise",
-      price: "$7.95",
+      price: "৳7.95",
     },
     delay: ".1s",
   },
@@ -501,7 +501,7 @@ export const testimonials8 = [
       imgSrc: "/images/collections/setup-gear-4.jpg",
       imgAlt: "",
       title: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-      price: "$16.95",
+      price: "৳16.95",
     },
     delay: ".3s",
   },
@@ -516,7 +516,7 @@ export const slides2 = [
     product: {
       imgSrc: "/images/item/lookbook-item-1.jpg",
       title: "Fry Pan",
-      price: "$105.95",
+      price: "৳105.95",
       imgWidth: 160,
       imgHeight: 120,
     },
@@ -530,7 +530,7 @@ export const slides2 = [
     product: {
       imgSrc: "/images/item/lookbook-item-2.jpg",
       title: "Whistling Tea Kettle",
-      price: "$7.95",
+      price: "৳7.95",
       imgWidth: 160,
       imgHeight: 120,
     },
@@ -558,7 +558,7 @@ export const slides2 = [
     product: {
       imgSrc: "/images/item/lookbook-item-4.jpg",
       title: "Sauce Pan",
-      price: "$16.95",
+      price: "৳16.95",
       imgWidth: 70,
       imgHeight: 53,
     },
@@ -648,7 +648,7 @@ export const testimonialData2 = [
     authorMeta: "Customer from Bangladesh",
     imgSrc: "/images/products/paddle-boards-1.jpg",
     productTitle: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-    price: "$105.95",
+    price: "৳105.95",
   },
   {
     rating: 5,
@@ -658,7 +658,7 @@ export const testimonialData2 = [
     authorMeta: "Customer from Bangladesh",
     imgSrc: "/images/products/paddle-boards-9.jpg",
     productTitle: "ISUP PADDLE BOARD",
-    price: "$105.95",
+    price: "৳105.95",
   },
   {
     rating: 5,
@@ -668,7 +668,7 @@ export const testimonialData2 = [
     authorMeta: "Customer from Bangladesh",
     imgSrc: "/images/products/paddle-boards-11.jpg",
     productTitle: "KAYAK ISUP PADDLE ADAPTER",
-    price: "$105.95",
+    price: "৳105.95",
   },
   {
     rating: 5,
@@ -678,7 +678,7 @@ export const testimonialData2 = [
     authorMeta: "Customer from Bangladesh",
     imgSrc: "/images/products/paddle-boards-8.jpg",
     productTitle: "ALL AROUND 9' ULTRA™",
-    price: "$105.95",
+    price: "৳105.95",
   },
 ];
 
@@ -695,7 +695,7 @@ export const testimonials10 = [
     product: {
       imgSrc: "/images/products/pod-store-5.jpg",
       title: "Jersey thong body",
-      price: "$105.95",
+      price: "৳105.95",
     },
   },
   {
@@ -710,7 +710,7 @@ export const testimonials10 = [
     product: {
       imgSrc: "/images/products/pod-store-8.jpg",
       title: "Cotton jersey top",
-      price: "$7.95",
+      price: "৳7.95",
     },
   },
   {
@@ -740,7 +740,7 @@ export const testimonials10 = [
     product: {
       imgSrc: "/images/products/pod-store-10.jpg",
       title: "Customer from Bangladesh",
-      price: "$16.95",
+      price: "৳16.95",
     },
   },
 ];
@@ -756,7 +756,7 @@ export const testimonials11 = [
     product: {
       imgSrc: "/images/products/brown-11.jpg",
       title: "Crossover Leggings",
-      price: "$38.00",
+      price: "৳38.00",
       link: "#",
     },
   },
@@ -770,7 +770,7 @@ export const testimonials11 = [
     product: {
       imgSrc: "/images/products/white-17.jpg",
       title: "Ruched Strappy Sports Bra",
-      price: "$38.00",
+      price: "৳38.00",
       link: "#",
     },
   },
@@ -784,7 +784,7 @@ export const testimonials11 = [
     product: {
       imgSrc: "/images/products/blue-5.jpg",
       title: "Pocket Shorts",
-      price: "$38.00",
+      price: "৳38.00",
       link: "#",
     },
   },
@@ -798,7 +798,7 @@ export const testimonials11 = [
     product: {
       imgSrc: "/images/products/sports-clothing-6.jpg",
       title: 'Crest 7" Shorts',
-      price: "$38.00",
+      price: "৳38.00",
       link: "#",
     },
   },
@@ -901,7 +901,7 @@ export const testimonials14 = [
     productImgWidth: 70,
     productImgHeight: 70,
     productTitle: "Crossover Leggings",
-    productPrice: "$38.00",
+    productPrice: "৳38.00",
     productLink: "#",
   },
   {
@@ -918,7 +918,7 @@ export const testimonials14 = [
     productImgWidth: 360,
     productImgHeight: 360,
     productTitle: "Crossover Leggings",
-    productPrice: "$38.00",
+    productPrice: "৳38.00",
     productLink: "#",
   },
   {
@@ -935,7 +935,7 @@ export const testimonials14 = [
     productImgWidth: 360,
     productImgHeight: 360,
     productTitle: "Crossover Leggings",
-    productPrice: "$38.00",
+    productPrice: "৳38.00",
     productLink: "#",
   },
 ];
@@ -1055,7 +1055,7 @@ export const testimonials19 = [
     location: "Customer from Bangladesh",
     imgSrc: "/images/products/cosmetic7.jpg",
     productTitle: "Lip Butter Balm for Hydration & Shine",
-    price: "$24.00",
+    price: "৳24.00",
   },
   {
     delay: ".1s",
@@ -1065,7 +1065,7 @@ export const testimonials19 = [
     location: "Customer from Bangladesh",
     imgSrc: "/images/products/cosmetic5.jpg",
     productTitle: "Mini Self Tanning Natural Glow",
-    price: "$18.00",
+    price: "৳18.00",
   },
   {
     delay: ".2s",
@@ -1075,7 +1075,7 @@ export const testimonials19 = [
     location: "Customer from Bangladesh",
     imgSrc: "/images/products/cosmetic3.jpg",
     productTitle: "Sephora Colorful® Eyeshadow",
-    price: "$18.00",
+    price: "৳18.00",
   },
   {
     delay: ".3s",
@@ -1085,7 +1085,7 @@ export const testimonials19 = [
     location: "Customer from Bangladesh",
     imgSrc: "/images/products/cosmetic9.jpg",
     productTitle: "Unreal Liquid Blush",
-    price: "$24.00",
+    price: "৳24.00",
   },
 ];
 
@@ -1123,7 +1123,7 @@ export const testimonials20 = [
     metas: "Customer from Bangladesh",
     imgSrc: "/images/products/sw-pink1.jpg",
     productTitle: "Aloha Beach Short",
-    price: "$79.95",
+    price: "৳79.95",
   },
   {
     rating: 5,
@@ -1133,7 +1133,7 @@ export const testimonials20 = [
     metas: "Customer from Bangladesh",
     imgSrc: "/images/products/sw-black1.jpg",
     productTitle: "Eco Essentials Cross Front Moulded Cup Bra",
-    price: "$94.95",
+    price: "৳94.95",
   },
   {
     rating: 5,
@@ -1143,7 +1143,7 @@ export const testimonials20 = [
     metas: "Customer from Bangladesh",
     imgSrc: "/images/products/sw-black9.jpg",
     productTitle: 'Lotus 7" Boardshort',
-    price: "$53.97",
+    price: "৳53.97",
   },
   {
     rating: 5,
@@ -1153,7 +1153,7 @@ export const testimonials20 = [
     metas: "Customer from Bangladesh",
     imgSrc: "/images/products/sw-black5.jpg",
     productTitle: 'Eco Essentials 7" Boardshort',
-    price: "$69.95",
+    price: "৳69.95",
   },
 ];
 
@@ -1167,7 +1167,7 @@ export const testimonials21 = [
     product: {
       imgSrc: "/images/products/footwear-8.jpg",
       title: "Adult Voyageur Sparrow",
-      price: "$105.95",
+      price: "৳105.95",
     },
   },
   {
@@ -1179,7 +1179,7 @@ export const testimonials21 = [
     product: {
       imgSrc: "/images/products/footwear-9.jpg",
       title: "Jet High Top",
-      price: "$7.95",
+      price: "৳7.95",
     },
   },
   {
@@ -1203,7 +1203,7 @@ export const testimonials21 = [
     product: {
       imgSrc: "/images/products/footwear-11.jpg",
       title: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
-      price: "$16.95",
+      price: "৳16.95",
     },
   },
 ];
@@ -1221,7 +1221,7 @@ export const testimonials22 = [
     product: {
       imgSrc: "/images/item/tes-personalized-pod-2.jpg",
       title: "Family Ornament",
-      price: { original: "TK 22.00", discounted: "$19.00" },
+      price: { original: "TK 22.00", discounted: "৳19.00" },
     },
   },
   {
@@ -1236,7 +1236,7 @@ export const testimonials22 = [
     product: {
       imgSrc: "/images/item/tes-personalized-pod-4.jpg",
       title: "Customer from Bangladesh",
-      price: { original: "TK 222.00", discounted: "$199.00" },
+      price: { original: "TK 222.00", discounted: "৳199.00" },
     },
   },
   {
@@ -1251,7 +1251,7 @@ export const testimonials22 = [
     product: {
       imgSrc: "/images/item/tes-personalized-pod-6.jpg",
       title: "Christmas Tree Hanger",
-      price: { original: "TK 22.00", discounted: "$19.00" },
+      price: { original: "TK 22.00", discounted: "৳19.00" },
     },
   },
   {
@@ -1266,7 +1266,7 @@ export const testimonials22 = [
     product: {
       imgSrc: "/images/item/tes-personalized-pod-8.jpg",
       title: "Snowflake Family",
-      price: { original: "TK 22.00", discounted: "$19.00" },
+      price: { original: "TK 22.00", discounted: "৳19.00" },
     },
   },
 ];
@@ -1281,8 +1281,8 @@ export const testimonials23 = [
     metas: "Customer from Bangladesh",
     productImg: "/images/products/pickleball-black-1.jpg",
     productTitle: "Franklin Signature Pickleball Paddle",
-    oldPrice: "$139.99",
-    newPrice: "$105.95",
+    oldPrice: "৳139.99",
+    newPrice: "৳105.95",
   },
   {
     id: 2,
@@ -1294,7 +1294,7 @@ export const testimonials23 = [
     productImg: "/images/products/pickleball-red-1.jpg",
     productTitle: "Selkirk LUXX Control Air Invikta Pickleball Paddle",
     oldPrice: null,
-    newPrice: "$249.99",
+    newPrice: "৳249.99",
   },
   {
     id: 3,
@@ -1319,7 +1319,7 @@ export const testimonials23 = [
     productImg: "/images/products/pickleball-black-2.jpg",
     productTitle: "Gearbox Pro Power Elongated Pickleball Paddle",
     oldPrice: null,
-    newPrice: "$274.99",
+    newPrice: "৳274.99",
   },
 ];
 
@@ -1333,8 +1333,8 @@ export const testimonials24 = [
     metas: "Customer from Bangladesh",
     productImage: "/images/products/book-store-1.jpg",
     productTitle: "Burke Clete",
-    oldPrice: "$139.99",
-    newPrice: "$105.95",
+    oldPrice: "৳139.99",
+    newPrice: "৳105.95",
   },
   {
     delay: ".1s",
@@ -1345,7 +1345,7 @@ export const testimonials24 = [
     metas: "Customer from Bangladesh",
     productImage: "/images/products/pickleball-red-2.jpg",
     productTitle: "Funny a novel Story",
-    price: "$249.99",
+    price: "৳249.99",
   },
   {
     delay: ".2s",
@@ -1367,7 +1367,7 @@ export const testimonials24 = [
     metas: "Customer from Bangladesh",
     productImage: "/images/products/book-store-4.jpg",
     productTitle: "Gearbox Pro Power Elongated Pickleball Paddle",
-    price: "$274.99",
+    price: "৳274.99",
   },
 ];
 

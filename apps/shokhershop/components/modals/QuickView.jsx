@@ -115,7 +115,7 @@ export default function QuickView() {
                   </div>
                 </div>
                 <div className="tf-product-info-price">
-                  <div className="price">${quickViewItem.price.toFixed(2)}</div>
+                  <div className="price">৳{quickViewItem.price.toFixed(2)}</div>
                 </div>
                 <div className="tf-product-description">
                   <p>

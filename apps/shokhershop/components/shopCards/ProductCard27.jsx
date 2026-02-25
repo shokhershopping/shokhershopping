@@ -98,7 +98,7 @@ export default function ProductCard27({ product }) {
         <a href={`/product-detail/${product.id}`} className="title link">
           {product.title}
         </a>
-        <span className="price">${product.price.toFixed(2)}</span>
+        <span className="price">৳{product.price.toFixed(2)}</span>
         {product.colors ? (
           <ul className="list-color-product justify-content-center">
             {product.colors.map((color, colorIndex) => (

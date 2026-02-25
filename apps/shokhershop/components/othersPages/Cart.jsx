@@ -1,5 +1,6 @@
 "use client";
 import { useContextElement } from "@/context/Context";
+import { getImageUrl } from "@/lib/getImageUrl";
 import Image from "next/image";
 import Link from "next/link";
 export default function Cart() {
@@ -71,7 +72,7 @@ export default function Cart() {
                         >
                           <Image
                             alt="img-product"
-                            src={elm.imgSrc}
+                            src={getImageUrl(elm.images?.[0]?.path || elm.imgSrc)}
                             width={668}
                             height={932}
                           />
@@ -81,7 +82,7 @@ export default function Cart() {
                             href={`/product-detail/${elm.id}`}
                             className="cart-title link"
                           >
-                            {elm.title}
+                            {elm.title || elm.name}
                           </Link>
                           <div className="cart-meta-variant">White / M</div>
                           <span
@@ -215,7 +216,7 @@ export default function Cart() {
                   </span>
                 </div>
                 <div className="tf-progress-msg">
-                  Buy <span className="price fw-6">$75.00</span> more to enjoy{" "}
+                  Buy <span className="price fw-6">৳75.00</span> more to enjoy{" "}
                   <span className="fw-6">Free Shipping</span>
                 </div>
               </div>
@@ -394,13 +395,13 @@ export default function Cart() {
                   />
                   <label htmlFor="cart-gift-checkbox" className="fw-4">
                     <span>Do you want a gift wrap?</span> Only
-                    <span className="fw-5">$5.00</span>
+                    <span className="fw-5">৳5.00</span>
                   </label>
                 </div>
                 <div className="tf-cart-totals-discounts">
                   <h3>Subtotal</h3>
                   <span className="total-value">
-                    ${totalPrice.toFixed(2)} USD
+                    ৳{totalPrice.toFixed(2)} BDT
                   </span>
                 </div>
                 <p className="tf-cart-tax">

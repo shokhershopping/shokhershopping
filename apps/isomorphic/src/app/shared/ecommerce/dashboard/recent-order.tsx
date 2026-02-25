@@ -33,20 +33,28 @@ export default function RecentOrder({ className }: { className?: string }) {
           order: 'desc',
         }, token);
 
+        // Helper to parse Firestore timestamps
+        const parseTimestamp = (ts: any): string => {
+          if (!ts) return '';
+          if (ts._seconds) return new Date(ts._seconds * 1000).toISOString();
+          return new Date(ts).toISOString();
+        };
+
         // Transform the data to match column expectations
         const transformedOrders = (response.data || []).map((order: any) => ({
           ...order,
-          name: order.user?.name || order.user?.email || 'Unknown',
+          name: order.userName || order.userEmail || order.user?.name || 'Unknown',
           avatar: order.user?.image || '',
-          email: order.user?.email || '',
+          email: order.userEmail || order.user?.email || '',
           items: Array.isArray(order.items) ? order.items.length : 0,
           price: order.netTotal || order.total || 0,
+          createdAt: parseTimestamp(order.createdAt),
+          updatedAt: parseTimestamp(order.updatedAt),
         }));
 
         setOrders(transformedOrders);
         setError(null);
       } catch (err) {
-        console.error('Error fetching recent orders:', err);
         setError('Failed to load recent orders');
       } finally {
         setLoading(false);

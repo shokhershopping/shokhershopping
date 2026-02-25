@@ -28,7 +28,7 @@ export default function BannerCountdown() {
             href={`/shop-default`}
             className="tf-btn btn-fill btn-md animate-hover-btn radius-3"
           >
-            Shop now - $129
+            Shop now - ৳129
           </Link>
         </div>
       </div>

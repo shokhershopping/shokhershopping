@@ -19,6 +19,8 @@ import {
 } from 'firebase/auth';
 import { clientAuth } from 'firebase-config/client';
 
+export type UserRole = 'USER' | 'ADMIN' | 'EDITOR';
+
 export interface AuthUser {
   uid: string;
   email: string | null;
@@ -28,6 +30,7 @@ export interface AuthUser {
   fullName: string | null;
   imageUrl: string | null;
   photoURL: string | null;
+  role: UserRole;
 }
 
 interface AuthContextType {
@@ -49,7 +52,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function parseFirebaseUser(fbUser: FirebaseUser | null): AuthUser | null {
+function parseFirebaseUser(fbUser: FirebaseUser | null, role: UserRole = 'USER'): AuthUser | null {
   if (!fbUser) return null;
 
   const displayName = fbUser.displayName || '';
@@ -66,6 +69,7 @@ function parseFirebaseUser(fbUser: FirebaseUser | null): AuthUser | null {
     fullName: fbUser.displayName,
     imageUrl: fbUser.photoURL,
     photoURL: fbUser.photoURL,
+    role,
   };
 }
 
@@ -77,7 +81,6 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(clientAuth, async (fbUser: FirebaseUser | null) => {
       setFirebaseUser(fbUser);
-      setUser(parseFirebaseUser(fbUser));
 
       if (fbUser) {
         // Create/refresh session cookie on the server BEFORE marking as loaded
@@ -88,9 +91,37 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken }),
           });
-        } catch (error) {
-          console.error('Failed to create session:', error);
+        } catch {
+          // Session creation failed — will retry on next auth state change
         }
+
+        // Fetch user role from Firestore, auto-create if not found
+        let role: UserRole = 'USER';
+        try {
+          const res = await fetch(`/api/users/${fbUser.uid}`);
+          if (res.ok) {
+            const data = await res.json();
+            role = data?.data?.role || 'USER';
+          } else if (res.status === 404) {
+            // User doesn't exist in Firestore yet — create them
+            await fetch('/api/users/ensure', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: fbUser.uid,
+                email: fbUser.email,
+                name: fbUser.displayName,
+                image: fbUser.photoURL,
+              }),
+            });
+          }
+        } catch {
+          // User role fetch failed — default to USER
+        }
+
+        setUser(parseFirebaseUser(fbUser, role));
+      } else {
+        setUser(null);
       }
 
       // Mark as loaded only after session cookie is set
@@ -113,8 +144,8 @@ export function FirebaseAuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch('/api/auth/signout', { method: 'POST' });
       await firebaseSignOut(clientAuth);
-    } catch (error) {
-      console.error('Sign out error:', error);
+    } catch {
+      // Sign out error — silently handle
     }
   }, []);
 

@@ -1,6 +1,7 @@
 "use client";
 import { useContextElement } from "@/context/Context";
 import { useFirebaseAuth } from "@/lib/firebase-auth-provider";
+import { getImageUrl } from "@/lib/getImageUrl";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -10,9 +11,13 @@ export default function Checkout() {
   const { cartProducts, setCartProducts, user, isLoadingUser } = useContextElement();
   const { user: firebaseUser, isLoaded: isAuthLoaded, isSignedIn } = useFirebaseAuth();
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const baseUrl = '/api';
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [coupon, setCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
   const [formData, setFormData] = useState({
     // Billing Address
     billingFirstName: "",
@@ -77,8 +82,6 @@ export default function Checkout() {
     }
   };
 
-  const grandTotal = totalPrice + deliveryCharge;
-
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -93,8 +96,8 @@ export default function Checkout() {
     const imagePath =
       product.images?.[0]?.path ||
       product.imgSrc ||
-      "default-product-image.jpg";
-    return `${baseUrl}/${imagePath}`;
+      null;
+    return getImageUrl(imagePath);
   };
 
   // Get variant text
@@ -112,6 +115,63 @@ export default function Checkout() {
     if (color) return color;
     if (size) return size;
     return "";
+  };
+
+  // Coupon discount calculation
+  // Firestore coupon fields: type (PERCENTAGE/FIXED), amount, minimum, maximum
+  const couponDiscount = coupon
+    ? coupon.type === "PERCENTAGE"
+      ? Math.min(
+          (totalPrice * coupon.amount) / 100,
+          coupon.maximum || Infinity
+        )
+      : Math.min(coupon.amount, totalPrice)
+    : 0;
+
+  const grandTotal = totalPrice + deliveryCharge - couponDiscount;
+
+  // Apply coupon
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault();
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const response = await fetch(
+        `/api/coupons?code=${encodeURIComponent(couponCode.trim())}`
+      );
+      const result = await response.json();
+
+      if (!response.ok || result.status !== "success") {
+        setCouponError(result.message || "Invalid coupon code");
+        setCoupon(null);
+        return;
+      }
+
+      const couponData = result.data;
+
+      // Check minimum amount (Firestore field: minimum)
+      const minAmount = couponData.minimum || couponData.minAmount || 0;
+      if (minAmount && totalPrice < minAmount) {
+        setCouponError(
+          `Minimum order amount is ৳${minAmount} for this coupon`
+        );
+        setCoupon(null);
+        return;
+      }
+
+      setCoupon(couponData);
+      setCouponError("");
+    } catch (err) {
+      setCouponError("Failed to validate coupon");
+      setCoupon(null);
+    } finally {
+      setCouponLoading(false);
+    }
   };
 
   // Handle form submission
@@ -168,6 +228,7 @@ export default function Checkout() {
         order: {
           userId: firebaseUser?.uid,
           deliveryCharge: deliveryCharge,
+          ...(coupon ? { couponId: coupon.id, discount: couponDiscount } : {}),
         },
         items: cartProducts.map((product) => ({
           quantity: product.quantity,
@@ -191,12 +252,13 @@ export default function Checkout() {
         throw new Error(errorData.message || "Failed to place order");
       }
 
+      const result = await response.json();
+      const newOrderId = result.data?.id;
       // Clear cart on success
       setCartProducts([]);
-      router.push("/my-account-orders");
+      router.push(newOrderId ? `/payment-confirmation?orderId=${newOrderId}` : "/my-account-orders");
     } catch (err) {
       setError(err.message || "An error occurred during checkout");
-      console.error("Checkout error:", err);
     } finally {
       setLoading(false);
     }
@@ -511,14 +573,29 @@ export default function Checkout() {
                 )}
 
                 <div className="coupon-box">
-                  <input type="text" placeholder="Discount code" />
-                  <a
-                    href="#"
+                  <input
+                    type="text"
+                    placeholder="Discount code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading}
                     className="tf-btn btn-sm radius-3 btn-fill btn-icon animate-hover-btn"
                   >
-                    Apply
-                  </a>
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
                 </div>
+                {couponError && (
+                  <p className="text-danger small mt-1">{couponError}</p>
+                )}
+                {coupon && (
+                  <p className="text-success small mt-1">
+                    Coupon applied! You save ৳{couponDiscount.toFixed(2)}
+                  </p>
+                )}
 
                 {/* Order Totals */}
                 <div className="order-totals">
@@ -528,11 +605,16 @@ export default function Checkout() {
                   </div>
                   <div className="d-flex justify-content-between pb_10">
                     <span>Delivery Charge:</span>
-                    <span>
-                      {deliveryCharge} TK
-                      <span className="text-muted small ms-2"></span>
-                    </span>
+                    <span>{deliveryCharge} TK</span>
                   </div>
+                  {couponDiscount > 0 && (
+                    <div className="d-flex justify-content-between pb_10">
+                      <span>Discount:</span>
+                      <span className="text-success">
+                        -{couponDiscount.toFixed(2)} TK
+                      </span>
+                    </div>
+                  )}
                   <div className="d-flex justify-content-between line pb_20">
                     <h6 className="fw-5">Total</h6>
                     <h6 className="total fw-5">{grandTotal.toFixed(2)} TK</h6>

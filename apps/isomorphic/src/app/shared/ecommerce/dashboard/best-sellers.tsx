@@ -40,7 +40,6 @@ export default function BestSellers({ className }: { className?: string }) {
         setProducts(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching top products:', err);
         setError('Failed to load top products');
       } finally {
         setLoading(false);

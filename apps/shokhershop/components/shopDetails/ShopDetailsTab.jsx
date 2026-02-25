@@ -18,23 +18,24 @@ export default function ShopDetailsTab({ product }) {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/reviews/product/${product.id}`
+          `/api/reviews/product/${product.id}`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch reviews");
+          return;
         }
         const data = await response.json();
-        const reviewsData = data.data;
+        const reviewsData = data.data || [];
         setReviews(reviewsData);
       } catch (error) {
-        console.error("Error fetching reviews:", error);
+        // Reviews fetch failed silently
       }
     };
     fetchReviews();
   }, [product.id]);
 
-  const averageRating =
-    reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    : 0;
 
   return (
     <section
@@ -67,6 +68,7 @@ export default function ShopDetailsTab({ product }) {
                   <div className="">
                     <p
                       className="mb_30"
+                      suppressHydrationWarning
                       dangerouslySetInnerHTML={{
                         __html: product?.description || "",
                       }}

@@ -67,7 +67,7 @@ export default function Products2() {
                         >
                           {slide.title}
                         </Link>
-                        <span className="price">${slide.price.toFixed(2)}</span>{" "}
+                        <span className="price">৳{slide.price.toFixed(2)}</span>{" "}
                         {/* Display price as number */}
                       </div>
                       <a

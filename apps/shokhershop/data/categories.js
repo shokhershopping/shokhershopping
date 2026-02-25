@@ -31,19 +31,19 @@ export const slidesData = [
     imgSrc: "/images/collections/collection-27.jpg",
     alt: "collection-img",
     title: "Modern Backpack",
-    price: "$199",
+    price: "৳199",
   },
   {
     imgSrc: "/images/collections/collection-28.jpg",
     alt: "collection-img",
     title: "Season Collection",
-    price: "$199",
+    price: "৳199",
   },
   {
     imgSrc: "/images/collections/collection-26.jpg",
     alt: "collection-img",
     title: "Stradivarius top trainers",
-    price: "$199",
+    price: "৳199",
   },
 ];
 

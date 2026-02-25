@@ -5,7 +5,7 @@
 export interface IResponse<T> {
   status: string;
   message: string;
-  data: T;
+  data: T | null;
   error?: string;
   code?: number;
   total?: number;
@@ -50,11 +50,11 @@ export function successResponse<T>(
 /**
  * Create an error response.
  */
-export function errorResponse(
+export function errorResponse<T = null>(
   message: string,
   code = 500,
   error?: string
-): IResponse<null> {
+): IResponse<T> {
   return {
     status: 'error',
     message,

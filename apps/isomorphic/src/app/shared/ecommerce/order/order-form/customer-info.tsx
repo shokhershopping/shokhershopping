@@ -17,7 +17,6 @@ export default function CustomerInfo({ className, order }: CustomerInfoProps) {
     control,
     formState: { errors },
   } = useFormContext();
-  console.log('order', order);
   return (
     <div
       className={cn(

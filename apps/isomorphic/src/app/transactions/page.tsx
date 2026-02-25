@@ -4,7 +4,7 @@ import PageHeader from '../shared/page-header';
 import { metaObject } from '@/config/site.config';
 
 export const metadata = {
-  ...metaObject('Create Product'),
+  ...metaObject('Transactions'),
 };
 
 export default function TransactionHistory() {

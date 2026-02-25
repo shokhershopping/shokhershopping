@@ -223,7 +223,7 @@ export default function Categories() {
                   href={`/shop-collection-list`}
                   className="link title fw-6"
                 >
-                  Under $20
+                  Under ৳20
                 </Link>
               </div>
             </div>

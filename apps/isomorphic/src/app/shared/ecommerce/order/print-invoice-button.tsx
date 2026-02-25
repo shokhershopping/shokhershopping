@@ -69,7 +69,6 @@ export default function PrintInvoiceButton({
         }, 500);
       });
     } catch (error) {
-      console.error('Error creating invoice:', error);
       toast.error('Failed to create invoice. Printing anyway...');
 
       // Still allow printing even if backend fails

@@ -56,7 +56,7 @@ export async function getDashboardStats(
   period = 30,
   token?: string | null
 ): Promise<DashboardApiResponse<DashboardStats>> {
-  const endpoint = `${api.dashboard.stats}?period=${period}`;
+  const endpoint = `${api.dashboard.stats}&period=${period}`;
   return fetchAPI<DashboardStats>(endpoint, token);
 }
 
@@ -70,7 +70,7 @@ export async function getSalesReport(
   token?: string | null
 ): Promise<DashboardApiResponse<SalesReportData[]>> {
   const selectedYear = year || new Date().getFullYear();
-  const endpoint = `${api.dashboard.salesReport}?year=${selectedYear}`;
+  const endpoint = `${api.dashboard.salesReport}&year=${selectedYear}`;
   return fetchAPI<SalesReportData[]>(endpoint, token);
 }
 

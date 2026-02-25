@@ -8,7 +8,7 @@ export const transactionTypes = {
 };
 
 export const currencies = {
-  USD: 'USD',
+  BDT: 'BDT',
   Euro: 'Euro',
   Riyal: 'Riyal',
   Dirham: 'Dirham',
@@ -60,7 +60,7 @@ export const transactionHistory = [
     date: '2022-11-10T06:22:01.621Z',
     status: 'Completed',
     amount: 450.54,
-    currency: 'USD',
+    currency: 'BDT',
     paymentMethod: {
       cardType: 'Mastercard',
       lastCardNo: '4242',
@@ -137,7 +137,7 @@ export const transactionHistory = [
     date: '2021-11-26T06:34:48.311Z',
     status: 'Cancelled',
     amount: 450.54,
-    currency: 'USD',
+    currency: 'BDT',
     paymentMethod: {
       cardType: 'Visa',
       lastCardNo: '5846',
@@ -156,7 +156,7 @@ export const transactionHistory = [
     date: '2022-11-10T06:22:01.621Z',
     status: 'Pending',
     amount: 450.54,
-    currency: 'USD',
+    currency: 'BDT',
     paymentMethod: {
       cardType: 'Mastercard',
       lastCardNo: '4242',

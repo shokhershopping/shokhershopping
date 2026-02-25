@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { apiClient } from "@/lib/apiClient";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function SearchModal() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,7 +65,6 @@ export default function SearchModal() {
       setSearchResults(response.data || []);
     } catch (err) {
       if (err.name !== "AbortError") {
-        console.error("Search error:", err);
         setError("Failed to search products. Please try again.");
       }
     } finally {
@@ -114,7 +114,7 @@ export default function SearchModal() {
   const getProductImage = (product) => {
     // Check if product has images
     if (product.images && product.images.length > 0) {
-      return `${process.env.NEXT_PUBLIC_APP_URL}/${product.images[0].path}`;
+      return getImageUrl(product.images[0].path);
     }
     // Check if product has variants with images
     if (
@@ -123,7 +123,7 @@ export default function SearchModal() {
       product.variableProducts[0].images &&
       product.variableProducts[0].images.length > 0
     ) {
-      return `${process.env.NEXT_PUBLIC_APP_URL}/${product.variableProducts[0].images[0].path}`;
+      return getImageUrl(product.variableProducts[0].images[0].path);
     }
     // Default placeholder
     return "/images/placeholder.jpg";
@@ -233,15 +233,15 @@ export default function SearchModal() {
                             {priceInfo.isOnSale ? (
                               <>
                                 <div className="compare-at-price">
-                                  ${priceInfo.price.toFixed(2)}
+                                  ৳{priceInfo.price.toFixed(2)}
                                 </div>
                                 <div className="price-on-sale fw-6">
-                                  ${priceInfo.salePrice.toFixed(2)}
+                                  ৳{priceInfo.salePrice.toFixed(2)}
                                 </div>
                               </>
                             ) : (
                               <div className="price fw-6">
-                                ${priceInfo.price.toFixed(2)}
+                                ৳{priceInfo.price.toFixed(2)}
                               </div>
                             )}
                           </div>

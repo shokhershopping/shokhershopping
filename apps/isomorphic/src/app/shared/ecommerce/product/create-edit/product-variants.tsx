@@ -127,7 +127,7 @@ export default function ProductVariants({ className }: { className?: string }) {
               label="Price"
               placeholder="0.00"
               className="min-w-[150px] flex-grow"
-              prefix={'$'}
+              prefix={'৳'}
               error={
                 (errors?.productVariants as any)?.[variantIndex]?.price?.message
               }
@@ -146,7 +146,7 @@ export default function ProductVariants({ className }: { className?: string }) {
               label="Sale Price"
               placeholder="0.00"
               className="min-w-[150px] flex-grow"
-              prefix={'$'}
+              prefix={'৳'}
               error={
                 (errors?.productVariants as any)?.[variantIndex]?.salePrice
                   ?.message

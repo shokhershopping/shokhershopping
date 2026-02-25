@@ -52,6 +52,17 @@ export const routes = {
 
     trackingId: (id: string) => `/tracking/${id}`,
 
+    // banners
+    banners: '/banners',
+    createBanner: '/banners/create',
+    editBanner: (id: string) => `/banners/${id}/edit`,
+
+    // marquee
+    marquee: '/marquee',
+
+    // admin management
+    admin: '/admin',
+
     cart: '/cart',
     checkout: '/checkout',
     shop: '/shop',

@@ -121,7 +121,7 @@ export default function Products3() {
                     >
                       {product.title}
                     </Link>
-                    <span className="price">${product.price.toFixed(2)}</span>
+                    <span className="price">৳{product.price.toFixed(2)}</span>
                     <a
                       onClick={() => addProductToCart(product.id)}
                       className="btn-add-cart"

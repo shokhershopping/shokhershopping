@@ -20,21 +20,6 @@ export const ProductCard = ({ product }) => {
     setCurrentImage(product.imgSrc);
   }, [product]);
 
-  const handleAddToCart = () => {
-    // Create a cart-ready product object
-    const cartProduct = {
-      ...selectedVariant,
-      name: product.name, // Keep parent product name
-      price: displayPrice,
-      specifications: {
-        ...selectedVariant.specifications,
-        size: currentSize.value,
-        color: currentColor.value,
-      },
-    };
-
-    addProductToCart(cartProduct, quantity);
-  };
   const handleWishlistToggle = () => {
     const wishlistProduct = {
       ...product,
@@ -104,7 +89,7 @@ export const ProductCard = ({ product }) => {
                           document.body.appendChild(backdrop);
                         }
                       } catch (error) {
-                        console.error('Error opening modal:', error);
+                        // Silently handle modal open error
                       }
                     }
                   }, 50);

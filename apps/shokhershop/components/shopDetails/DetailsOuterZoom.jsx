@@ -35,9 +35,6 @@ export default function DetailsOuterZoom({ product }) {
     {}
   );
 
-  console.log("Variant colors:", variantColors);
-  console.log("Color-wise variant sizes:", colorWiseVariantSizes);
-
   // Set initial color from first variant or product specs
   const initialColor = variantColors[0] || {
     value: product.specifications?.color,
@@ -50,7 +47,7 @@ export default function DetailsOuterZoom({ product }) {
 
   // Set initial size based on first color's first size
   const initialSize = colorWiseVariantSizes[
-    initialColor.value.toLowerCase()
+    initialColor.value?.toLowerCase()
   ]?.[0] || {
     id: product.id || "default-size",
     value: product.specifications?.size || "M",
@@ -64,7 +61,7 @@ export default function DetailsOuterZoom({ product }) {
   useEffect(() => {
     if (variantColors.length > 0) {
       const sizesForColor =
-        colorWiseVariantSizes[currentColor.value.toLowerCase()];
+        colorWiseVariantSizes[currentColor.value?.toLowerCase()];
       if (sizesForColor && sizesForColor.length > 0) {
         setCurrentSize(sizesForColor[0]);
       }
@@ -82,8 +79,6 @@ export default function DetailsOuterZoom({ product }) {
   // Find selected variant based on color and size
   const selectedVariant =
     product.variableProducts?.find((v) => v.id === currentSize.id) || product;
-
-  console.log("Selected variant:", selectedVariant);
 
   // Get all variant images (from all color variants)
   const allVariantImages =
@@ -294,7 +289,7 @@ export default function DetailsOuterZoom({ product }) {
                     </div>
                     <form className="variant-picker-values">
                       {colorWiseVariantSizes[
-                        currentColor.value.toLowerCase()
+                        currentColor.value?.toLowerCase()
                       ]?.map((size) => (
                         <React.Fragment key={size.id}>
                           <input

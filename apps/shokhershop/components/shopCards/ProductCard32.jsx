@@ -115,12 +115,12 @@ export default function ProductCard32({
         {product.oldPrice ? (
           <span className="price">
             <span className="fw-4 text-sale">
-              ${product.oldPrice.toFixed(2)}
+              ৳{product.oldPrice.toFixed(2)}
             </span>{" "}
-            <span className="text_primary">${product.price.toFixed(2)}</span>
+            <span className="text_primary">৳{product.price.toFixed(2)}</span>
           </span>
         ) : (
-          <span className="price">${product.price.toFixed(2)}</span>
+          <span className="price">৳{product.price.toFixed(2)}</span>
         )}
 
         {product.colors?.length > 0 && (

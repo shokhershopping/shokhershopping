@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import React, { useEffect, useState } from "react";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -14,15 +15,15 @@ export default function Categories() {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/categories`
+          `/api/categories`
         );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          setLoading(false);
+          return;
         }
 
         const res = await response.json();
-        console.log("Categories response:", res);
         const data = res.data;
 
         setCategories(data);
@@ -36,12 +37,12 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
-  console.log("Categories:", categories);
   //get image path
-  const getImagePath = (image) => {
-    if (!image || !image.path) return null;
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-    return `${baseUrl}/${image.path}`;
+  const getImagePath = (category) => {
+    // Category has imageUrl (direct URL string), not image.path
+    const url = category?.imageUrl || category?.image?.path || category?.image;
+    if (!url) return "/default-product-image.jpg";
+    return getImageUrl(url);
   };
 
   if (loading) {
@@ -114,7 +115,7 @@ export default function Categories() {
                       >
                         <Image
                           className="lazyload"
-                          src={getImagePath(category.image)}
+                          src={getImagePath(category)}
                           alt={category.name}
                           width="600"
                           height="721"

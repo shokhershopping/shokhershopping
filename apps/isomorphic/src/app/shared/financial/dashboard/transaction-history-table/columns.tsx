@@ -1,22 +1,40 @@
 'use client';
 
-import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
-import TableRowActionGroup from '@core/components/table-utils/table-row-action-group';
-import MasterCardIcon from '@core/components/icons/mastercard';
-import VisaIcon from '@core/components/icons/visa';
 import AvatarCard from '@core/ui/avatar-card';
 import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Checkbox, Text } from 'rizzui';
-import { TransactionHistoryDataType } from '.';
+import { Badge, Checkbox, Text } from 'rizzui';
 
-const statusColorClassName = {
-  Complete: 'text-green-dark before:bg-green-dark',
-  Pending: 'before:bg-orange text-orange-dark',
-  Canceled: 'text-red-dark before:bg-red-dark',
+export interface TransactionData {
+  id: string;
+  orderId: string;
+  customer: {
+    name: string;
+    email: string;
+  };
+  date: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  transactionStatus: string;
+  orderStatus: string;
+}
+
+const columnHelper = createColumnHelper<TransactionData>();
+
+const paymentMethodLabels: Record<string, string> = {
+  COD: 'Cash on Delivery',
+  BKASH: 'bKash',
+  SSLCOMMERZ: 'SSLCommerz',
 };
 
-const columnHelper = createColumnHelper<TransactionHistoryDataType>();
+const orderStatusColors: Record<string, string> = {
+  PENDING: 'before:bg-orange text-orange-dark',
+  PROCESSING: 'before:bg-blue text-blue-dark',
+  DISPATCHED: 'before:bg-indigo text-indigo-dark',
+  DELIVERED: 'text-green-dark before:bg-green-dark',
+  CANCELLED: 'text-red-dark before:bg-red-dark',
+};
 
 export const transactionHistoryColumns = [
   columnHelper.display({
@@ -40,10 +58,14 @@ export const transactionHistoryColumns = [
     ),
   }),
   columnHelper.display({
-    id: 'id',
-    size: 100,
-    header: 'User Id',
-    cell: ({ row }) => <Text>#{row.original.id}</Text>,
+    id: 'orderId',
+    size: 130,
+    header: 'Order ID',
+    cell: ({ row }) => (
+      <Text className="font-medium text-gray-700">
+        #{row.original.orderId.slice(0, 8)}
+      </Text>
+    ),
   }),
   columnHelper.display({
     id: 'date',
@@ -51,100 +73,61 @@ export const transactionHistoryColumns = [
     header: 'Date',
     cell: ({ row }) => <DateCell date={new Date(row.original.date)} />,
   }),
-  columnHelper.accessor('user.name', {
-    id: 'user',
-    size: 270,
-    header: 'Recipient',
+  columnHelper.accessor('customer.name', {
+    id: 'customer',
+    size: 250,
+    header: 'Customer',
     enableSorting: false,
     cell: ({ row }) => (
       <AvatarCard
-        src={row.original.user.avatar}
-        name={row.original.user.name}
-        description={row.original.user.email}
+        name={row.original.customer.name}
+        description={row.original.customer.email}
       />
-    ),
-  }),
-  columnHelper.accessor('type', {
-    id: 'type',
-    size: 150,
-    header: 'Type',
-    cell: ({ row }) => (
-      <Text className="whitespace-nowrap font-medium text-gray-900">
-        {row.original.type}
-      </Text>
     ),
   }),
   columnHelper.accessor('amount', {
     id: 'amount',
-    size: 100,
+    size: 120,
     header: 'Amount',
     enableSorting: true,
     cell: ({ row }) => (
       <span className="whitespace-nowrap font-semibold">
-        ${row.original.amount}
+        ৳{row.original.amount.toLocaleString('bn-BD')}
       </span>
     ),
   }),
   columnHelper.display({
     id: 'currency',
-    size: 100,
+    size: 80,
     header: 'Currency',
     cell: ({ row }) => (
-      <span className="whitespace-nowrap font-semibold">
-        {row.original.currency}
-      </span>
+      <Text className="font-medium">{row.original.currency}</Text>
     ),
   }),
-  columnHelper.display({
+  columnHelper.accessor('paymentMethod', {
     id: 'paymentMethod',
-    size: 130,
-    header: 'Method',
+    size: 150,
+    header: 'Payment Method',
     cell: ({ row }) => (
-      <PaymentMethodCell
-        cardType={row.original.paymentMethod.cardType}
-        lastCardNo={row.original.paymentMethod.lastCardNo}
-      />
+      <Badge variant="outline" className="font-medium">
+        {paymentMethodLabels[row.original.paymentMethod] || row.original.paymentMethod}
+      </Badge>
     ),
   }),
-  columnHelper.accessor('status', {
-    id: 'status',
-    size: 100,
+  columnHelper.accessor('orderStatus', {
+    id: 'orderStatus',
+    size: 130,
     header: 'Status',
-    cell: ({ row }) => getStatusBadge(row.original.status),
-  }),
-  columnHelper.display({
-    id: 'actions',
-    size: 140,
-    cell: ({
-      row,
-      table: {
-        options: { meta },
-      },
-    }) => (
-      <TableRowActionGroup
-        onDelete={() =>
-          meta?.handleDeleteRow && meta?.handleDeleteRow(row.original)
-        }
-      />
-    ),
+    cell: ({ row }) => {
+      const status = row.original.orderStatus;
+      const colorClass = orderStatusColors[status] || 'text-gray-600 before:bg-gray-400';
+      return (
+        <span
+          className={`inline-flex items-center gap-1.5 before:inline-block before:h-2 before:w-2 before:rounded-full ${colorClass}`}
+        >
+          <span className="capitalize">{status.toLowerCase()}</span>
+        </span>
+      );
+    },
   }),
 ];
-
-function PaymentMethodCell({
-  cardType,
-  lastCardNo,
-}: {
-  cardType: string;
-  lastCardNo: string;
-}) {
-  return (
-    <span className="flex gap-3">
-      {cardType === 'Mastercard' ? (
-        <MasterCardIcon className="h-auto w-6" />
-      ) : (
-        <VisaIcon className="h-auto w-6" />
-      )}
-      <Text className="font-semibold text-gray-900">***{lastCardNo}</Text>
-    </span>
-  );
-}

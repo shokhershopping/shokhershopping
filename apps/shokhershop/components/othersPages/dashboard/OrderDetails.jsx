@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/getImageUrl";
 
 export default function OrderDetails({ order }) {
   useEffect(() => {
@@ -61,15 +62,18 @@ export default function OrderDetails({ order }) {
   }
 
   // Helper functions
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   const getFirstItemImage = () => {
     const firstItem = order.items?.[0];
     if (!firstItem) return "/images/products/brown.jpg";
 
+    // Check for productImageUrl from order items (new format)
+    if (firstItem.productImageUrl) {
+      return getImageUrl(firstItem.productImageUrl);
+    }
+
     const product = firstItem.product || firstItem.variableProduct;
     if (product?.images?.[0]?.path) {
-      return `${baseUrl}/${product.images[0].path}`;
+      return getImageUrl(product.images[0].path);
     }
     return "/images/products/brown.jpg";
   };
@@ -157,9 +161,14 @@ export default function OrderDetails({ order }) {
   };
 
   const getItemImage = (item) => {
+    // Check for productImageUrl from order items (new format)
+    if (item.productImageUrl) {
+      return getImageUrl(item.productImageUrl);
+    }
+
     const product = item.product || item.variableProduct;
     if (product?.images?.[0]?.path) {
-      return `${baseUrl}/${product.images[0].path}`;
+      return getImageUrl(product.images[0].path);
     }
     return "/images/products/brown.jpg";
   };

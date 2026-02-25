@@ -13,8 +13,8 @@ export default function VolumeDiscountGrid({ product }) {
       percent: "Save 10%",
       imgSrc: "/images/item/sock-3items.jpg",
       imgAlt: "3x Socks",
-      priceCompare: "$90.00",
-      priceRegular: "$81.00",
+      priceCompare: "৳90.00",
+      priceRegular: "৳81.00",
       value: 3,
     },
     {
@@ -22,8 +22,8 @@ export default function VolumeDiscountGrid({ product }) {
       percent: "Save 15%",
       imgSrc: "/images/item/sock-5items.jpg",
       imgAlt: "5x Socks",
-      priceCompare: "$195.00",
-      priceRegular: "$165.75",
+      priceCompare: "৳195.00",
+      priceRegular: "৳165.75",
       badge: {
         text: "Most popular",
         icon: (
@@ -39,8 +39,8 @@ export default function VolumeDiscountGrid({ product }) {
       percent: "Save 20%",
       imgSrc: "/images/item/sock-5items.jpg",
       imgAlt: "7x Socks",
-      priceCompare: "$273.00",
-      priceRegular: "$218.40",
+      priceCompare: "৳273.00",
+      priceRegular: "৳218.40",
       value: 7,
     },
   ];

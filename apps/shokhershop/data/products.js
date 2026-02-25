@@ -608,7 +608,7 @@ export const products4 = [
     imgHeight: 995,
     title: "Ribbed modal T-shirt",
     price: 8.0,
-    compareAtPrice: "$10.00",
+    compareAtPrice: "৳10.00",
     options: [
       "Beige / S",
       "Beige / M",
@@ -635,7 +635,7 @@ export const products4 = [
     imgHeight: 1075,
     title: "Cotton jersey top",
     price: 8.0,
-    compareAtPrice: "$10.00",
+    compareAtPrice: "৳10.00",
     options: [
       "Beige / S",
       "Beige / M",
@@ -700,7 +700,7 @@ export const products5 = [
     imgHoverSrc: "/images/products/skincare-10.jpg",
     title: "Natural Moisturizing Factors",
     price: 52.0,
-    oldPrice: "$62.00",
+    oldPrice: "৳62.00",
     sizes: ["50ml", "80ml"],
     filterCategories: ["Essentials"],
   },
@@ -710,7 +710,7 @@ export const products5 = [
     imgHoverSrc: "/images/products/skincare-12.jpg",
     title: "Natural Moisturizing Factors",
     price: 52.0,
-    oldPrice: "$62.00",
+    oldPrice: "৳62.00",
     sizes: ["50ml", "80ml"],
     filterCategories: ["Essentials", "Gift Sets"],
   },
@@ -1087,7 +1087,7 @@ export const products7 = [
     imgSrc: "/images/products/headphone-8.png",
     imgHoverSrc: "/images/products/headphone-9.png",
     price: 279.0,
-    originalPrice: "$349.00",
+    originalPrice: "৳349.00",
     colors: [
       {
         name: "Black",
@@ -1160,7 +1160,7 @@ export const products7 = [
     imgSrc: "/images/products/headphone-17.png",
     imgHoverSrc: "/images/products/headphone-18.png",
     price: 479.0,
-    originalPrice: "$549.00",
+    originalPrice: "৳549.00",
     colors: [
       {
         name: "Green",
@@ -1185,7 +1185,7 @@ export const products7 = [
     imgSrc: "/images/products/headphone-8.png",
     imgHoverSrc: "/images/products/headphone-9.png",
     price: 279.0,
-    originalPrice: "$349.00",
+    originalPrice: "৳349.00",
     colors: [
       {
         name: "Black",
@@ -1258,7 +1258,7 @@ export const products7 = [
     imgSrc: "/images/products/headphone-17.png",
     imgHoverSrc: "/images/products/headphone-18.png",
     price: 479.0,
-    originalPrice: "$549.00",
+    originalPrice: "৳549.00",
     colors: [
       {
         name: "Green",
@@ -1400,7 +1400,7 @@ export const products9 = [
     imgHoverSrc: "/images/products/furniture-5.jpg",
     title: "MG501 Cuba Lounge Chair, Paper Cord",
     price: 1290.0,
-    oldPrice: "$1,366.00",
+    oldPrice: "৳1,366.00",
     colors: [
       {
         name: "Black",
@@ -1441,7 +1441,7 @@ export const products9 = [
     imgHoverSrc: "/images/products/furniture-11.jpg",
     title: "Soborg Model 3052 Dining Chair",
     price: 1356.0,
-    oldPrice: "$1,695.00",
+    oldPrice: "৳1,695.00",
     colors: [
       {
         name: "Black",
@@ -1939,7 +1939,7 @@ export const products15 = [
     imgHoverSrc: "/images/collections/electronic-13.png",
     title: "SoundForm Rise",
     price: 79.99,
-    oldPrice: "$100.00",
+    oldPrice: "৳100.00",
   },
   {
     id: 112,
@@ -1947,7 +1947,7 @@ export const products15 = [
     imgHoverSrc: "/images/collections/electronic-15.png",
     title: "Wireless On-Ear Headphones for Kids",
     price: 24.99,
-    oldPrice: "$34.99",
+    oldPrice: "৳34.99",
   },
   {
     id: 113,
@@ -1955,7 +1955,7 @@ export const products15 = [
     imgHoverSrc: "/images/collections/electronic-17.jpg",
     title: "3-in-1 Wireless Charger with Official MagSafe Charging 15W",
     price: 127.49,
-    oldPrice: "$149.99",
+    oldPrice: "৳149.99",
   },
   {
     id: 114,
@@ -1972,7 +1972,7 @@ export const products16 = [
     imgSrc: "/images/products/setup-gear-1.jpg",
     imgHoverSrc: "/images/products/setup-gear-2.jpg",
     title: "Deltahub Carpio 2.0 Wrist Rest",
-    oldPrice: "$54.95",
+    oldPrice: "৳54.95",
     price: 40.0,
     colors: [
       {
@@ -1992,7 +1992,7 @@ export const products16 = [
     imgSrc: "/images/products/setup-gear-3.jpg",
     imgHoverSrc: "/images/products/setup-gear-4.jpg",
     title: "Topo Designs Medium Accessory Bag",
-    oldPrice: "$33.00",
+    oldPrice: "৳33.00",
     price: 25.0,
     colors: [
       {
@@ -2022,7 +2022,7 @@ export const products16 = [
     imgSrc: "/images/products/setup-gear-7.jpg",
     imgHoverSrc: "/images/products/setup-gear-8.jpg",
     title: "Rumpl Original Puffy 1-Person Blanket",
-    oldPrice: "$149.00",
+    oldPrice: "৳149.00",
     price: 97.0,
     colors: [
       {
@@ -2042,7 +2042,7 @@ export const products16 = [
     imgSrc: "/images/products/setup-gear-9.jpg",
     imgHoverSrc: "/images/products/setup-gear-10.jpg",
     title: 'Bellroy 16" Classic Backpack Plus 24L',
-    oldPrice: "$289.00",
+    oldPrice: "৳289.00",
     price: 190.0,
     colors: [
       {
@@ -2315,7 +2315,7 @@ export const products19 = [
     imgSrc: "/images/item/lookbook-item-2.jpg",
     imgAlt: "",
     title: "Whistling Tea Kettle",
-    compareAtPrice: "$105.00",
+    compareAtPrice: "৳105.00",
     price: 95.0,
   },
   {
@@ -3921,7 +3921,7 @@ export const products40 = [
     imgHoverSrc: "/images/products/black-5.jpg",
     alt: "image-product",
     title: "Regular Fit Oxford Shirt",
-    oldPrice: "$36.00",
+    oldPrice: "৳36.00",
     price: 25.0,
     sizes: ["3 sizes available"],
     sale: "-31%",
@@ -4177,7 +4177,7 @@ export const products41 = [
     height: 360,
     title: "S2 Anatomical Pacifiers Ivory/Sage",
     price: 99.0,
-    oldPrice: "$100.00",
+    oldPrice: "৳100.00",
     stockAvailable: 12,
     stockSold: 321,
     progress: 5,
@@ -4229,7 +4229,7 @@ export const products42 = [
     imgHoverSrc: "/images/products/kid-4.jpg",
     title: "S2 Anatomical Pacifiers Ivory/Sage",
     price: 99.0,
-    oldPrice: "$100.00",
+    oldPrice: "৳100.00",
     sale: "-1%",
   },
   {
@@ -4238,7 +4238,7 @@ export const products42 = [
     imgHoverSrc: "/images/products/kid-6.jpg",
     title: "Wool Fleece Suit Moss Green",
     price: 45.0,
-    oldPrice: "$55.00",
+    oldPrice: "৳55.00",
     sale: "-18%",
     colors: [
       {
@@ -4259,7 +4259,7 @@ export const products42 = [
     imgHoverSrc: "/images/products/kid-10.jpg",
     title: "Ribbed Short Sleeve T-Shirt",
     price: 12.08,
-    oldPrice: "$16.00",
+    oldPrice: "৳16.00",
     sale: "-25%",
     colors: [
       {
@@ -4285,7 +4285,7 @@ export const products42 = [
     imgHoverSrc: "/images/products/kid-10.jpg",
     title: "Ottawa Lined Recycled Rain Set Flintstone",
     price: 48.0,
-    oldPrice: "$53.00",
+    oldPrice: "৳53.00",
     sale: "-9%",
     colors: [
       {
@@ -4863,7 +4863,7 @@ export const featuredProducts2 = [
     imgHeight: 128,
     title: "Jersey thong body",
     price: 105.95,
-    currency: "$",
+    currency: "৳",
   },
   {
     id: 317,
@@ -4883,7 +4883,7 @@ export const featuredProducts2 = [
     imgHeight: 138,
     title: "Linen-blend Tank Top",
     price: 16.95,
-    currency: "$",
+    currency: "৳",
   },
 ];
 export const tfLoopItems = [

@@ -37,7 +37,7 @@ export default function Productcard23({ product }) {
         <a href="#" className="title link">
           {product.title}
         </a>
-        <span className="price">${product.price.toFixed(2)}</span>
+        <span className="price">৳{product.price.toFixed(2)}</span>
         <p className="description">
           Button-up shirt sleeves and a relaxed silhouette. It’s tailored with
           drapey, crinkle-texture fabric that’s made from LENZING™ ECOVERO™

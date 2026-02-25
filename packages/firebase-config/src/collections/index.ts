@@ -24,6 +24,8 @@ export const Collections = {
   INVOICES: 'invoices',
   QNA: 'qna',
   REPLIES: 'replies',
+  BANNERS: 'banners',
+  MARQUEES: 'marquees',
 } as const;
 
 export type CollectionName = (typeof Collections)[keyof typeof Collections];

@@ -17,17 +17,18 @@ export default function MobileMenu() {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/categories?limit=1000`
+          `/api/categories?limit=1000`
         );
         if (!response.ok) {
-          throw new Error("Failed to fetch categories");
+          setLoading(false);
+          return;
         }
         const data = await response.json();
 
-        const parentCategories = data.data.filter(
+        const parentCategories = (data.data || []).filter(
           (category) => category.parentId === null
         );
-        const subCategories = data.data.filter(
+        const subCategories = (data.data || []).filter(
           (category) => category.parentId !== null
         );
 

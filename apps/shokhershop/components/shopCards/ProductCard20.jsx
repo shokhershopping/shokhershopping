@@ -107,7 +107,7 @@ export default function ProductCard20({ product }) {
         >
           {product.title}
         </Link>
-        <span className="price fw-6">${product.price.toFixed(2)}</span>
+        <span className="price fw-6">৳{product.price.toFixed(2)}</span>
         <ul className="list-color-product">
           {product.colors.map((color, index) => (
             <li

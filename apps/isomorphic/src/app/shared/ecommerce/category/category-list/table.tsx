@@ -56,13 +56,13 @@ export default function CategoryTable() {
       setData(
         items.map((cat: any) => ({
           id: cat.id,
-          image: cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
+          image: cat.imageUrl || cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
           name: cat.name,
           description: cat.description,
           isFeatured: cat.isFeatured ?? false,
           isSlide: cat.isSlide ?? false,
           isMenu: cat.isMenu ?? false,
-          products: cat.products?.length ?? 0,
+          products: cat.productCount ?? cat.products?.length ?? 0,
         }))
       );
     };

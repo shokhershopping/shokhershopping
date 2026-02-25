@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\isomorphic\\src\\app\\coupons\\[id]"
+    ]
+  }
+}

@@ -34,7 +34,7 @@ export default function ShareModal() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy:", err);
+      // Clipboard API may not be available
     }
   };
 

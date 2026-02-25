@@ -72,7 +72,6 @@ export default function CreateOrder({
 
       setTimeout(() => {
         setLoading(false);
-        console.log('createOrder data ->', data);
         router.push(routes.eCommerce.orderDetails(DUMMY_ID));
         toast.success(<Text as="b">Order placed successfully!</Text>);
       }, 600);
@@ -83,38 +82,17 @@ export default function CreateOrder({
     setLoading(true);
 
     try {
-      console.log('Order object received:', {
-        billingAddress: order?.billingAddress,
-        shippingAddress: order?.shippingAddress,
-        fullOrder: order,
-      });
-
       // CRITICAL: Validate that we have address IDs
       // For legacy orders, we should have at least one address (they're populated in the edit page)
       const billingAddressId = order?.billingAddress?.id || order?.shippingAddress?.id;
       const shippingAddressId = order?.shippingAddress?.id || order?.billingAddress?.id;
 
       if (!billingAddressId || !shippingAddressId) {
-        console.error('❌ Missing address IDs - Full Debug Info:', {
-          billingAddressId,
-          shippingAddressId,
-          orderBillingAddress: order?.billingAddress,
-          orderShippingAddress: order?.shippingAddress,
-          orderKeys: Object.keys(order || {}),
-          formData: data,
-        });
-
-        // This should never happen if the edit page transformation worked
         throw new Error(
           'Critical Error: Address IDs are missing from the order object. ' +
           'Please refresh the page and try again. If the problem persists, contact support.'
         );
       }
-
-      console.log('✅ Address IDs validated:', {
-        billingAddressId,
-        shippingAddressId,
-      });
 
       // Prepare billing address data
       const billingAddressData = {
@@ -174,8 +152,6 @@ export default function CreateOrder({
         shippingAddress: shippingAddressData,
       };
 
-      console.log('Sending order update:', orderUpdateData);
-
       const response = await fetch(
         `/api/orders/${id}`,
         {
@@ -189,7 +165,6 @@ export default function CreateOrder({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Backend error:', errorData);
 
         // Show validation errors if available
         if (errorData.errors && Array.isArray(errorData.errors)) {
@@ -202,13 +177,11 @@ export default function CreateOrder({
         throw new Error(errorData.message || 'Failed to update order');
       }
 
-      const result = await response.json();
-      console.log('Order updated:', result);
+      await response.json();
 
       toast.success(<Text as="b">Order updated successfully!</Text>);
       router.push(routes.eCommerce.orderDetails(id));
     } catch (error: any) {
-      console.error('Error updating order:', error);
       toast.error(
         <Text as="b">{error.message || 'Failed to update order. Please try again.'}</Text>
       );

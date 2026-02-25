@@ -50,7 +50,7 @@ export default function ProductSummary({ className }: { className?: string }) {
           id: cat.id,
           value: cat.id,
           label: cat.name,
-          image: cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
+          image: cat.imageUrl || cat.image?.url || cat.image?.path || 'https://placehold.co/600x400.png',
         }))
       );
     };

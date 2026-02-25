@@ -1,11 +1,28 @@
-import { marqueeItems } from "@/data/marquees";
-import React from "react";
+"use client";
+
+import { marqueeItems as fallbackItems } from "@/data/marquees";
+import React, { useEffect, useState } from "react";
 
 export default function Marquee() {
+  const [items, setItems] = useState(fallbackItems);
+
+  useEffect(() => {
+    fetch("/api/marquee")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success" && Array.isArray(data.data) && data.data.length > 0) {
+          setItems(data.data.map((m) => m.text));
+        }
+      })
+      .catch(() => {
+        // keep fallback
+      });
+  }, []);
+
   return (
     <div className="tf-marquee bg_yellow-2">
       <div className="wrap-marquee">
-        {marqueeItems.map((item, index) => (
+        {items.map((item, index) => (
           <div className="marquee-item" key={index}>
             <div className="icon">
               <svg

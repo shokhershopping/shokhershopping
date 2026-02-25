@@ -47,7 +47,6 @@ export const productsListColumns = [
       const image = row.original?.image || 'https://placehold.co/600x400.png';
       const category = row.original?.category || 'Uncategorized';
 
-      console.log('imageUrl', image);
       return (
         <AvatarCard
           src={image}

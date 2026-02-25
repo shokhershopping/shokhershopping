@@ -98,7 +98,7 @@ export default function ProductCaed16({ product }) {
         >
           {product.title}
         </Link>
-        <span className="price">${product.price.toFixed(2)}</span>
+        <span className="price">৳{product.price.toFixed(2)}</span>
         {product.colors.length > 0 && (
           <ul className="list-color-product justify-content-center">
             {product.colors.map((color, i) => (

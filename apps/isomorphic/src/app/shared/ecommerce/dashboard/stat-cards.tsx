@@ -79,7 +79,6 @@ export default function StatCards({ className }: { className?: string }) {
         setTotalStats(ts?.orders && ts?.sales && ts?.products ? ts : emptyStats);
         setError(null);
       } catch (err) {
-        console.error('Error fetching dashboard stats:', err);
         setError('Failed to load dashboard statistics');
       } finally {
         setLoading(false);

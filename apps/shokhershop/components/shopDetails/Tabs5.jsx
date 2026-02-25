@@ -48,7 +48,7 @@ export default function Tabs5() {
                       <tr className="tf-attr-pa-color">
                         <th className="tf-attr-label">Denominations</th>
                         <td className="tf-attr-value">
-                          <p>$10, $25, $50, $100</p>
+                          <p>৳10, ৳25, ৳50, ৳100</p>
                         </td>
                       </tr>
                     </tbody>

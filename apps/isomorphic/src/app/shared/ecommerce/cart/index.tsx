@@ -22,7 +22,6 @@ function CheckCoupon() {
   const [reset, setReset] = useState({});
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data);
     setReset({ couponCode: '' });
   };
 

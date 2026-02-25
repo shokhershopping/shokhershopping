@@ -201,7 +201,6 @@ export default function SidebarFilter({ setProducts }) {
                   key={availability.id}
                   className="list-item d-flex gap-12 align-items-center"
                   onClick={() => {
-                    console.log("first");
                     handleSelectAvailabilities(availability);
                   }}
                 >
@@ -254,12 +253,12 @@ export default function SidebarFilter({ setProducts }) {
                 <span className="title-price">Price :</span>
                 <div className="caption-price">
                   <div>
-                    <span>$</span>
+                    <span>৳</span>
                     <span className="min-price">{price[0]}</span>
                   </div>
                   <span>-</span>
                   <div>
-                    <span>$</span>
+                    <span>৳</span>
                     <span className="max-price">{price[1]}</span>
                   </div>
                 </div>

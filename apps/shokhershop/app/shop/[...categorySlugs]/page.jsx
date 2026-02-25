@@ -18,7 +18,7 @@ export default function Page() {
     const fetchCategoryData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/categories/${categorySlug}`
+          `/api/categories/${categorySlug}`
         );
         const data = await response.json();
 

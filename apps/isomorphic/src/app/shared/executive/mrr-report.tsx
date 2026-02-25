@@ -134,7 +134,7 @@ export default function MRRReport({ className }: { className?: string }) {
                   ...payload,
                   value: formatNumber(Number(payload.value)),
                 };
-                return <CustomYAxisTick prefix={'$'} payload={pl} {...rest} />;
+                return <CustomYAxisTick prefix={'৳'} payload={pl} {...rest} />;
               }}
             />
             <Area

@@ -38,13 +38,10 @@ export default function ProductsTable({
 
   // Transform data based on view mode
   const tableData = useMemo(() => {
-    console.log('🔄 TableData memo - viewMode:', viewMode);
     if (viewMode === 'stock') {
       const stockData = transformToStockView(productsData);
-      console.log('📊 Stock view data generated:', stockData.length, 'rows');
       return stockData;
     }
-    console.log('📋 Product view data:', productsData?.length || 0, 'products');
     return productsData;
   }, [productsData, viewMode]);
 
@@ -84,7 +81,6 @@ export default function ProductsTable({
                   toast.success('Product deleted successfully');
                 } catch (error) {
                   toast.error('Failed to delete product');
-                  console.error('Delete error:', error);
                 }
               }
             : undefined,
@@ -115,7 +111,6 @@ export default function ProductsTable({
                   toast.success(`${rows.length} product(s) deleted successfully`);
                 } catch (error) {
                   toast.error('Failed to delete some products');
-                  console.error('Bulk delete error:', error);
                 }
               }
             : undefined,
@@ -126,7 +121,6 @@ export default function ProductsTable({
 
   // Update table data when tableData changes (important for view mode switching)
   useEffect(() => {
-    console.log('📌 Effect: Updating table data, length:', tableData.length);
     setData(tableData);
     table.resetRowSelection();
   }, [tableData, setData, table]);

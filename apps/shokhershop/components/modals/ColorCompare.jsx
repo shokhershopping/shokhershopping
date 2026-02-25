@@ -47,10 +47,10 @@ export default function ColorCompare() {
                   </div>
                   <form onSubmit={(e) => e.preventDefault()} className="">
                     <select className="tf-select" name="id">
-                      <option value={46633906045232}>S - $8.00</option>
-                      <option value={47256262738224}>M - $8.00</option>
-                      <option value={47256262770992}>L - $8.00</option>
-                      <option value={47256262803760}>XL - $8.00</option>
+                      <option value={46633906045232}>S - ৳8.00</option>
+                      <option value={47256262738224}>M - ৳8.00</option>
+                      <option value={47256262770992}>L - ৳8.00</option>
+                      <option value={47256262803760}>XL - ৳8.00</option>
                     </select>
                     <a
                       href="#"
@@ -90,10 +90,10 @@ export default function ColorCompare() {
                   </div>
                   <form onSubmit={(e) => e.preventDefault()} className="">
                     <select className="tf-select" name="id" required>
-                      <option value={46633906045232}>S - $8.00</option>
-                      <option value={47256262738224}>M - $8.00</option>
-                      <option value={47256262770992}>L - $8.00</option>
-                      <option value={47256262803760}>XL - $8.00</option>
+                      <option value={46633906045232}>S - ৳8.00</option>
+                      <option value={47256262738224}>M - ৳8.00</option>
+                      <option value={47256262770992}>L - ৳8.00</option>
+                      <option value={47256262803760}>XL - ৳8.00</option>
                     </select>
                     <a
                       href="#"
@@ -134,10 +134,10 @@ export default function ColorCompare() {
                   </div>
                   <form onSubmit={(e) => e.preventDefault()} className="">
                     <select className="tf-select" name="id">
-                      <option value={46633906045232}>S - $8.00</option>
-                      <option value={47256262738224}>M - $8.00</option>
-                      <option value={47256262770992}>L - $8.00</option>
-                      <option value={47256262803760}>XL - $8.00</option>
+                      <option value={46633906045232}>S - ৳8.00</option>
+                      <option value={47256262738224}>M - ৳8.00</option>
+                      <option value={47256262770992}>L - ৳8.00</option>
+                      <option value={47256262803760}>XL - ৳8.00</option>
                     </select>
                     <a
                       href="#"
@@ -177,10 +177,10 @@ export default function ColorCompare() {
                   </div>
                   <form onSubmit={(e) => e.preventDefault()} className="">
                     <select className="tf-select" name="id">
-                      <option value={46633906045232}>S - $8.00</option>
-                      <option value={47256262738224}>M - $8.00</option>
-                      <option value={47256262770992}>L - $8.00</option>
-                      <option value={47256262803760}>XL - $8.00</option>
+                      <option value={46633906045232}>S - ৳8.00</option>
+                      <option value={47256262738224}>M - ৳8.00</option>
+                      <option value={47256262770992}>L - ৳8.00</option>
+                      <option value={47256262803760}>XL - ৳8.00</option>
                     </select>
                     <a
                       href="#"

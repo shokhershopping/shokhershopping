@@ -2,21 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**📖 App-Specific Documentation**: Each app has its own detailed CLAUDE.md file:
+**App-Specific Documentation**: Each app has its own detailed CLAUDE.md file:
 
 - [Isomorphic Admin Dashboard](./apps/isomorphic/CLAUDE.md) - Complete admin dashboard documentation
 - [Shokhershop Storefront](./apps/shokhershop/CLAUDE.md) - Customer-facing app documentation
-- [SV-Ecom API Backend](./apps/sv-ecom/CLAUDE.md) - Backend API documentation
-
-Refer to the app-specific CLAUDE.md files for detailed information about each application's architecture, patterns, and development guidelines.
 
 ## Project Overview
 
-Shokher Shopping is a Turborepo monorepo containing three main applications for an e-commerce platform:
+Shokher Shopping is a Turborepo monorepo containing two main applications and a shared Firebase backend package:
 
-1. **isomorphic** (`apps/isomorphic`) - Admin dashboard built with Next.js 15, React 19, TypeScript, and Clerk authentication
-2. **shokhershop** (`apps/shokhershop`) - Customer-facing e-commerce storefront built with Next.js 15, React 19, and Clerk authentication
-3. **sv-ecom** (`apps/sv-ecom`) - Express.js REST API backend with Prisma ORM and PostgreSQL
+1. **isomorphic** (`apps/isomorphic`) - Admin dashboard built with Next.js 15, React 19, TypeScript, and Firebase Auth
+2. **shokhershop** (`apps/shokhershop`) - Customer-facing e-commerce storefront built with Next.js 15, React 19, and Firebase Auth
+3. **firebase-config** (`packages/firebase-config`) - Shared Firebase backend package with Firestore services, auth helpers, storage utilities, and types
 
 ## Commands
 
@@ -29,7 +26,6 @@ pnpm dev
 # Run specific app
 cd apps/isomorphic && pnpm dev
 cd apps/shokhershop && pnpm dev
-cd apps/sv-ecom && pnpm dev
 ```
 
 ### Build & Test
@@ -51,28 +47,6 @@ cd apps/isomorphic && pnpm type:check
 pnpm format
 ```
 
-### Backend (sv-ecom) Specific
-
-```bash
-# Start development server
-cd apps/sv-ecom && pnpm dev
-
-# Run Prisma migrations
-cd apps/sv-ecom && npx prisma migrate dev --name <migration_name>
-
-# Generate Prisma client
-cd apps/sv-ecom && npx prisma generate
-
-# Open Prisma Studio
-cd apps/sv-ecom && npx prisma studio
-
-# Build TypeScript
-cd apps/sv-ecom && pnpm build
-
-# Start production server
-cd apps/sv-ecom && pnpm start
-```
-
 ### Clean
 
 ```bash
@@ -88,6 +62,19 @@ cd apps/isomorphic && pnpm cache:clean
 ### Workspace Packages
 
 The monorepo includes shared packages in `/packages`:
+
+**firebase-config** (`firebase-config`)
+
+- Firebase Admin SDK & Client SDK initialization
+- Firestore service layer (11 services: user, category, product, order, invoice, review, wishlist, coupon, notification, dashboard, cart)
+- Auth helpers (session cookies, token verification, user management)
+- Storage helpers (file upload/download/delete to Firebase Storage)
+- TypeScript types for all Firestore collections
+- Collection name constants
+- Response helpers (`successResponse`, `errorResponse`, `IResponse<T>`)
+- Pagination helpers (`paginateQuery`, `parsePaginationParams`)
+- Query builder (`buildQuery`, `generateSearchTokens`)
+- Located at: `packages/firebase-config`
 
 **isomorphic-core** (`core`)
 
@@ -112,7 +99,9 @@ The monorepo includes shared packages in `/packages`:
 **isomorphic** - Admin Dashboard
 
 - Next.js 15 App Router with React 19
-- Authentication: Clerk (`@clerk/nextjs`)
+- Authentication: Firebase Auth (email/password + Google sign-in) via `FirebaseAuthProvider`
+- Session management: Firebase session cookies (`__session`)
+- API: Next.js API Routes (`src/app/api/`) calling firebase-config services
 - UI Components: Custom component library (rizzui) + workspace `core` package
 - State Management: Jotai
 - Styling: Tailwind CSS with custom design system from `tailwind-config`
@@ -124,50 +113,81 @@ The monorepo includes shared packages in `/packages`:
 **shokhershop** - Customer Storefront
 
 - Next.js 15 with React 19
-- Authentication: Clerk with route protection middleware
-- Public routes: `/`, `/sign-in`, `/product-detail/*`, `/shop/*`, `/checkout`
+- Authentication: Firebase Auth via `FirebaseAuthProvider` with session cookie middleware
+- Public routes: `/`, `/login`, `/register`, `/product-detail/*`, `/shop/*`, `/checkout`
 - Protected routes: All others require authentication
+- API: Next.js API Routes (`app/api/`) calling firebase-config services
 - Component structure: Organized by feature in `components/` (homes, shop, shopDetails, blogs, etc.)
 - Route groups in `app/`: (homes), (shop), (shop-details), (otherPages), (dashboard), (blogs)
 
-**sv-ecom** - Express API Backend
+### Backend (Firebase)
 
-- Express.js with TypeScript
-- Database: PostgreSQL with Prisma ORM
-- Authentication: Clerk Express SDK (`@clerk/express`)
-- Architecture: Modular structure with controllers, services, and routes per feature
-- Module structure in `src/modules/`:
-  - products - Product management with variants, images, specifications
-  - categories - Category hierarchy with images
-  - orders - Order processing with status tracking
-  - coupons - Discount coupon system
-  - reviews - Product review system with approval workflow
-  - wishlists - User wishlist functionality
-  - users - User management synced with Clerk
-  - notifications - Notification system with recipients
-  - clerk-webhook - Clerk webhook handler for user sync
-  - uploads - File upload handling (multer)
-- Global error handling middleware
-- CORS enabled for all origins
-- Static file serving from `/uploads`
+**Database: Cloud Firestore**
 
-### Database Schema (Prisma)
+Key collections:
 
-Key models:
+- **users** - Links to Firebase Auth, has role (USER/ADMIN)
+- **products** - Base products with variants (subcollection), categories, images, reviews
+- **categories** - Hierarchical with parent/child relationships, featured/slider support
+- **orders** - Full order processing with items, shipping, coupons
+- **carts** - Shopping cart with items array
+- **coupons** - Discount coupons with usage limits, expiry, min/max amounts
+- **reviews** - Product reviews with approval workflow
+- **wishlists** - User wishlist with items array
+- **notifications** - Notification system with read/unread tracking
+- **invoices** - Invoice records linked to orders
 
-- **User** - Links to Clerk auth, has role (USER/ADMIN)
-- **Product** - Base products with variants (VariableProduct), categories, images, reviews
-- **VariableProduct** - Product variations with own pricing, stock, SKU
-- **Category** - Hierarchical with parent/child relationships, featured/slider support
-- **Order** - Full order processing with items, shipping, coupons, affiliates
-- **Cart/CartItem** - Shopping cart system
-- **Coupon** - Discount coupons with usage limits, expiry, min/max amounts
-- **Review** - Product reviews with approval workflow
-- **Wishlist/WishlistItem** - User wishlist
-- **Notification** - Notification system with read/unread tracking
-- **Affiliate** - Affiliate program with clicks, purchases, withdrawals
+**Authentication: Firebase Auth**
 
-Enums: Role, PaymentMethod, OrderStatus, ProductType, ProductStatus, DiscountType, CouponType, CouponStatus, ReviewStatus, AffiliateStatus, etc.
+- Email/password and Google sign-in
+- Session cookies for server-side auth (`__session` cookie)
+- Middleware checks cookie existence; API routes verify with Firebase Admin SDK
+
+**Storage: Firebase Storage**
+
+- File uploads via Next.js API routes
+- Public URLs for uploaded files
+- `resolveImageUrl()` helper for legacy path compatibility
+
+### Service Layer Pattern
+
+All Firestore services follow this pattern (in `packages/firebase-config/src/services/`):
+
+```typescript
+import { adminDb } from '../admin';
+import { Collections } from '../collections/index';
+import { successResponse, errorResponse } from '../helpers/response';
+import { paginateQuery } from '../helpers/pagination';
+
+const collection = adminDb.collection(Collections.COLLECTION_NAME);
+
+export async function getItems(limit = 10, page = 1) {
+  const query = collection.orderBy('createdAt', 'desc');
+  const result = await paginateQuery(query, { limit, page });
+  return successResponse(result.data, 'Retrieved successfully', {
+    total: result.total, page: result.page, limit: result.limit
+  });
+}
+```
+
+### API Route Pattern
+
+All Next.js API routes follow this pattern:
+
+```typescript
+import { NextResponse } from 'next/server';
+import { getItems } from 'firebase-config/services/item.service';
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '10');
+  const result = await getItems(limit, page);
+  return NextResponse.json(result, {
+    status: result.status === 'success' ? 200 : (result.code || 500)
+  });
+}
+```
 
 ### Technology Stack
 
@@ -175,25 +195,23 @@ Enums: Role, PaymentMethod, OrderStatus, ProductType, ProductStatus, DiscountTyp
 
 - Next.js 15 with App Router
 - React 19
-- TypeScript
-- Clerk for authentication
+- TypeScript (isomorphic) / JavaScript (shokhershop)
+- Firebase Auth for authentication
 - Tailwind CSS
 - Form handling: react-hook-form with zod validation
 - Charts: recharts
 - Tables: @tanstack/react-table
-- File uploads: uploadthing
+- File uploads: Firebase Storage via API routes
 - Email templates: react-email
 
-**Backend (sv-ecom)**
+**Backend (firebase-config package)**
 
-- Express.js with TypeScript
-- Prisma ORM with PostgreSQL
-- Clerk for authentication
-- File uploads: multer
-- Validation: zod
-- Environment: dotenv
+- Firebase Admin SDK (server-side Firestore, Auth, Storage)
+- Firebase Client SDK (client-side Auth)
+- Next.js API Routes as the API layer
+- TypeScript
 
-**Monorepo Toolss**
+**Monorepo Tools**
 
 - pnpm workspaces
 - Turborepo for build orchestration
@@ -202,26 +220,24 @@ Enums: Role, PaymentMethod, OrderStatus, ProductType, ProductStatus, DiscountTyp
 
 ## Development Workflow
 
-1. **Authentication Flow**: Both frontend apps use Clerk. Backend syncs users via webhook at `/clerk-webhook`. User creation/update in Clerk triggers webhook to create/update user in database.
+1. **Authentication Flow**: Both frontend apps use Firebase Auth. On sign-in, a session cookie (`__session`) is created via `/api/auth/session`. Middleware checks cookie presence. API routes verify tokens with Firebase Admin SDK. User records are synced to Firestore `users` collection.
 
-2. **API Integration**: Frontend apps consume REST API from sv-ecom. API routes in `src/modules/*/routes.ts` follow RESTful patterns.
+2. **API Integration**: Both apps use Next.js API Routes that call firebase-config service functions. No separate backend server needed.
 
 3. **Environment Variables**:
 
-   - isomorphic: See `.env.local.example` for Google Maps API, NextAuth config
-   - shokhershop: Requires Clerk keys in `.env.local`
-   - sv-ecom: Requires `DATABASE_URL` and Clerk keys in `.env`
+   - isomorphic: See `.env.local.example` for Firebase config
+   - shokhershop: See `.env.local.example` for Firebase config
+   - Both apps need Firebase Client SDK keys (NEXT_PUBLIC_FIREBASE_*) and Admin SDK credentials (FIREBASE_*)
 
-4. **Database Migrations**: Always run `npx prisma generate` after schema changes. Use `npx prisma migrate dev` for development migrations.
-
-5. **Module Pattern (sv-ecom)**: Each feature has `*.controller.ts` (route handlers), `*.service.ts` (business logic), `*.routes.ts` (Express router), `req.types.ts` (request/response types).
+4. **Adding New Features**: Create a service in `packages/firebase-config/src/services/`, export it from `packages/firebase-config/src/index.ts`, then create API routes in the app's `app/api/` directory.
 
 ## Important Notes
 
 - Admin dashboard (isomorphic) supports multiple layout presets - default is HYDROGEN (configured in `src/config/site.config.tsx`)
-- Products can be simple or have variants (VariableProduct) - handle both cases when building product features
-- Image uploads are handled by sv-ecom and stored in `/uploads` directory, served as static files
-- Clerk is the single source of truth for authentication - webhook ensures database stays in sync
+- Products can be simple or have variants - handle both cases when building product features
+- Image uploads go to Firebase Storage; legacy images may use relative paths resolved by `getImageUrl()` helper
+- Firebase Auth is the single source of truth for authentication
 - Review system requires admin approval (ReviewStatus: PENDING → APPROVED/REJECTED)
-- Affiliate system tracks clicks and purchases for commission calculation
 - Coupon system supports percentage and fixed discounts with min/max amounts and usage limits
+- Response format: `{ status: 'success'|'error', message: string, data: T | null, total?, page?, limit? }`

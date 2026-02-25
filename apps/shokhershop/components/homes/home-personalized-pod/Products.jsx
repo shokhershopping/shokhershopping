@@ -332,9 +332,9 @@ export default function Products() {
                     </Link>{" "}
                     <span className="price">
                       <span className="fw-4 text-sale">
-                        ${product.oldPrice}
+                        ৳{product.oldPrice}
                       </span>{" "}
-                      <span className="text_primary">${product.price}</span>
+                      <span className="text_primary">৳{product.price}</span>
                     </span>
                   </div>
                 </div>

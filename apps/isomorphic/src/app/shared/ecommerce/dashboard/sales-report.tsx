@@ -39,7 +39,6 @@ export default function SalesReport({ className }: { className?: string }) {
         setSalesData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching sales report:', err);
         setError('Failed to load sales report');
       } finally {
         setLoading(false);
@@ -107,7 +106,7 @@ export default function SalesReport({ className }: { className?: string }) {
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={<CustomYAxisTick prefix={'$'} />}
+                tick={<CustomYAxisTick prefix={'৳'} />}
               />
               <Tooltip
                 content={

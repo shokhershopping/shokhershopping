@@ -59,15 +59,12 @@ function transformProductWithVariants(product: ProductData): StockViewRow[] {
   // Group variants by color
   const variantsByColor = product.variableProducts.reduce((acc, variant) => {
     const color = variant.color || 'No Color';
-    console.log(`  🎨 Variant: ${variant.name}, Color: "${color}", Size: "${variant.size}", Stock: ${variant.stock}`);
     if (!acc[color]) {
       acc[color] = [];
     }
     acc[color].push(variant);
     return acc;
   }, {} as Record<string, VariableProduct[]>);
-
-  console.log(`  📊 Grouped into ${Object.keys(variantsByColor).length} color groups:`, Object.keys(variantsByColor));
 
   // Create a row for each color
   Object.entries(variantsByColor).forEach(([color, variants]) => {
@@ -124,14 +121,10 @@ export function transformToStockView(products: ProductData[]): StockViewRow[] {
   if (!Array.isArray(products)) return [];
   const rows: StockViewRow[] = [];
 
-  console.log('🔄 Transforming to stock view, products count:', products.length);
-
   products.forEach((product) => {
     if (product.variableProducts && product.variableProducts.length > 0) {
       // Product has variants - create multiple rows (one per color)
-      console.log(`📦 Product "${product.name}" has ${product.variableProducts.length} variants`);
       const variantRows = transformProductWithVariants(product);
-      console.log(`✅ Generated ${variantRows.length} stock view rows for "${product.name}"`);
       rows.push(...variantRows);
     } else {
       // Product has no variants - create single row
@@ -139,9 +132,6 @@ export function transformToStockView(products: ProductData[]): StockViewRow[] {
       rows.push(baseRow);
     }
   });
-
-  console.log('📊 Total stock view rows:', rows.length);
-  console.log('📊 Sample row:', rows[0]);
 
   return rows;
 }

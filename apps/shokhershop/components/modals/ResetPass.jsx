@@ -21,7 +21,6 @@ export default function ResetPass() {
       await resetPassword(email);
       setStep("success");
     } catch (err) {
-      console.error("Reset request error:", err);
       setError(err.message || "Failed to send reset email.");
     } finally {
       setLoading(false);

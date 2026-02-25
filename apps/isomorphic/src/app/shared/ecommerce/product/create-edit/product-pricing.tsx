@@ -16,7 +16,7 @@ export default function ProductPricing() {
         placeholder="10"
         {...register('price')}
         error={errors.price?.message as string}
-        prefix={'$'}
+        prefix={'৳'}
         type="number"
       />
 
@@ -25,7 +25,7 @@ export default function ProductPricing() {
         placeholder="20"
         {...register('salePrice')}
         error={errors.salePrice?.message as string}
-        prefix={'$'}
+        prefix={'৳'}
         type="number"
       />
     </>

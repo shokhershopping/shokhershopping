@@ -36,7 +36,6 @@ export default function UserLocation({ className }: { className?: string }) {
         setLocationData(Array.isArray(response.data) ? response.data : []);
         setError(null);
       } catch (err) {
-        console.error('Error fetching user location:', err);
         setError('Failed to load user location data');
       } finally {
         setLoading(false);

@@ -50,15 +50,31 @@ export default function Context({ children }) {
           }
         );
 
-        if (!response.ok) {
-          console.error('User not found in database.');
-          setUser(null);
-        } else {
+        if (response.ok) {
           const data = await response.json();
           setUser(data.data);
+        } else if (response.status === 404) {
+          // User doesn't exist in Firestore yet — create them
+          const ensureRes = await fetch(`/api/users/ensure`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName,
+              image: firebaseUser.photoURL,
+            }),
+          });
+          if (ensureRes.ok) {
+            const ensureData = await ensureRes.json();
+            setUser(ensureData.data);
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
         }
       } catch (error) {
-        console.error("Error fetching user:", error);
         setUser(null);
       } finally {
         setIsLoadingUser(false);
@@ -67,8 +83,6 @@ export default function Context({ children }) {
 
     fetchUserFromDatabase();
   }, [firebaseUser, isUserLoaded]);
-
-  console.log("Authenticated User:", user);
 
   const addProductToCart = (product, qty) => {
     // Check if product already exists in cart
@@ -81,14 +95,12 @@ export default function Context({ children }) {
       toast.success("Added to cart");
       // openCartModal();
     } else {
-      toast.info("Product already in cart");
+      toast("Product already in cart", { icon: "ℹ️" });
     }
   };
   const isAddedToCartProducts = (id) => {
     return cartProducts.some((elm) => elm.id === id);
   };
-
-  console.log("cartProducts", cartProducts);
 
   const updateQuantity = (id, qty) => {
     if (isAddedToCartProducts(id)) {
@@ -115,14 +127,14 @@ export default function Context({ children }) {
   const fetchWishlist = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/wishlists/${user.id}`
+        `/api/wishlists/${user.id}`
       );
       if (!response.ok) throw new Error("Failed to fetch wishlist");
       const result = await response.json();
       // Backend returns { data: { items: [...] } }
       setWishList(result.data?.items || []);
     } catch (error) {
-      console.error("Error fetching wishlist:", error);
+      // Silently handle wishlist fetch error
     }
   };
 
@@ -140,11 +152,9 @@ export default function Context({ children }) {
     }
 
     if (!user) {
-      console.error("User not available for wishlist operation");
       toast.error("Please wait while we complete your sign in");
       return;
     }
-    console.log("Adding to wishlist 32323:", product);
 
     const isInWishlist = wishList.some((item) =>
       item.productId === product.id || item.variableProductId === product.id
@@ -159,12 +169,11 @@ export default function Context({ children }) {
         );
 
         if (!wishlistItem) {
-          console.error("Wishlist item not found");
           return;
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/wishlists/remove`,
+          `/api/wishlists/remove`,
           {
             method: "POST",
             headers: {
@@ -188,12 +197,11 @@ export default function Context({ children }) {
         // Update state with backend response
         setWishList(updatedWishList);
         localStorage.setItem("wishlist", JSON.stringify(updatedWishList));
-        console.log("Successfully removed from wishlist");
         toast.success("Removed from wishlist");
       } else {
         // ADD TO WISHLIST
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/wishlists`,
+          `/api/wishlists`,
           {
             method: "POST",
             headers: {
@@ -217,11 +225,9 @@ export default function Context({ children }) {
         // Update state with backend response (includes proper IDs and structure)
         setWishList(updatedWishList);
         localStorage.setItem("wishlist", JSON.stringify(updatedWishList));
-        console.log("Successfully added to wishlist");
         toast.success("Added to wishlist");
       }
     } catch (error) {
-      console.error("Wishlist operation failed:", error);
       toast.error("Failed to update wishlist");
     }
   };
@@ -240,36 +246,21 @@ export default function Context({ children }) {
     }
 
     if (!user) {
-      console.error("User not available for wishlist operation");
       toast.error("Please wait while we complete your sign in");
       return;
     }
-    console.log("Removing from wishlist:", product);
-    console.log("Current wishList state:", wishList);
 
     try {
-      // Find the wishlist item to get its database ID
       const wishlistItem = wishList.find((item) =>
         item.productId === product.id || item.variableProductId === product.id
       );
 
-      console.log("Found wishlist item:", wishlistItem);
-
       if (!wishlistItem) {
-        console.error("Wishlist item not found in state");
-        console.error("Looking for product.id:", product.id);
-        console.error("Available items:", wishList.map(item => ({
-          id: item.id,
-          productId: item.productId,
-          variableProductId: item.variableProductId
-        })));
         return;
       }
 
-      console.log("Sending removal request with itemId:", wishlistItem.id);
-
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/wishlists/remove`,
+        `/api/wishlists/remove`,
         {
           method: "POST",
           headers: {
@@ -277,37 +268,23 @@ export default function Context({ children }) {
           },
           body: JSON.stringify({
             userId: user.id,
-            itemIds: [wishlistItem.id], // Send WishlistItem.id, not product.id
+            itemIds: [wishlistItem.id],
           }),
         }
       );
 
-      console.log("Remove response status:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Backend error response:", errorText);
         throw new Error(`Failed to remove from wishlist: ${response.status}`);
       }
 
-      // Get the updated wishlist from backend response
       const result = await response.json();
-      console.log("Backend response:", result);
-
       const updatedWishList = result.data?.items || [];
-      console.log("Updated wishlist items:", updatedWishList);
 
-      // Update state with backend response
       setWishList(updatedWishList);
-
-      // Update localStorage
       localStorage.setItem("wishlist", JSON.stringify(updatedWishList));
-
-      console.log("Successfully removed from wishlist. New state:", updatedWishList);
       toast.success("Removed from wishlist");
     } catch (error) {
-      console.error("Wishlist removal failed:", error);
-      console.error("Error details:", error.message);
       toast.error("Failed to remove from wishlist");
     }
   };
@@ -327,8 +304,6 @@ export default function Context({ children }) {
     );
   };
 
-  console.log("wishList product items", wishList);
-
   const isAddedtoCompareItem = (id) => {
     if (compareItem.includes(id)) {
       return true;
@@ -345,16 +320,6 @@ export default function Context({ children }) {
   useEffect(() => {
     localStorage.setItem("cartList", JSON.stringify(cartProducts));
   }, [cartProducts]);
-  // useEffect(() => {
-  //   const items = JSON.parse(localStorage.getItem("wishlist"));
-  //   if (items?.length) {
-  //     setWishList(items);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   localStorage.setItem("wishlist", JSON.stringify(wishList));
-  // }, [wishList]);
 
   const contextElement = {
     cartProducts,

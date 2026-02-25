@@ -123,7 +123,7 @@ export default function Products2() {
                     >
                       {product.title}
                     </Link>
-                    <span className="price">${product.price.toFixed(2)}</span>{" "}
+                    <span className="price">৳{product.price.toFixed(2)}</span>{" "}
                     {/* formatted price */}
                   </div>
                 </div>

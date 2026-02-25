@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Fragment } from 'react';
+import { Fragment, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { Title } from 'rizzui/typography';
 import { Collapse } from 'rizzui/collapse';
@@ -9,14 +9,26 @@ import cn from '@core/utils/class-names';
 import { PiCaretDownBold } from 'react-icons/pi';
 import { menuItems } from '@/layouts/hydrogen/menu-items';
 import StatusBadge from '@core/components/get-status-badge';
+import { useFirebaseAuth } from '@/lib/firebase-auth-provider';
 
 export function SidebarMenu() {
   const pathname = usePathname();
+  const { user } = useFirebaseAuth();
+  const userRole = user?.role || 'USER';
+
+  // Filter menu items based on user role
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      // If no roles specified, show to everyone
+      if (!item.roles) return true;
+      // Otherwise, check if user's role is in the allowed list
+      return item.roles.includes(userRole);
+    });
+  }, [userRole]);
 
   return (
     <div className="mt-4 pb-3 3xl:mt-6">
-      {menuItems.map((item, index) => {
-        console.log(pathname, item?.href);
+      {filteredMenuItems.map((item, index) => {
         const isActive = pathname === (item?.href as string);
         const pathnameExistInDropdowns: any = item?.dropdownItems?.filter(
           (dropdownItem) => dropdownItem.href === pathname

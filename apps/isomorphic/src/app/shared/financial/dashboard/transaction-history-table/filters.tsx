@@ -4,25 +4,19 @@ import { Badge, Button, Flex, Input, Text } from 'rizzui';
 import { type Table as ReactTableType } from '@tanstack/react-table';
 import StatusField from '@core/components/controlled-table/status-field';
 import { PiMagnifyingGlassBold, PiTrashDuotone } from 'react-icons/pi';
-import { transactionTypes } from '@/data/transaction-history';
 
-const transactionTypesOptions = Object.entries(transactionTypes).map(
-  ([value, label]) => ({ label, value })
-);
+const paymentMethodOptions = [
+  { value: 'COD', label: 'Cash on Delivery' },
+  { value: 'BKASH', label: 'bKash' },
+  { value: 'SSLCOMMERZ', label: 'SSLCommerz' },
+];
 
 const statusOptions = [
-  {
-    value: 'complete',
-    label: 'Complete',
-  },
-  {
-    value: 'pending',
-    label: 'Pending',
-  },
-  {
-    value: 'canceled',
-    label: 'Canceled',
-  },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'PROCESSING', label: 'Processing' },
+  { value: 'DISPATCHED', label: 'Dispatched' },
+  { value: 'DELIVERED', label: 'Delivered' },
+  { value: 'CANCELLED', label: 'Cancelled' },
 ];
 
 interface TableToolbarProps<T extends Record<string, any>> {
@@ -44,20 +38,21 @@ export default function Filters<TData extends Record<string, any>>({
       <Flex align="center" className="order-2 @3xl:order-1 @3xl:max-w-[360px]">
         <StatusField
           className="w-full"
-          placeholder="Select type"
-          options={transactionTypesOptions}
+          placeholder="Payment method"
+          options={paymentMethodOptions}
           dropdownClassName="!z-10 h-auto"
-          getOptionValue={(option) => option.label}
-          value={table.getColumn('type')?.getFilterValue() ?? ''}
-          onChange={(e) => table.getColumn('type')?.setFilterValue(e)}
+          getOptionValue={(option) => option.value}
+          value={table.getColumn('paymentMethod')?.getFilterValue() ?? ''}
+          onChange={(e) => table.getColumn('paymentMethod')?.setFilterValue(e)}
         />
         <StatusField
           className="w-full"
+          placeholder="Select status"
           options={statusOptions}
           dropdownClassName="!z-10 h-auto"
-          getOptionValue={(option) => option.label}
-          value={table.getColumn('status')?.getFilterValue() ?? ''}
-          onChange={(e) => table.getColumn('status')?.setFilterValue(e)}
+          getOptionValue={(option) => option.value}
+          value={table.getColumn('orderStatus')?.getFilterValue() ?? ''}
+          onChange={(e) => table.getColumn('orderStatus')?.setFilterValue(e)}
           getOptionDisplayValue={(option: { value: any }) =>
             renderOptionDisplayValue(option.value as string)
           }
@@ -84,7 +79,7 @@ export default function Filters<TData extends Record<string, any>>({
         type="search"
         clearable={true}
         inputClassName="h-[36px]"
-        placeholder="Search by patient name..."
+        placeholder="Search by customer name..."
         onClear={() => table.setGlobalFilter('')}
         value={table.getState().globalFilter ?? ''}
         prefix={<PiMagnifyingGlassBold className="size-4" />}
@@ -96,41 +91,47 @@ export default function Filters<TData extends Record<string, any>>({
 }
 
 function renderOptionDisplayValue(value: string) {
-  switch (value.toLowerCase()) {
-    case 'pending':
+  switch (value) {
+    case 'PENDING':
       return (
         <div className="flex items-center">
           <Badge color="warning" renderAsDot />
-          <Text className="ms-2 font-medium capitalize text-orange-dark">
-            {value}
-          </Text>
+          <Text className="ms-2 font-medium capitalize text-orange-dark">Pending</Text>
         </div>
       );
-    case 'complete':
+    case 'PROCESSING':
+      return (
+        <div className="flex items-center">
+          <Badge color="info" renderAsDot />
+          <Text className="ms-2 font-medium capitalize text-blue-dark">Processing</Text>
+        </div>
+      );
+    case 'DISPATCHED':
+      return (
+        <div className="flex items-center">
+          <Badge renderAsDot className="bg-indigo-500" />
+          <Text className="ms-2 font-medium capitalize text-indigo-dark">Dispatched</Text>
+        </div>
+      );
+    case 'DELIVERED':
       return (
         <div className="flex items-center">
           <Badge color="success" renderAsDot />
-          <Text className="ms-2 font-medium capitalize text-green-dark">
-            {value}
-          </Text>
+          <Text className="ms-2 font-medium capitalize text-green-dark">Delivered</Text>
         </div>
       );
-    case 'canceled':
+    case 'CANCELLED':
       return (
         <div className="flex items-center">
           <Badge color="danger" renderAsDot />
-          <Text className="ms-2 font-medium capitalize text-green-dark">
-            {value}
-          </Text>
+          <Text className="ms-2 font-medium capitalize text-red-dark">Cancelled</Text>
         </div>
       );
     default:
       return (
         <div className="flex items-center">
           <Badge renderAsDot className="bg-gray-400" />
-          <Text className="ms-2 font-medium capitalize text-gray-600">
-            {value}
-          </Text>
+          <Text className="ms-2 font-medium capitalize text-gray-600">{value}</Text>
         </div>
       );
   }

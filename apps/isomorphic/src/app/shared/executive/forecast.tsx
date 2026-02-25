@@ -201,7 +201,7 @@ export default function Forecast({ className }: { className?: string }) {
                     value: formatNumber(Number(payload.value)),
                   };
                   return (
-                    <CustomYAxisTick prefix={'$'} payload={pl} {...rest} />
+                    <CustomYAxisTick prefix={'৳'} payload={pl} {...rest} />
                   );
                 }}
               />

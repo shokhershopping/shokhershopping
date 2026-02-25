@@ -3,15 +3,26 @@ import crypto from 'crypto';
 import path from 'path';
 import { adminStorage } from 'firebase-config/admin';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILES = 5;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILES = 10;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
 
-    if (!files || files.length === 0) {
+    // Collect all file-like entries from both 'files' and 'file' keys
+    const fileEntries: File[] = [];
+    for (const key of ['files', 'file']) {
+      const entries = formData.getAll(key);
+      for (const entry of entries) {
+        // In Node.js runtime, formData entries with file data are Blob/File-like objects
+        if (typeof entry !== 'string' && (entry as any).arrayBuffer) {
+          fileEntries.push(entry as File);
+        }
+      }
+    }
+
+    if (fileEntries.length === 0) {
       return NextResponse.json(
         {
           status: 'error',
@@ -22,7 +33,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (files.length > MAX_FILES) {
+    if (fileEntries.length > MAX_FILES) {
       return NextResponse.json(
         {
           status: 'error',
@@ -33,24 +44,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate all files before uploading
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) {
-        return NextResponse.json(
-          {
-            status: 'error',
-            message: `File "${file.name}" is not an image. Only image files are allowed.`,
-            data: null,
-          },
-          { status: 400 }
-        );
-      }
-
+    // Validate file sizes
+    for (const file of fileEntries) {
       if (file.size > MAX_FILE_SIZE) {
         return NextResponse.json(
           {
             status: 'error',
-            message: `File "${file.name}" exceeds the 5MB size limit.`,
+            message: `File "${file.name}" exceeds the 10MB size limit.`,
             data: null,
           },
           { status: 400 }
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const bucket = adminStorage.bucket();
 
-    const uploadPromises = files.map(async (file) => {
-      const ext = path.extname(file.name) || '.jpg';
+    const uploadPromises = fileEntries.map(async (file) => {
+      const ext = path.extname(file.name || '') || '.jpg';
       const randomHex = crypto.randomBytes(6).toString('hex');
       const filename = `${Date.now()}-${randomHex}${ext}`;
       const filePath = `uploads/${year}/${month}/${filename}`;
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
       await storageFile.save(buffer, {
         metadata: {
-          contentType: file.type,
+          contentType: file.type || 'application/octet-stream',
         },
       });
 
@@ -84,6 +84,8 @@ export async function POST(request: NextRequest) {
 
       return {
         filename,
+        originalname: file.name || filename,
+        name: file.name || filename,
         path: filePath,
         size: file.size,
         mimetype: file.type,
@@ -101,12 +103,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Multiple upload error:', error);
+  } catch (error: any) {
     return NextResponse.json(
       {
         status: 'error',
-        message: 'Failed to upload files.',
+        message: error?.message || 'Failed to upload files.',
         data: null,
       },
       { status: 500 }

@@ -27,7 +27,6 @@ import {
 } from '@/validators/create-product.schema';
 import { useLayout } from '@/layouts/use-layout';
 import { LAYOUT_OPTIONS } from '@/config/enums';
-import { spec } from 'node:test/reporters';
 
 const MAP_STEP_TO_COMPONENT = {
   [formParts.summary]: ProductSummary,
@@ -125,7 +124,6 @@ export default function CreateEditProduct({
       );
     }
 
-    console.log('transformedData', transformedData);
     const res = await fetch(url, {
       method,
       headers: {
@@ -138,11 +136,9 @@ export default function CreateEditProduct({
       toast.error(
         <Text as="b">Error {slug ? 'updating' : 'creating'} product</Text>
       );
-      console.error('Error creating product:', errorData);
       setLoading(false);
     } else {
       setLoading(false);
-      console.log('product_data', data);
       toast.success(
         <Text as="b">Product successfully {slug ? 'updated' : 'created'}</Text>
       );
@@ -171,7 +167,6 @@ export default function CreateEditProduct({
               <ul className="list-disc pl-5">
                 {Object.entries(methods.formState.errors).map(
                   ([key, error]) => {
-                    console.log('Form Error:', key, error);
                     return (
                       <li key={key} className="text-sm">
                         {error.message}

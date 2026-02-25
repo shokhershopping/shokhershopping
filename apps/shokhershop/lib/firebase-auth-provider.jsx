@@ -14,6 +14,9 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  updatePassword as firebaseUpdatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "firebase/auth";
 import { clientAuth } from "firebase-config/client";
 
@@ -59,8 +62,8 @@ export function FirebaseAuthProvider({ children }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idToken }),
           });
-        } catch (error) {
-          console.error("Failed to create session:", error);
+        } catch {
+          // Session creation failed — will retry on next auth state change
         }
       }
     });
@@ -95,14 +98,23 @@ export function FirebaseAuthProvider({ children }) {
     try {
       await fetch("/api/auth/signout", { method: "POST" });
       await firebaseSignOut(clientAuth);
-    } catch (error) {
-      console.error("Sign out error:", error);
+    } catch {
+      // Sign out error — silently handle
     }
   }, []);
 
   const resetPassword = useCallback(async (email) => {
     await sendPasswordResetEmail(clientAuth, email);
   }, []);
+
+  const updateUserPassword = useCallback(async (currentPassword, newPassword) => {
+    if (!firebaseUser) throw new Error("Not authenticated");
+    // Re-authenticate first
+    const credential = EmailAuthProvider.credential(firebaseUser.email, currentPassword);
+    await reauthenticateWithCredential(firebaseUser, credential);
+    // Then update password
+    await firebaseUpdatePassword(firebaseUser, newPassword);
+  }, [firebaseUser]);
 
   const value = {
     user,
@@ -114,6 +126,7 @@ export function FirebaseAuthProvider({ children }) {
     signUp,
     signOut,
     resetPassword,
+    updatePassword: updateUserPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

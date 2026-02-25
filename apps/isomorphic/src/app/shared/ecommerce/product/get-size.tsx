@@ -16,7 +16,6 @@ export default function GetSize({ sizes }: { sizes?: number[] }) {
         control={control}
         name="productSize"
         render={({ field: { value, onChange } }) => {
-          console.log(value);
           return (
             <RadioGroup
               value={value}

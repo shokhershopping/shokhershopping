@@ -59,7 +59,7 @@ export default function Footer5() {
         handleShowMessage();
       }
     } catch (error) {
-      console.error("Error:", error.response?.data || "An error occurred");
+      // Silently handle newsletter error
       setSuccess(false); // Set error state
       handleShowMessage();
       e.target.reset(); // Reset the form

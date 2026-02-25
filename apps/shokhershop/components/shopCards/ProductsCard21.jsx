@@ -115,7 +115,7 @@ export default function ProductsCard21({ product }) {
           {product.oldPrice && (
             <span className="old-price">{product.oldPrice}</span>
           )}
-          ${product.price.toFixed(2)}
+          ৳{product.price.toFixed(2)}
         </span>
         <div className="pr-stock">
           <div className="progress">

@@ -25,7 +25,7 @@ export const api = {
   },
   dashboard: {
     stats: '/dashboard?type=stats',
-    salesReport: '/dashboard?type=stats',
+    salesReport: '/dashboard?type=sales-report',
     topProducts: '/dashboard?type=top-products',
     customerAnalytics: '/dashboard?type=stats',
     userLocation: '/dashboard?type=stats',
