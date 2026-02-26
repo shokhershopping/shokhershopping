@@ -85,17 +85,24 @@ export default function Context({ children }) {
   }, [firebaseUser, isUserLoaded]);
 
   const addProductToCart = (product, qty) => {
-    // Check if product already exists in cart
-    if (!cartProducts.some((elm) => elm.id === product.id)) {
+    const existingIndex = cartProducts.findIndex((elm) => elm.id === product.id);
+    if (existingIndex === -1) {
+      // New product — add to cart
       const item = {
         ...product,
         quantity: qty || 1,
       };
       setCartProducts((prev) => [...prev, item]);
       toast.success("Added to cart");
-      // openCartModal();
     } else {
-      toast("Product already in cart", { icon: "ℹ️" });
+      // Already in cart — update quantity
+      const updated = [...cartProducts];
+      updated[existingIndex] = {
+        ...updated[existingIndex],
+        quantity: qty || updated[existingIndex].quantity + 1,
+      };
+      setCartProducts(updated);
+      toast.success("Cart updated");
     }
   };
   const isAddedToCartProducts = (id) => {

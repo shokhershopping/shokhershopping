@@ -1,11 +1,10 @@
 'use client';
 
 import { routes } from '@/config/routes';
-import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
 import TableRowActionGroup from '@core/components/table-utils/table-row-action-group';
 import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Badge, Text } from 'rizzui';
+import { Badge, Select, Text } from 'rizzui';
 
 export type CouponDataType = {
   id: string;
@@ -21,6 +20,25 @@ export type CouponDataType = {
   expiry: string;
   createdAt: string;
 };
+
+const statusOptions = [
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Expired', value: 'EXPIRED' },
+  { label: 'Blocked', value: 'BLOCKED' },
+];
+
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'ACTIVE':
+      return 'success';
+    case 'EXPIRED':
+      return 'danger';
+    case 'BLOCKED':
+      return 'warning';
+    default:
+      return 'secondary';
+  }
+}
 
 const columnHelper = createColumnHelper<CouponDataType>();
 
@@ -102,10 +120,35 @@ export const couponColumns = [
   }),
   columnHelper.accessor('status', {
     id: 'status',
-    size: 120,
+    size: 160,
     header: 'Status',
     enableSorting: false,
-    cell: ({ row }) => getStatusBadge(row.original.status),
+    cell: ({
+      row,
+      table: {
+        options: { meta },
+      },
+    }) => (
+      <Select
+        size="sm"
+        options={statusOptions}
+        value={statusOptions.find((o) => o.value === row.original.status)}
+        onChange={(option: any) => {
+          if (option?.value && option.value !== row.original.status) {
+            meta?.handleStatusChange?.(row.original, option.value);
+          }
+        }}
+        selectClassName="min-w-[120px]"
+        suffix={
+          <Badge
+            size="sm"
+            renderAsDot
+            color={getStatusColor(row.original.status) as any}
+            className="me-1.5"
+          />
+        }
+      />
+    ),
   }),
   columnHelper.display({
     id: 'action',

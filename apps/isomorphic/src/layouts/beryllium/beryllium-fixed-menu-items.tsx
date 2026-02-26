@@ -13,7 +13,6 @@ import {
   PiCards,
   PiChartBar,
   PiChartLineUp,
-  PiChartPieSlice,
   PiChatCenteredDots,
   PiClipboardText,
   PiCodesandboxLogo,
@@ -113,11 +112,6 @@ export const berylliumMenuItems: MenuItemsType[] = [
         name: 'CRM',
         href: routes.crm.dashboard,
         icon: PiFolderUser,
-      },
-      {
-        name: 'Affiliate',
-        href: routes.affiliate.dashboard,
-        icon: PiChartPieSlice,
       },
       {
         name: 'Store Analytics',

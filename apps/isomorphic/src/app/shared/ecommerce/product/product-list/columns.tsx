@@ -3,7 +3,6 @@
 import DeletePopover from '@core/components/delete-popover';
 import { getRatings } from '@core/components/table-utils/get-ratings';
 import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
-import { getStockStatus } from '@core/components/table-utils/get-stock-status';
 import { routes } from '@/config/routes';
 import { ProductType } from '@/data/products-data';
 import EyeIcon from '@core/components/icons/eye';
@@ -61,17 +60,38 @@ export const productsListColumns = [
       );
     },
   }),
-  columnHelper.display({
+  columnHelper.accessor('sku', {
     id: 'sku',
     size: 150,
     header: 'SKU',
-    cell: ({ row }) => <Text className="text-sm">SKU-{row.original?.sku || 'N/A'}</Text>,
+    cell: ({ row }) => (
+      <Text className="text-sm font-medium">{row.original?.sku || 'N/A'}</Text>
+    ),
   }),
   columnHelper.accessor('stock', {
     id: 'stock',
-    size: 200,
+    size: 150,
     header: 'Stock',
-    cell: ({ row }) => getStockStatus(row.original?.stock || 0),
+    cell: ({ row }) => {
+      const stock = row.original?.stock || 0;
+      let color = 'text-green-600 bg-green-50';
+      let label = 'In Stock';
+      if (stock === 0) {
+        color = 'text-red-600 bg-red-50';
+        label = 'Out of Stock';
+      } else if (stock <= 20) {
+        color = 'text-orange-600 bg-orange-50';
+        label = 'Low Stock';
+      }
+      return (
+        <div className="flex flex-col">
+          <Text className="font-medium text-gray-700">{stock}</Text>
+          <span className={`mt-0.5 inline-block w-fit rounded px-1.5 py-0.5 text-[11px] font-medium ${color}`}>
+            {label}
+          </span>
+        </div>
+      );
+    },
   }),
   columnHelper.accessor('price', {
     id: 'price',

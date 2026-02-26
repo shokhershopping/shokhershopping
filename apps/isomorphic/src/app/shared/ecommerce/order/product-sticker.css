@@ -1,0 +1,285 @@
+/* Non-print styles - keep stickers off-screen but in DOM */
+.print-sticker-content {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 210mm !important;
+  background: white !important;
+  visibility: hidden !important;
+}
+
+/* Sticker grid layout */
+.sticker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8mm;
+  justify-content: center;
+  padding: 5mm;
+}
+
+/* Individual sticker card - large portrait */
+.sticker-card {
+  width: 90mm;
+  min-height: 130mm;
+  border: 2px solid #d1d5db;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6mm 6mm 5mm;
+  box-sizing: border-box;
+  background: white;
+}
+
+/* Logo */
+.sticker-logo {
+  margin-bottom: 3mm;
+}
+
+.sticker-logo img {
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Shop Name */
+.sticker-shop-name {
+  font-size: 18pt;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin-bottom: 1.5mm;
+  letter-spacing: 0.5px;
+}
+
+/* Bengali Tagline */
+.sticker-tagline {
+  font-size: 11pt;
+  color: #555;
+  text-align: center;
+  margin-bottom: 4mm;
+}
+
+/* Product Name */
+.sticker-product-name {
+  font-size: 20pt;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin-bottom: 3mm;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* SKU */
+.sticker-sku {
+  font-size: 11pt;
+  color: #333;
+  text-align: center;
+  margin-bottom: 3mm;
+}
+
+/* Pricing */
+.sticker-pricing {
+  text-align: center;
+  margin-bottom: 4mm;
+  width: 100%;
+}
+
+.sticker-unit-price {
+  font-size: 11pt;
+  color: #444;
+  margin-bottom: 1.5mm;
+}
+
+.sticker-total-price {
+  font-size: 18pt;
+  font-weight: 800;
+  color: #000;
+}
+
+/* Barcode */
+.sticker-barcode {
+  margin-bottom: 4mm;
+}
+
+.sticker-barcode svg {
+  max-width: 78mm;
+  height: 50px;
+}
+
+/* Bottom section: QR + Contact */
+.sticker-bottom {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  width: 100%;
+  padding-top: 3mm;
+  border-top: 1px solid #d1d5db;
+  margin-top: auto;
+}
+
+.sticker-qr svg {
+  width: 50px;
+  height: 50px;
+}
+
+.sticker-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+}
+
+.sticker-contact-url {
+  font-size: 10pt;
+  font-weight: 600;
+  color: #000;
+}
+
+.sticker-contact-phone {
+  font-size: 10pt;
+  font-weight: 600;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.sticker-phone-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* ============================================ */
+/* Print Styles for Product Stickers            */
+/* ============================================ */
+@media print {
+  /* Hide everything on the page except print content */
+  body > *:not(.print-sticker-content):not(.print-invoice-content) {
+    display: none !important;
+  }
+
+  /* Show and position stickers for printing */
+  .print-sticker-content {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    visibility: visible !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 8mm;
+  }
+
+  /* Sticker grid for print */
+  .sticker-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6mm;
+    justify-content: center;
+    padding: 3mm;
+  }
+
+  /* Sticker card for print - large */
+  .sticker-card {
+    width: 90mm;
+    min-height: 130mm;
+    border: 1.5px solid #bbb !important;
+    border-radius: 10px;
+    page-break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6mm 6mm 5mm;
+    background: white !important;
+  }
+
+  .sticker-logo img {
+    height: 50px !important;
+    width: auto !important;
+  }
+
+  .sticker-shop-name {
+    font-size: 17pt !important;
+    font-weight: 700 !important;
+  }
+
+  .sticker-tagline {
+    font-size: 10pt !important;
+  }
+
+  .sticker-product-name {
+    font-size: 19pt !important;
+    font-weight: 700 !important;
+  }
+
+  .sticker-sku {
+    font-size: 10pt !important;
+  }
+
+  .sticker-unit-price {
+    font-size: 10pt !important;
+  }
+
+  .sticker-total-price {
+    font-size: 17pt !important;
+    font-weight: 800 !important;
+  }
+
+  .sticker-barcode svg {
+    max-width: 75mm;
+    height: 45px !important;
+  }
+
+  .sticker-qr svg {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .sticker-contact-url {
+    font-size: 9pt !important;
+  }
+
+  .sticker-contact-phone {
+    font-size: 9pt !important;
+  }
+
+  .sticker-bottom {
+    border-top: 1px solid #ccc !important;
+  }
+
+  /* Force color printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Ensure images print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Remove link URLs */
+  a[href]:after {
+    content: none !important;
+  }
+
+  /* Typography */
+  body {
+    color: #000 !important;
+    background: #fff !important;
+  }
+}

@@ -85,12 +85,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           const variantResult = await updateVariant(id, variant.id, variantData);
           if (variantResult.status === 'success' && variantResult.data) {
             updatedVariants.push(variantResult.data);
+          } else if (variantResult.code === 409) {
+            return NextResponse.json(variantResult, { status: 409 });
           }
         } else {
           // New variant — create
           const variantResult = await createVariant(id, variantData);
           if (variantResult.status === 'success' && variantResult.data) {
             updatedVariants.push(variantResult.data);
+          } else if (variantResult.code === 409) {
+            return NextResponse.json(variantResult, { status: 409 });
           }
         }
       }

@@ -4,7 +4,7 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { Input, Button, ActionIcon, Textarea, Select } from 'rizzui';
 import cn from '@core/utils/class-names';
 import FormGroup from '@/app/shared/form-group';
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import TrashIcon from '@core/components/icons/trash';
 import { PiPlusBold } from 'react-icons/pi';
 import UploadZone from '@core/ui/file-upload/upload-zone';
@@ -24,7 +24,7 @@ const defaultVariant = {
   status: 'PUBLISHED',
 };
 
-export default function ProductVariants({ className }: { className?: string }) {
+export default function ProductVariants({ className, slug }: { className?: string; slug?: string }) {
   const {
     control,
     register,
@@ -32,7 +32,75 @@ export default function ProductVariants({ className }: { className?: string }) {
     getValues,
     setValue,
     watch,
+    setError,
+    clearErrors,
   } = useFormContext();
+
+  const skuTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+
+  const checkVariantSku = useCallback(
+    async (sku: string, variantIndex: number) => {
+      const fieldName = `productVariants.${variantIndex}.sku` as const;
+      if (!sku || !sku.trim()) {
+        clearErrors(fieldName);
+        return;
+      }
+
+      // Check against other variants in the same form first
+      const allVariants = getValues('productVariants') || [];
+      const duplicateInForm = allVariants.some(
+        (v: any, i: number) =>
+          i !== variantIndex && v.sku && v.sku.trim().toLowerCase() === sku.trim().toLowerCase()
+      );
+      if (duplicateInForm) {
+        setError(fieldName, {
+          type: 'manual',
+          message: 'Duplicate SKU within this product',
+        });
+        return;
+      }
+
+      // Also check the base product SKU
+      const baseSku = getValues('sku');
+      if (baseSku && baseSku.trim().toLowerCase() === sku.trim().toLowerCase()) {
+        setError(fieldName, {
+          type: 'manual',
+          message: 'SKU matches the base product SKU',
+        });
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams({ sku });
+        if (slug) params.set('excludeProductId', slug);
+        const variant = allVariants[variantIndex];
+        if (variant?.id) params.set('excludeVariantId', variant.id);
+        const res = await fetch(`/api/products/check-sku?${params}`);
+        const data = await res.json();
+        if (data.data && !data.data.unique) {
+          setError(fieldName, {
+            type: 'manual',
+            message: 'This SKU is already in use',
+          });
+        } else {
+          clearErrors(fieldName);
+        }
+      } catch {
+        // ignore check errors
+      }
+    },
+    [slug, setError, clearErrors, getValues]
+  );
+
+  const handleVariantSkuChange = useCallback(
+    (variantIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (skuTimers.current[variantIndex]) clearTimeout(skuTimers.current[variantIndex]);
+      skuTimers.current[variantIndex] = setTimeout(() => {
+        checkVariantSku(e.target.value, variantIndex);
+      }, 500);
+    },
+    [checkVariantSku]
+  );
 
   const {
     fields: variants,
@@ -182,12 +250,18 @@ export default function ProductVariants({ className }: { className?: string }) {
               type="text"
               label="SKU"
               placeholder="SKU-12345"
-              className="min-w-[150px] flex-grow"
+              className={cn(
+                'min-w-[150px] flex-grow',
+                (errors?.productVariants as any)?.[variantIndex]?.sku
+                  ? '[&_input]:!border-red-500 [&_input]:!ring-red-500'
+                  : ''
+              )}
               error={
                 (errors?.productVariants as any)?.[variantIndex]?.sku?.message
               }
               {...register(`productVariants.${variantIndex}.sku`, {
                 required: 'SKU is required',
+                onChange: handleVariantSkuChange(variantIndex),
               })}
             />
 

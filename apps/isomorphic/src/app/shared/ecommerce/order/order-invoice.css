@@ -10,8 +10,8 @@
 
 /* Print Styles for Order Invoice */
 @media print {
-  /* Hide everything on the page */
-  body > *:not(.print-invoice-content) {
+  /* Hide everything on the page except print content */
+  body > *:not(.print-invoice-content):not(.print-sticker-content) {
     display: none !important;
   }
 

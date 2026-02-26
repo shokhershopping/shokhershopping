@@ -43,6 +43,27 @@ export default function CouponTable() {
             toast.error('Failed to delete coupon');
           }
         },
+        handleStatusChange: async (row: CouponDataType, newStatus: string) => {
+          try {
+            const res = await fetch(`/api/coupons/${row.id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus }),
+            });
+            if (res.ok) {
+              setData((prev) =>
+                prev.map((r) =>
+                  r.id === row.id ? { ...r, status: newStatus } : r
+                )
+              );
+              toast.success(`Coupon status changed to ${newStatus}`);
+            } else {
+              toast.error('Failed to update status');
+            }
+          } catch {
+            toast.error('Failed to update status');
+          }
+        },
       },
       enableColumnResizing: false,
     },

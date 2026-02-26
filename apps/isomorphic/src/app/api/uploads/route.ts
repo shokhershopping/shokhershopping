@@ -3,7 +3,10 @@ import crypto from 'crypto';
 import path from 'path';
 import { adminStorage } from 'firebase-config/admin';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+// Force Node.js runtime for file upload handling
+export const runtime = 'nodejs';
+
+const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5MB
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           status: 'error',
-          message: 'File size exceeds the 5MB limit.',
+          message: 'File size exceeds the 1.5MB limit. Please compress or resize the image.',
           data: null,
         },
         { status: 400 }
@@ -58,16 +61,20 @@ export async function POST(request: NextRequest) {
     const bucket = adminStorage.bucket();
     const storageFile = bucket.file(filePath);
 
+    // Generate a download token for public access
+    const downloadToken = crypto.randomUUID();
+
     await storageFile.save(buffer, {
       metadata: {
         contentType: file.type,
+        metadata: {
+          firebaseStorageDownloadTokens: downloadToken,
+        },
       },
     });
 
-    // Make the file publicly accessible
-    await storageFile.makePublic();
-
-    const url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    // Use Firebase Storage public URL format with token
+    const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${downloadToken}`;
 
     return NextResponse.json(
       {

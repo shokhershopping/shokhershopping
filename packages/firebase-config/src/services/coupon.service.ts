@@ -75,7 +75,8 @@ export async function getCouponByCode(
 
     // Check if coupon has expired
     const now = Timestamp.now();
-    if (coupon.expiry.toMillis() < now.toMillis()) {
+    const expiryTs = coupon.expiry instanceof Timestamp ? coupon.expiry : toTimestamp(coupon.expiry);
+    if (expiryTs.toMillis() < now.toMillis()) {
       return errorResponse('Coupon has expired', 400);
     }
 
@@ -94,14 +95,25 @@ export async function getCouponByCode(
 /**
  * Create a new coupon.
  */
+// Helper to safely convert a date value (string, Date, or undefined) to a Firestore Timestamp
+function toTimestamp(value: any, fallback?: Timestamp): Timestamp {
+  if (!value) return fallback ?? Timestamp.now();
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return Timestamp.fromDate(value);
+  // String date like "2026-03-01"
+  const parsed = new Date(value);
+  if (!isNaN(parsed.getTime())) return Timestamp.fromDate(parsed);
+  return fallback ?? Timestamp.now();
+}
+
 export async function createCoupon(data: {
   code: string;
   description?: string;
   amount: number;
   type: CouponType;
-  start: Date;
-  end: Date;
-  expiry: Date;
+  start?: any;
+  end?: any;
+  expiry?: any;
   minimum?: number;
   maximum?: number;
   limit?: number;
@@ -111,15 +123,20 @@ export async function createCoupon(data: {
 }): Promise<IResponse<FirestoreCoupon>> {
   try {
     const now = Timestamp.now();
+    // Default expiry: 1 year from now
+    const defaultExpiry = Timestamp.fromDate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
+
+    const startTs = toTimestamp(data.start, now);
+    const endTs = toTimestamp(data.end || data.expiry, defaultExpiry);
 
     const couponData: Omit<FirestoreCoupon, 'id'> = {
       code: data.code.toUpperCase(),
       description: data.description ?? null,
       amount: data.amount,
       type: data.type,
-      start: Timestamp.fromDate(data.start),
-      end: Timestamp.fromDate(data.end),
-      expiry: Timestamp.fromDate(data.expiry),
+      start: startTs,
+      end: endTs,
+      expiry: endTs,
       minimum: data.minimum ?? 0,
       maximum: data.maximum ?? 0,
       used: 0,
@@ -161,15 +178,15 @@ export async function updateCoupon(
       updatedAt: Timestamp.now(),
     };
 
-    // Convert Date objects to Timestamps if present
-    if (data.start && data.start instanceof Date) {
-      updateData.start = Timestamp.fromDate(data.start as unknown as Date);
+    // Convert date values (string or Date) to Timestamps if present
+    if (data.start) {
+      updateData.start = toTimestamp(data.start);
     }
-    if (data.end && data.end instanceof Date) {
-      updateData.end = Timestamp.fromDate(data.end as unknown as Date);
+    if (data.end) {
+      updateData.end = toTimestamp(data.end);
     }
-    if (data.expiry && data.expiry instanceof Date) {
-      updateData.expiry = Timestamp.fromDate(data.expiry as unknown as Date);
+    if (data.expiry) {
+      updateData.expiry = toTimestamp(data.expiry);
     }
 
     // Uppercase code if provided

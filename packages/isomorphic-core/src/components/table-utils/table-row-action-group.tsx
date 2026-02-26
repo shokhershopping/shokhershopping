@@ -41,18 +41,20 @@ export default function TableRowActionGroup({
           </ActionIcon>
         </Link>
       </Tooltip>
-      <Tooltip size="sm" content="View Item" placement="top" color="invert">
-        <Link href={viewUrl}>
-          <ActionIcon
-            as="span"
-            size="sm"
-            variant="outline"
-            aria-label="View item"
-          >
-            <EyeIcon className="size-4" />
-          </ActionIcon>
-        </Link>
-      </Tooltip>
+      {viewUrl && viewUrl !== "#" && (
+        <Tooltip size="sm" content="View Item" placement="top" color="invert">
+          <Link href={viewUrl}>
+            <ActionIcon
+              as="span"
+              size="sm"
+              variant="outline"
+              aria-label="View item"
+            >
+              <EyeIcon className="size-4" />
+            </ActionIcon>
+          </Link>
+        </Tooltip>
+      )}
       <DeletePopover
         title={deletePopoverTitle}
         description={deletePopoverDescription}

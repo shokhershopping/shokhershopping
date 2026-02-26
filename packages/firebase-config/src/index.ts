@@ -88,6 +88,7 @@ export {
   createVariant,
   updateVariant,
   deleteVariant,
+  isSkuUnique,
 } from './services/product.service';
 
 export {
@@ -144,6 +145,8 @@ export {
   getSalesReport,
   getTopProducts,
   getStockReport,
+  getUserLocation,
+  getCustomerAnalytics,
 } from './services/dashboard.service';
 
 export {
@@ -171,3 +174,12 @@ export {
   updateMarquee,
   deleteMarquee,
 } from './services/marquee.service';
+
+export {
+  getDeliveryAreas,
+  getActiveDeliveryAreas,
+  getDeliveryAreaById,
+  createDeliveryArea,
+  updateDeliveryArea,
+  deleteDeliveryArea,
+} from './services/delivery-area.service';

@@ -17,15 +17,12 @@ export const Collections = {
   CARTS: 'carts',
   NOTIFICATIONS: 'notifications',
   NOTIFICATION_RECIPIENTS: 'recipients',
-  AFFILIATES: 'affiliates',
-  AFFILIATE_CLICKS: 'clicks',
-  AFFILIATE_PURCHASES: 'purchases',
-  AFFILIATE_WITHDRAWALS: 'withdrawals',
-  INVOICES: 'invoices',
+INVOICES: 'invoices',
   QNA: 'qna',
   REPLIES: 'replies',
   BANNERS: 'banners',
   MARQUEES: 'marquees',
+  DELIVERY_AREAS: 'deliveryAreas',
 } as const;
 
 export type CollectionName = (typeof Collections)[keyof typeof Collections];

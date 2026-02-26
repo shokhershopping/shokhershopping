@@ -149,7 +149,8 @@ export default function UploadZone({
       );
 
       if (!res.ok) {
-        toast.error("Failed to upload files. Please check your storage configuration.");
+        const errorData = await res.json().catch(() => ({}));
+        toast.error(errorData?.message || "Failed to upload files. Please check your storage configuration.");
         setIsUploading(false);
         return;
       }

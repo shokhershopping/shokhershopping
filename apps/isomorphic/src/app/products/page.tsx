@@ -54,10 +54,12 @@ export default async function ProductsPage() {
       ? product.imageUrls[0]
       : (product.images?.[0]?.url || product.images?.[0]?.path || 'https://placehold.co/600x400.png'),
     sku: product.sku || 'N/A',
-    stock: product.stock || 0,
+    stock: product.variableProducts?.length > 0
+      ? product.variableProducts.reduce((sum: number, v: any) => sum + (v.stock || 0), 0)
+      : (product.stock || 0),
     price: product.price || 0,
     status: product.status || 'DRAFT',
-    rating: product.averageRating || 0,
+    rating: product.averageRating ?? 0,
     // Include variant data for stock view
     variableProducts: product.variableProducts?.map((variant: any) => {
       let parsedSpecs: any = {};

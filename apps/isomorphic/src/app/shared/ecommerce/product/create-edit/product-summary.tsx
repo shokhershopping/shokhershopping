@@ -11,7 +11,7 @@ import {
 import dynamic from 'next/dynamic';
 import SelectLoader from '@core/components/loader/select-loader';
 import QuillLoader from '@core/components/loader/quill-loader';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 // const Select = dynamic(() => import('rizzui').then((mod) => mod.Select), {
 //   ssr: false,
 //   loading: () => <SelectLoader />,
@@ -21,13 +21,52 @@ const QuillEditor = dynamic(() => import('@core/ui/quill-editor'), {
   loading: () => <QuillLoader className="col-span-full h-[143px]" />,
 });
 
-export default function ProductSummary({ className }: { className?: string }) {
+export default function ProductSummary({ className, slug }: { className?: string; slug?: string }) {
   const {
     register,
     control,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useFormContext();
   const [categories, setCategories] = useState<any[]>([]);
+  const skuCheckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const checkSkuUniqueness = useCallback(
+    async (sku: string) => {
+      if (!sku || !sku.trim()) {
+        clearErrors('sku');
+        return;
+      }
+      try {
+        const params = new URLSearchParams({ sku });
+        if (slug) params.set('excludeProductId', slug);
+        const res = await fetch(`/api/products/check-sku?${params}`);
+        const data = await res.json();
+        if (data.data && !data.data.unique) {
+          setError('sku', {
+            type: 'manual',
+            message: 'This SKU is already in use',
+          });
+        } else {
+          clearErrors('sku');
+        }
+      } catch {
+        // ignore check errors
+      }
+    },
+    [slug, setError, clearErrors]
+  );
+
+  const handleSkuChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (skuCheckTimer.current) clearTimeout(skuCheckTimer.current);
+      skuCheckTimer.current = setTimeout(() => {
+        checkSkuUniqueness(e.target.value);
+      }, 500);
+    },
+    [checkSkuUniqueness]
+  );
   useEffect(() => {
     // Simulate fetching categories from an API
     const fetchCategories = async () => {
@@ -72,8 +111,11 @@ export default function ProductSummary({ className }: { className?: string }) {
       <Input
         label="SKU"
         placeholder="Product sku"
-        {...register('sku')}
+        {...register('sku', {
+          onChange: handleSkuChange,
+        })}
         error={errors.sku?.message as string}
+        className={errors.sku ? '[&_input]:!border-red-500 [&_input]:!ring-red-500' : ''}
       />
 
       <Controller

@@ -19,13 +19,8 @@ export type {
   FirestoreNotification,
   FirestoreNotificationRecipient,
 } from './notification.types';
-export type {
-  FirestoreAffiliate,
-  FirestoreAffiliateClick,
-  FirestoreAffiliatedPurchase,
-  FirestoreAffiliateWithdrawal,
-} from './affiliate.types';
 export type { FirestoreInvoice } from './invoice.types';
 export type { FirestoreQnA, FirestoreReply } from './qna.types';
 export type { FirestoreBanner } from './banner.types';
 export type { FirestoreMarquee } from './marquee.types';
+export type { FirestoreDeliveryArea } from './delivery-area.types';

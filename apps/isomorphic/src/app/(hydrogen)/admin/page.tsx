@@ -324,7 +324,7 @@ export default function AdminPage() {
           <Title as="h6" className="mb-2 font-semibold text-green-800">Admin</Title>
           <Text className="text-sm text-green-700">
             Full access to all features: Dashboard, Products, Categories, Orders,
-            Transactions, Affiliates, Notifications, Coupons, Reviews, and Admin Management.
+            Transactions, Notifications, Coupons, Reviews, and Admin Management.
           </Text>
         </div>
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:bg-blue-900/10">

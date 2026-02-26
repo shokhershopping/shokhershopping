@@ -62,19 +62,6 @@ export const ReviewStatus = {
 } as const;
 export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus];
 
-export const AffiliateStatus = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE',
-} as const;
-export type AffiliateStatus = (typeof AffiliateStatus)[keyof typeof AffiliateStatus];
-
-export const AffiliateWithdrawalStatus = {
-  PENDING: 'PENDING',
-  COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
-} as const;
-export type AffiliateWithdrawalStatus =
-  (typeof AffiliateWithdrawalStatus)[keyof typeof AffiliateWithdrawalStatus];
 
 export const ReplyBy = {
   USER: 'USER',
@@ -87,6 +74,12 @@ export const DeliveryOption = {
   EXPRESS: 'EXPRESS',
 } as const;
 export type DeliveryOption = (typeof DeliveryOption)[keyof typeof DeliveryOption];
+
+export const DeliveryAreaStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+} as const;
+export type DeliveryAreaStatus = (typeof DeliveryAreaStatus)[keyof typeof DeliveryAreaStatus];
 
 export const InvoiceType = {
   ADMIN: 'ADMIN',

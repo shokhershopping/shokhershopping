@@ -10,15 +10,26 @@ import { useContextElement } from "@/context/Context";
 import { openCartModal } from "@/utlis/openCartModal";
 
 export default function DetailsOuterZoom({ product }) {
-  const variantColors =
-    product.variableProducts?.map((variant) => ({
-      value: variant.specifications?.color,
-      className: variant.specifications?.color?.toLowerCase(),
-      variantId: variant.id,
-      colorValue:
-        variant.specifications?.colorValue ||
-        variant.specifications?.color?.toLowerCase(),
-    })) || [];
+  // Deduplicate colors - show only one dot per unique color
+  const variantColors = (() => {
+    const seen = new Set();
+    return (
+      product.variableProducts?.reduce((acc, variant) => {
+        const colorKey = variant.specifications?.color?.toLowerCase();
+        if (colorKey && !seen.has(colorKey)) {
+          seen.add(colorKey);
+          acc.push({
+            value: variant.specifications?.color,
+            className: colorKey,
+            variantId: variant.id,
+            colorValue:
+              variant.specifications?.colorValue || colorKey,
+          });
+        }
+        return acc;
+      }, []) || []
+    );
+  })();
 
   const colorWiseVariantSizes = product.variableProducts?.reduce(
     (acc, variant) => {

@@ -3,30 +3,34 @@ import crypto from 'crypto';
 import path from 'path';
 import { adminStorage } from 'firebase-config/admin';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+// Force Node.js runtime for file upload handling
+export const runtime = 'nodejs';
+
+// Allow large file uploads (up to 50MB per request)
+export const maxDuration = 60;
+
+const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5MB per file
 const MAX_FILES = 10;
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
 
-    // Collect all file-like entries from both 'files' and 'file' keys
+    // Collect all file entries - accept any non-string FormData value
     const fileEntries: File[] = [];
-    for (const key of ['files', 'file']) {
-      const entries = formData.getAll(key);
-      for (const entry of entries) {
-        // In Node.js runtime, formData entries with file data are Blob/File-like objects
-        if (typeof entry !== 'string' && (entry as any).arrayBuffer) {
-          fileEntries.push(entry as File);
-        }
+    for (const [key, value] of formData.entries()) {
+      if (typeof value !== 'string') {
+        fileEntries.push(value as File);
       }
     }
+
+    console.log('Upload request - form keys:', [...formData.keys()], 'files found:', fileEntries.length);
 
     if (fileEntries.length === 0) {
       return NextResponse.json(
         {
           status: 'error',
-          message: 'No files uploaded.',
+          message: 'No files uploaded. Received keys: ' + [...formData.keys()].join(', '),
           data: null,
         },
         { status: 400 }
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             status: 'error',
-            message: `File "${file.name}" exceeds the 10MB size limit.`,
+            message: `File "${file.name}" (${(file.size / 1024 / 1024).toFixed(1)}MB) exceeds the 1.5MB size limit. Please compress or resize the image.`,
             data: null,
           },
           { status: 400 }
@@ -72,15 +76,20 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const storageFile = bucket.file(filePath);
 
+      // Generate a download token for public access
+      const downloadToken = crypto.randomUUID();
+
       await storageFile.save(buffer, {
         metadata: {
           contentType: file.type || 'application/octet-stream',
+          metadata: {
+            firebaseStorageDownloadTokens: downloadToken,
+          },
         },
       });
 
-      await storageFile.makePublic();
-
-      const url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+      // Use Firebase Storage public URL format with token
+      const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${downloadToken}`;
 
       return {
         filename,
@@ -104,6 +113,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
+    console.error('Upload error:', error);
     return NextResponse.json(
       {
         status: 'error',

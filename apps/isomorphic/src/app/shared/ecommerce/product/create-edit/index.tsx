@@ -28,7 +28,7 @@ import {
 import { useLayout } from '@/layouts/use-layout';
 import { LAYOUT_OPTIONS } from '@/config/enums';
 
-const MAP_STEP_TO_COMPONENT = {
+const MAP_STEP_TO_COMPONENT: Record<string, React.ComponentType<{ className?: string; slug?: string }>> = {
   [formParts.summary]: ProductSummary,
   [formParts.media]: ProductMedia,
   [formParts.pricingInventory]: PricingInventory,
@@ -133,9 +133,41 @@ export default function CreateEditProduct({
     });
     if (!res.ok) {
       const errorData = await res.json();
-      toast.error(
-        <Text as="b">Error {slug ? 'updating' : 'creating'} product</Text>
-      );
+      if (res.status === 409 && errorData.message) {
+        // SKU duplicate error - extract SKU from message like: SKU "XXXX" is already in use
+        const msg = errorData.message as string;
+        const skuMatch = msg.match(/SKU\s+"([^"]+)"/i);
+        const dupSku = skuMatch ? skuMatch[1] : '';
+
+        if (dupSku) {
+          // Check variant SKUs
+          if (data.productVariants) {
+            const idx = data.productVariants.findIndex(
+              (v) => v.sku && v.sku.trim().toLowerCase() === dupSku.trim().toLowerCase()
+            );
+            if (idx >= 0) {
+              methods.setError(`productVariants.${idx}.sku`, {
+                type: 'manual',
+                message: 'This SKU is already in use',
+              });
+            }
+          }
+          // Check base product SKU
+          if (data.sku && data.sku.trim().toLowerCase() === dupSku.trim().toLowerCase()) {
+            methods.setError('sku', {
+              type: 'manual',
+              message: 'This SKU is already in use',
+            });
+          }
+        }
+        toast.error(
+          <Text as="b">{errorData.message || 'Duplicate SKU detected'}</Text>
+        );
+      } else {
+        toast.error(
+          <Text as="b">Error {slug ? 'updating' : 'creating'} product</Text>
+        );
+      }
       setLoading(false);
     } else {
       setLoading(false);
@@ -183,7 +215,7 @@ export default function CreateEditProduct({
                 key={key}
                 name={formParts[key as keyof typeof formParts]}
               >
-                {<Component className="pt-7 @2xl:pt-9 @3xl:pt-11" />}
+                {<Component className="pt-7 @2xl:pt-9 @3xl:pt-11" slug={slug} />}
               </Element>
             ))}
           </div>

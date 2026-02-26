@@ -40,10 +40,10 @@ export default function CreateCoupon({ couponId }: CreateCouponProps) {
     code: '',
     description: '',
     type: 'PERCENTAGE' as string,
-    amount: 0,
-    minimum: 0,
-    maximum: 0,
-    limit: 0,
+    amount: '' as string | number,
+    minimum: '' as string | number,
+    maximum: '' as string | number,
+    limit: '' as string | number,
     status: 'ACTIVE' as string,
     start: '',
     end: '',
@@ -64,10 +64,10 @@ export default function CreateCoupon({ couponId }: CreateCouponProps) {
             code: coupon.code || '',
             description: coupon.description || '',
             type: coupon.type || 'PERCENTAGE',
-            amount: coupon.amount || 0,
-            minimum: coupon.minimum || 0,
-            maximum: coupon.maximum || 0,
-            limit: coupon.limit || 0,
+            amount: coupon.amount || '',
+            minimum: coupon.minimum || '',
+            maximum: coupon.maximum || '',
+            limit: coupon.limit || '',
             status: coupon.status || 'ACTIVE',
             start: parseTimestampToDate(coupon.start),
             end: parseTimestampToDate(coupon.end || coupon.expiry),
@@ -180,23 +180,23 @@ export default function CreateCoupon({ couponId }: CreateCouponProps) {
           <Input
             type="number"
             label={formData.type === 'PERCENTAGE' ? 'Discount (%)' : 'Discount Amount (৳)'}
-            placeholder="0"
+            placeholder="Enter discount amount"
             value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
           />
           <Input
             type="number"
             label="Minimum Order Amount (৳)"
-            placeholder="0"
+            placeholder="Enter minimum amount"
             value={formData.minimum}
-            onChange={(e) => setFormData({ ...formData, minimum: Number(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, minimum: e.target.value })}
           />
           <Input
             type="number"
             label="Maximum Discount Amount (৳)"
-            placeholder="0 = No limit"
+            placeholder="Leave empty for no limit"
             value={formData.maximum}
-            onChange={(e) => setFormData({ ...formData, maximum: Number(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, maximum: e.target.value })}
           />
         </FormGroup>
 
@@ -208,9 +208,9 @@ export default function CreateCoupon({ couponId }: CreateCouponProps) {
           <Input
             type="number"
             label="Usage Limit"
-            placeholder="0 = Unlimited"
+            placeholder="Leave empty for unlimited"
             value={formData.limit}
-            onChange={(e) => setFormData({ ...formData, limit: Number(e.target.value) })}
+            onChange={(e) => setFormData({ ...formData, limit: e.target.value })}
           />
           <Select
             label="Status"

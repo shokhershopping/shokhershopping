@@ -4,6 +4,7 @@ import PageHeader from '@/app/shared/page-header';
 import Link from 'next/link';
 import OrderView from '@/app/shared/ecommerce/order/order-view';
 import PrintInvoiceButton from '@/app/shared/ecommerce/order/print-invoice-button';
+import PrintStickerButton from '@/app/shared/ecommerce/order/print-sticker-button';
 import { getBaseUrl } from '@/lib/get-base-url';
 
 export default async function OrderDetailsPage({ params }: any) {
@@ -53,6 +54,7 @@ export default async function OrderDetailsPage({ params }: any) {
             <>
               <PrintInvoiceButton order={order} variant="admin" />
               <PrintInvoiceButton order={order} variant="customer" />
+              <PrintStickerButton order={order} />
             </>
           )}
           <Link href={routes.eCommerce.editOrder(id)}>

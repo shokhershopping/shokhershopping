@@ -74,6 +74,9 @@ export async function POST(request: NextRequest) {
         });
         if (variantResult.status === 'success' && variantResult.data) {
           createdVariants.push(variantResult.data);
+        } else if (variantResult.code === 409) {
+          // SKU duplicate - return error immediately
+          return NextResponse.json(variantResult, { status: 409 });
         }
       }
 

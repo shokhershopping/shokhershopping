@@ -93,7 +93,7 @@ export async function getTopProducts(
   if (params?.startDate) queryParams.append('startDate', params.startDate);
   if (params?.endDate) queryParams.append('endDate', params.endDate);
 
-  const endpoint = `${api.dashboard.topProducts}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const endpoint = `${api.dashboard.topProducts}${queryParams.toString() ? '&' + queryParams.toString() : ''}`;
   return fetchAPI<TopProduct[]>(endpoint, token);
 }
 
@@ -107,7 +107,7 @@ export async function getCustomerAnalytics(
   token?: string | null
 ): Promise<DashboardApiResponse<CustomerAnalyticsData[]>> {
   const selectedYear = year || new Date().getFullYear();
-  const endpoint = `${api.dashboard.customerAnalytics}?year=${selectedYear}`;
+  const endpoint = `${api.dashboard.customerAnalytics}&year=${selectedYear}`;
   return fetchAPI<CustomerAnalyticsData[]>(endpoint, token);
 }
 
@@ -140,7 +140,7 @@ export async function getStockReport(
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.threshold) queryParams.append('threshold', params.threshold.toString());
 
-  const endpoint = `${api.dashboard.stockReport}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const endpoint = `${api.dashboard.stockReport}${queryParams.toString() ? '&' + queryParams.toString() : ''}`;
   return fetchAPI<StockReportProduct[]>(endpoint, token);
 }
 

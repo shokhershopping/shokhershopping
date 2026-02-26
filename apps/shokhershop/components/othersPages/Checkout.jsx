@@ -71,14 +71,41 @@ export default function Checkout() {
     0
   );
 
-  // Calculate delivery charge based on area
-  const [deliveryCharge, setDeliveryCharge] = useState(80);
+  // Dynamic delivery areas from backend
+  const [deliveryAreas, setDeliveryAreas] = useState([]);
+  const [deliveryAreasLoaded, setDeliveryAreasLoaded] = useState(false);
+  const [selectedAreaId, setSelectedAreaId] = useState("");
+  const [deliveryCharge, setDeliveryCharge] = useState(0);
+
+  useEffect(() => {
+    const fetchDeliveryAreas = async () => {
+      try {
+        const res = await fetch("/api/delivery-areas");
+        const json = await res.json();
+        const areas = Array.isArray(json?.data) ? json.data : [];
+        setDeliveryAreas(areas);
+
+        // Set default area
+        const defaultArea = areas.find((a) => a.isDefault) || areas[0];
+        if (defaultArea) {
+          setSelectedAreaId(defaultArea.id);
+          setDeliveryCharge(defaultArea.price || 0);
+        }
+      } catch {
+        setDeliveryAreas([]);
+      } finally {
+        setDeliveryAreasLoaded(true);
+      }
+    };
+    fetchDeliveryAreas();
+  }, []);
+
   const handleDeliveryAreaChange = (e) => {
-    const area = e.target.value;
-    if (area === "inside_dhaka") {
-      setDeliveryCharge(80);
-    } else if (area === "outside_dhaka") {
-      setDeliveryCharge(200);
+    const areaId = e.target.value;
+    setSelectedAreaId(areaId);
+    const area = deliveryAreas.find((a) => a.id === areaId);
+    if (area) {
+      setDeliveryCharge(area.price || 0);
     }
   };
 
@@ -185,6 +212,56 @@ export default function Checkout() {
       return;
     }
 
+    // Validate required billing fields
+    if (!formData.billingFirstName.trim() || !formData.billingLastName.trim()) {
+      setError("First name and last name are required");
+      return;
+    }
+    if (!formData.billingPhone.trim()) {
+      setError("Phone number is required");
+      return;
+    }
+    if (!formData.billingAddress.trim()) {
+      setError("Address is required");
+      return;
+    }
+    if (!formData.billingCity.trim()) {
+      setError("City is required");
+      return;
+    }
+    if (!formData.billingZip.trim()) {
+      setError("Zip/Postal code is required");
+      return;
+    }
+    if (!formData.billingEmail.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    // Validate shipping fields if different from billing
+    if (!formData.sameAsShipping) {
+      if (!formData.shippingFirstName.trim() || !formData.shippingLastName.trim()) {
+        setError("Shipping first name and last name are required");
+        return;
+      }
+      if (!formData.shippingPhone.trim()) {
+        setError("Shipping phone number is required");
+        return;
+      }
+      if (!formData.shippingAddress.trim()) {
+        setError("Shipping address is required");
+        return;
+      }
+      if (!formData.shippingCity.trim()) {
+        setError("Shipping city is required");
+        return;
+      }
+      if (!formData.shippingZip.trim()) {
+        setError("Shipping zip/postal code is required");
+        return;
+      }
+    }
+
     // Validate terms agreement
     if (!formData.agreeToTerms) {
       setError("You must agree to the terms and conditions");
@@ -224,15 +301,21 @@ export default function Checkout() {
             phone: formData.shippingPhone,
           };
 
+      const selectedArea = deliveryAreas.find((a) => a.id === selectedAreaId);
       const orderData = {
         order: {
           userId: firebaseUser?.uid,
           deliveryCharge: deliveryCharge,
+          deliveryAreaName: selectedArea?.name || '',
           ...(coupon ? { couponId: coupon.id, discount: couponDiscount } : {}),
         },
         items: cartProducts.map((product) => ({
           quantity: product.quantity,
           productId: product.id,
+          variantId: product.variantId || null,
+          productName: product.name || "Unknown Product",
+          productPrice: product.price || 0,
+          productImageUrl: product.images?.[0]?.path || product.imageUrls?.[0] || product.imgSrc || null,
         })),
         shippingAddress: shippingAddressData,
         billingAddress: formData.sameAsShipping ? undefined : billingAddressData,
@@ -491,13 +574,22 @@ export default function Checkout() {
                   required
                   id="deliveryArea"
                   name="deliveryArea"
-                  value={formData.deliveryArea}
+                  value={selectedAreaId}
                   onChange={handleDeliveryAreaChange}
                   className="form-control w-100"
                   style={{ height: "48px" }}
                 >
-                  <option value="inside_dhaka">Inside Dhaka</option>
-                  <option value="outside_dhaka">Outside Dhaka</option>
+                  {!deliveryAreasLoaded && (
+                    <option value="">Loading areas...</option>
+                  )}
+                  {deliveryAreasLoaded && deliveryAreas.length === 0 && (
+                    <option value="">No delivery areas available</option>
+                  )}
+                  {deliveryAreas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.name} - ৳{area.price}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -669,6 +761,10 @@ export default function Checkout() {
                     </label>
                   </div>
                 </div>
+
+                {error && (
+                  <div className="alert alert-danger mb_20">{error}</div>
+                )}
 
                 <button
                   type="submit"

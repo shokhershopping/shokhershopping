@@ -4,27 +4,30 @@ import { getUserById, createUser } from 'firebase-config/services/user.service';
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { uid, email, displayName, photoURL } = body;
+    const { id, uid, email, displayName, name, photoURL, image } = body;
 
-    if (!uid) {
+    // Support both 'id' and 'uid' field names
+    const userId = id || uid;
+
+    if (!userId) {
       return NextResponse.json(
-        { status: 'error', message: 'uid is required', data: null },
+        { status: 'error', message: 'id or uid is required', data: null },
         { status: 400 }
       );
     }
 
     // Check if user already exists
-    const existing = await getUserById(uid);
+    const existing = await getUserById(userId);
     if (existing.status === 'success' && existing.data) {
       return NextResponse.json(existing, { status: 200 });
     }
 
     // Create new user
     const result = await createUser({
-      id: uid,
+      id: userId,
       email: email || '',
-      name: displayName || '',
-      image: photoURL || '',
+      name: name || displayName || '',
+      image: image || photoURL || '',
       role: 'USER',
     });
 

@@ -66,9 +66,8 @@ export default function ShopDetailsTab({ product }) {
                   } `}
                 >
                   <div className="">
-                    <p
+                    <div
                       className="mb_30"
-                      suppressHydrationWarning
                       dangerouslySetInnerHTML={{
                         __html: product?.description || "",
                       }}

@@ -1,9 +1,20 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/getImageUrl";
+import toast from "react-hot-toast";
+import CancelOrderModal from "@/components/modals/CancelOrderModal";
 
 export default function OrderDetails({ order }) {
+  const router = useRouter();
+  const [cancelling, setCancelling] = useState(false);
+  const [orderStatus, setOrderStatus] = useState(order?.status);
+
+  useEffect(() => {
+    setOrderStatus(order?.status);
+  }, [order?.status]);
+
   useEffect(() => {
     const tabs = () => {
       document.querySelectorAll(".widget-tabs").forEach((widgetTab) => {
@@ -13,12 +24,9 @@ export default function OrderDetails({ order }) {
 
         titles.forEach((title, index) => {
           title.addEventListener("click", () => {
-            // Remove active class from all menu items
             titles.forEach((item) => item.classList.remove("active"));
-            // Add active class to the clicked item
             title.classList.add("active");
 
-            // Remove active class from all content items
             const contentItems = widgetTab.querySelectorAll(
               ".widget-content-tab > *"
             );
@@ -26,14 +34,12 @@ export default function OrderDetails({ order }) {
               content.classList.remove("active")
             );
 
-            // Add active class and fade-in effect to the matching content item
             const contentActive = contentItems[index];
             contentActive.classList.add("active");
             contentActive.style.display = "block";
             contentActive.style.opacity = 0;
             setTimeout(() => (contentActive.style.opacity = 1), 0);
 
-            // Hide all siblings' content
             contentItems.forEach((content, idx) => {
               if (idx !== index) {
                 content.style.display = "none";
@@ -44,10 +50,8 @@ export default function OrderDetails({ order }) {
       });
     };
 
-    // Call the function to initialize the tabs
     tabs();
 
-    // Clean up event listeners when the component unmounts
     return () => {
       document
         .querySelectorAll(".widget-menu-tab .item-title")
@@ -61,19 +65,48 @@ export default function OrderDetails({ order }) {
     return <div>Loading order details...</div>;
   }
 
+  // Cancel order handler
+  const openCancelModal = () => {
+    if (typeof window !== "undefined") {
+      const modalElement = document.getElementById("cancelOrderModal");
+      if (modalElement) {
+        const bootstrap = require("bootstrap");
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      }
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    setCancelling(true);
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "CANCELLED" }),
+      });
+
+      if (response.ok) {
+        setOrderStatus("CANCELLED");
+        toast.success("Order cancelled successfully");
+      } else {
+        const errorData = await response.json();
+        toast.error(`Failed to cancel order: ${errorData.message || "Unknown error"}`);
+      }
+    } catch (error) {
+      toast.error("Failed to cancel order. Please try again.");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   // Helper functions
   const getFirstItemImage = () => {
     const firstItem = order.items?.[0];
     if (!firstItem) return "/images/products/brown.jpg";
 
-    // Check for productImageUrl from order items (new format)
     if (firstItem.productImageUrl) {
       return getImageUrl(firstItem.productImageUrl);
-    }
-
-    const product = firstItem.product || firstItem.variableProduct;
-    if (product?.images?.[0]?.path) {
-      return getImageUrl(product.images[0].path);
     }
     return "/images/products/brown.jpg";
   };
@@ -81,11 +114,24 @@ export default function OrderDetails({ order }) {
   const getFirstItemName = () => {
     const firstItem = order.items?.[0];
     if (!firstItem) return "N/A";
-    return firstItem.product?.name || firstItem.variableProduct?.name || "N/A";
+    return firstItem.productName || "N/A";
   };
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleString("en-US", {
+    if (!date) return "N/A";
+    if (date._seconds) {
+      return new Date(date._seconds * 1000).toLocaleString("en-US", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    }
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "N/A";
+    return d.toLocaleString("en-US", {
       day: "2-digit",
       month: "long",
       year: "numeric",
@@ -128,12 +174,22 @@ export default function OrderDetails({ order }) {
 
   // Build timeline based on order status
   const getOrderTimeline = () => {
+    const currentStatus = orderStatus || order.status;
     const timeline = [
       { status: "PENDING", label: "Order Placed", date: order.createdAt },
     ];
 
+    if (currentStatus === "CANCELLED") {
+      timeline.push({
+        status: "CANCELLED",
+        label: "Order Cancelled",
+        date: order.updatedAt,
+      });
+      return timeline.reverse();
+    }
+
     const statusOrder = ["PENDING", "PROCESSING", "DISPATCHED", "DELIVERED"];
-    const currentIndex = statusOrder.indexOf(order.status);
+    const currentIndex = statusOrder.indexOf(currentStatus);
 
     if (currentIndex >= 1) {
       timeline.push({
@@ -161,34 +217,30 @@ export default function OrderDetails({ order }) {
   };
 
   const getItemImage = (item) => {
-    // Check for productImageUrl from order items (new format)
     if (item.productImageUrl) {
       return getImageUrl(item.productImageUrl);
-    }
-
-    const product = item.product || item.variableProduct;
-    if (product?.images?.[0]?.path) {
-      return getImageUrl(product.images[0].path);
     }
     return "/images/products/brown.jpg";
   };
 
   const getItemName = (item) => {
-    return item.product?.name || item.variableProduct?.name || "Unknown Product";
+    return item.productName || "Unknown Product";
   };
 
   const getItemPrice = (item) => {
-    return item.product?.price || item.variableProduct?.price || 0;
+    return item.productPrice || 0;
   };
 
   const getItemSpecs = (item) => {
-    if (!item.variableProduct?.specifications) return null;
-    const specs = item.variableProduct.specifications;
+    const specs = item.specifications;
+    if (!specs) return null;
     const parts = [];
     if (specs.size) parts.push(`Size: ${specs.size}`);
     if (specs.color) parts.push(`Color: ${specs.color}`);
     return parts.length > 0 ? parts.join(", ") : null;
   };
+
+  const currentStatus = orderStatus || order.status;
 
   return (
     <div className="wd-form-order">
@@ -202,8 +254,8 @@ export default function OrderDetails({ order }) {
           />
         </figure>
         <div className="content">
-          <div className={`badge ${getStatusBadgeClass(order.status)}`}>
-            {getStatusLabel(order.status)}
+          <div className={`badge ${getStatusBadgeClass(currentStatus)}`}>
+            {getStatusLabel(currentStatus)}
           </div>
           <h6 className="mt-8 fw-5">Order #{order.id.slice(0, 8)}</h6>
         </div>
@@ -214,13 +266,13 @@ export default function OrderDetails({ order }) {
           <div className="text-2 mt_4 fw-6">{getFirstItemName()}</div>
         </div>
         <div className="item">
-          <div className="text-2 text_black-2">Courier</div>
+          <div className="text-2 text_black-2">Payment</div>
           <div className="text-2 mt_4 fw-6">
             {getPaymentMethodLabel(order.transaction?.paymentMethod)}
           </div>
         </div>
         <div className="item">
-          <div className="text-2 text_black-2">Start Time</div>
+          <div className="text-2 text_black-2">Order Date</div>
           <div className="text-2 mt_4 fw-6">{formatDate(order.createdAt)}</div>
         </div>
         <div className="item">
@@ -232,6 +284,27 @@ export default function OrderDetails({ order }) {
           </div>
         </div>
       </div>
+
+      {/* Cancel button for PENDING orders */}
+      {currentStatus === "PENDING" && (
+        <div className="mt_20 mb_20">
+          <button
+            onClick={openCancelModal}
+            disabled={cancelling}
+            className="tf-btn btn-outline-dark animate-hover-btn rounded-0"
+            style={{
+              opacity: cancelling ? 0.6 : 1,
+              cursor: cancelling ? "not-allowed" : "pointer",
+              backgroundColor: "#dc3545",
+              borderColor: "#dc3545",
+              color: "#fff",
+            }}
+          >
+            <span>{cancelling ? "Cancelling..." : "Cancel Order"}</span>
+          </button>
+        </div>
+      )}
+
       <div className="widget-tabs style-has-border widget-order-tab">
         <ul className="widget-menu-tab">
           <li className="item-title active">
@@ -317,7 +390,7 @@ export default function OrderDetails({ order }) {
               )}
               {order.couponAppliedDiscount > 0 && (
                 <li className="d-flex justify-content-between text-2 mt_4 pb_8 line">
-                  <span>Coupon Discount ({order.coupon?.code})</span>
+                  <span>Coupon Discount ({order.couponCode})</span>
                   <span className="fw-6 text-danger">
                     -৳{order.couponAppliedDiscount?.toFixed(2)}
                   </span>
@@ -333,7 +406,7 @@ export default function OrderDetails({ order }) {
             <p>
               Our courier service is dedicated to providing fast, reliable, and
               secure delivery solutions tailored to meet your needs. Whether
-              you're sending documents, parcels, or larger shipments, our team
+              you&apos;re sending documents, parcels, or larger shipments, our team
               ensures that your items are handled with the utmost care and
               delivered on time. With a commitment to customer satisfaction,
               real-time tracking, and a wide network of routes, we make it easy
@@ -344,7 +417,7 @@ export default function OrderDetails({ order }) {
           </div>
           <div className="widget-content-inner">
             <p className="text-2 text_success">
-              Thank you Your order has been received
+              Thank you! Your order has been received.
             </p>
             <ul className="mt_20">
               <li>
@@ -357,15 +430,21 @@ export default function OrderDetails({ order }) {
                 Total : <span className="fw-7">৳{order.netTotal?.toFixed(2)}</span>
               </li>
               <li>
-                Payment Methods :
+                Payment Method :
                 <span className="fw-7">
-                  {getPaymentMethodLabel(order.transaction?.paymentMethod)}
+                  {" "}{getPaymentMethodLabel(order.transaction?.paymentMethod)}
                 </span>
               </li>
             </ul>
           </div>
         </div>
       </div>
+
+      <CancelOrderModal
+        orderId={order.id}
+        onConfirm={handleCancelOrder}
+        isLoading={cancelling}
+      />
     </div>
   );
 }

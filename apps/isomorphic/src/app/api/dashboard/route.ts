@@ -4,6 +4,8 @@ import {
   getSalesReport,
   getTopProducts,
   getStockReport,
+  getUserLocation,
+  getCustomerAnalytics,
 } from 'firebase-config/services/dashboard.service';
 
 export async function GET(request: NextRequest) {
@@ -28,7 +30,9 @@ export async function GET(request: NextRequest) {
 
       case 'top-products': {
         const limit = parseInt(searchParams.get('limit') || '10', 10) || 10;
-        const result = await getTopProducts(limit);
+        const startDate = searchParams.get('startDate') || undefined;
+        const endDate = searchParams.get('endDate') || undefined;
+        const result = await getTopProducts(limit, startDate, endDate);
         const statusCode = result.status === 'success' ? 200 : (result.code || 500);
         return NextResponse.json(result, { status: statusCode });
       }
@@ -38,6 +42,19 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get('limit') || '10', 10) || 10;
         const page = parseInt(searchParams.get('page') || '1', 10) || 1;
         const result = await getStockReport(threshold, limit, page);
+        const statusCode = result.status === 'success' ? 200 : (result.code || 500);
+        return NextResponse.json(result, { status: statusCode });
+      }
+
+      case 'user-location': {
+        const result = await getUserLocation();
+        const statusCode = result.status === 'success' ? 200 : (result.code || 500);
+        return NextResponse.json(result, { status: statusCode });
+      }
+
+      case 'customer-analytics': {
+        const year = parseInt(searchParams.get('year') || String(new Date().getFullYear()), 10);
+        const result = await getCustomerAnalytics(year);
         const statusCode = result.status === 'success' ? 200 : (result.code || 500);
         return NextResponse.json(result, { status: statusCode });
       }

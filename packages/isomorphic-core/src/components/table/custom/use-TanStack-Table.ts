@@ -54,15 +54,26 @@ export function useTanStackTable<T extends Record<string, any>>({
   });
 
   // Sync tableData prop with internal data state
+  // Use a stringified comparison to avoid infinite loops from new array references
+  const tableDataJson = React.useMemo(() => JSON.stringify(tableData), [tableData]);
+  const prevTableDataJson = React.useRef(tableDataJson);
   React.useEffect(() => {
-    setData([...tableData]);
-  }, [tableData]);
+    if (prevTableDataJson.current !== tableDataJson) {
+      prevTableDataJson.current = tableDataJson;
+      setData([...tableData]);
+    }
+  }, [tableDataJson, tableData]);
 
   // Sync columnConfig prop with internal columns state
+  const columnConfigLen = columnConfig.length;
+  const prevColumnConfigLen = React.useRef(columnConfigLen);
   React.useEffect(() => {
-    setColumns([...columnConfig]);
-    setColumnOrder(columnConfig.map((c) => c.id!));
-  }, [columnConfig]);
+    if (prevColumnConfigLen.current !== columnConfigLen) {
+      prevColumnConfigLen.current = columnConfigLen;
+      setColumns([...columnConfig]);
+      setColumnOrder(columnConfig.map((c) => c.id!));
+    }
+  }, [columnConfigLen, columnConfig]);
 
   // ===================================================================================================
   // these are custom functions dependent on dnd kit and react-table to handle Drag and Drop events

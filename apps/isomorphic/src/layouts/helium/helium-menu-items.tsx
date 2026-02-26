@@ -13,7 +13,6 @@ import {
   PiCaretCircleUpDown,
   PiChartBar,
   PiChartLineUp,
-  PiChartPieSlice,
   PiChatCenteredDots,
   PiClipboardText,
   PiCodesandboxLogoDuotone,
@@ -87,11 +86,6 @@ export const menuItems = [
     name: 'CRM',
     href: routes.crm.dashboard,
     icon: <PiFolderUser />,
-  },
-  {
-    name: 'Affiliate',
-    href: routes.affiliate.dashboard,
-    icon: <PiChartPieSlice />,
   },
   {
     name: 'Store Analytics',

@@ -60,9 +60,10 @@ export async function POST(request) {
     let total = 0;
 
     for (const item of items) {
-      let productName = 'Unknown Product';
-      let productPrice = 0;
-      let productImageUrl = null;
+      // Use client-provided data as defaults (fallback if product lookup fails)
+      let productName = item.productName || 'Unknown Product';
+      let productPrice = item.productPrice || 0;
+      let productImageUrl = item.productImageUrl || null;
 
       if (item.productId) {
         try {
@@ -70,8 +71,8 @@ export async function POST(request) {
           if (productResult.status === 'success' && productResult.data) {
             const product = productResult.data;
             productName = product.name || productName;
-            productPrice = product.salePrice || product.price || 0;
-            productImageUrl = product.imageUrls?.[0] || null;
+            productPrice = product.salePrice || product.price || productPrice;
+            productImageUrl = product.imageUrls?.[0] || productImageUrl;
 
             // If a variant ID was specified, try to find variant price
             if (item.variantId && product.variableProducts) {
@@ -81,9 +82,12 @@ export async function POST(request) {
                 productImageUrl = variant.imageUrls?.[0] || productImageUrl;
               }
             }
+          } else {
+            console.warn(`[Orders API] Product lookup failed for ${item.productId}:`, productResult.message);
           }
-        } catch (_) {
-          // Use defaults if product lookup fails
+        } catch (err) {
+          console.warn(`[Orders API] Product lookup error for ${item.productId}:`, err.message);
+          // Use client-provided fallback data
         }
       }
 

@@ -22,11 +22,6 @@ export const routes = {
     transactions: '/transactions',
     transactionDetails: (id: string) => `/transactions/${id}`,
 
-    // affiliates
-    affiliates: '/affiliates',
-    analytics: '/affiliates/analytics',
-    editAffiliate: (id: string) => `/affiliates/${id}/edit`,
-
     // notifications
     notifications: '/notifications',
     notificationDetails: (id: string) => `/notifications/${id}`,
@@ -59,6 +54,11 @@ export const routes = {
 
     // marquee
     marquee: '/marquee',
+
+    // delivery areas
+    deliveryAreas: '/delivery-areas',
+    createDeliveryArea: '/delivery-areas/create',
+    editDeliveryArea: (id: string) => `/delivery-areas/${id}/edit`,
 
     // admin management
     admin: '/admin',
@@ -102,10 +102,7 @@ export const routes = {
   crm: {
     dashboard: '/crm',
   },
-  affiliate: {
-    dashboard: 'https://isomorphic-dnd.vercel.app',
-  },
-  storeAnalytics: {
+storeAnalytics: {
     dashboard: '/store-analytics',
   },
   bidding: {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { OrdersDataType } from '@/app/shared/ecommerce/dashboard/recent-order';
 import { routes } from '@/config/routes';
 import { getStatusBadge } from '@core/components/table-utils/get-status-badge';
@@ -7,8 +8,63 @@ import TableRowActionGroup from '@core/components/table-utils/table-row-action-g
 import TableAvatar from '@core/ui/avatar-card';
 import DateCell from '@core/ui/date-cell';
 import { createColumnHelper } from '@tanstack/react-table';
-import { PiCaretDownBold, PiCaretUpBold } from 'react-icons/pi';
-import { ActionIcon, Text } from 'rizzui';
+import { PiCaretDownBold, PiCaretUpBold, PiEyeBold } from 'react-icons/pi';
+import { ActionIcon, Select, Text } from 'rizzui';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
+
+const ORDER_STATUSES = [
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'PROCESSING', label: 'Processing' },
+  { value: 'DISPATCHED', label: 'Dispatched' },
+  { value: 'DELIVERED', label: 'Delivered' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+];
+
+function OrderStatusCell({ orderId, currentStatus }: { orderId: string; currentStatus: string }) {
+  const [status, setStatus] = useState(currentStatus);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (newStatus === status) return;
+    setIsUpdating(true);
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setStatus(newStatus);
+        toast.success(`Order status updated to ${newStatus}`);
+      } else {
+        toast.error('Failed to update order status');
+      }
+    } catch {
+      toast.error('Failed to update order status');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <Select
+      options={ORDER_STATUSES}
+      value={status}
+      onChange={handleStatusChange}
+      size="sm"
+      placeholder="Select status"
+      disabled={isUpdating}
+      getOptionValue={(option) => option.value}
+      displayValue={(selected) =>
+        ORDER_STATUSES.find((opt) => opt.value === selected)?.label || selected
+      }
+      dropdownClassName="z-[999]"
+      className="min-w-[150px]"
+      suffix={isUpdating ? <span className="animate-spin text-xs">...</span> : undefined}
+    />
+  );
+}
 
 const columnHelper = createColumnHelper<OrdersDataType>();
 
@@ -63,10 +119,32 @@ export const ordersColumns = (expanded: boolean = true) => {
     }),
     columnHelper.accessor('status', {
       id: 'status',
-      size: 140,
-      header: 'Status',
+      size: 200,
+      header: 'Order Status',
       enableSorting: false,
-      cell: ({ row }) => getStatusBadge(row.original.status),
+      cell: ({ row }) => (
+        <OrderStatusCell
+          orderId={row.original.id}
+          currentStatus={row.original.status}
+        />
+      ),
+    }),
+    columnHelper.display({
+      id: 'view',
+      size: 80,
+      header: 'View',
+      cell: ({ row }) => (
+        <Link href={routes.eCommerce.orderDetails(row.original.id)}>
+          <ActionIcon
+            size="sm"
+            variant="outline"
+            title="View Order Details"
+            className="hover:bg-primary hover:text-white"
+          >
+            <PiEyeBold className="size-4" />
+          </ActionIcon>
+        </Link>
+      ),
     }),
     columnHelper.display({
       id: 'action',
@@ -79,7 +157,6 @@ export const ordersColumns = (expanded: boolean = true) => {
       }) => (
         <TableRowActionGroup
           editUrl={routes.eCommerce.editOrder(row.original.id)}
-          viewUrl={routes.eCommerce.orderDetails(row.original.id)}
           deletePopoverTitle={`Delete the order`}
           deletePopoverDescription={`Are you sure you want to delete this #${row.original.id} order?`}
           onDelete={() => meta?.handleDeleteRow?.(row.original)}

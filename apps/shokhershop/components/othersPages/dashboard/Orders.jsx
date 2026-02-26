@@ -1,34 +1,49 @@
 "use client";
-import React, { use } from "react";
+import React from "react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useContextElement } from "@/context/Context";
 import toast from "react-hot-toast";
 import CancelOrderModal from "@/components/modals/CancelOrderModal";
 export default function Orders() {
-  //get orders from API
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cancellingOrderId, setCancellingOrderId] = useState(null);
   const [orderToCancel, setOrderToCancel] = useState(null);
-  const { user } = useContextElement();
+  const { user, isLoadingUser } = useContextElement();
   const userId = user?.id;
-  const baseUrl = '/api';
+
   useEffect(() => {
+    if (isLoadingUser) return;
+
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
     const fetchOrders = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
-          `${baseUrl}/orders/user/${userId}?limit=1000`
+          `/api/orders/user/${userId}?limit=1000`
         );
-        if (!response.ok) return;
         const data = await response.json();
+        if (!response.ok) {
+          console.error('Failed to fetch orders:', response.status, data?.message, data?.error);
+          setOrders([]);
+          return;
+        }
         setOrders(data.data || []);
       } catch (error) {
-        // Silently fail
+        console.error('Error fetching orders:', error);
+        setOrders([]);
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (userId) fetchOrders();
-  }, [userId, baseUrl]);
+    fetchOrders();
+  }, [userId, isLoadingUser]);
 
   const openCancelModal = (orderId) => {
     setOrderToCancel(orderId);
@@ -45,7 +60,7 @@ export default function Orders() {
   const handleCancelOrder = async (orderId) => {
     setCancellingOrderId(orderId);
     try {
-      const response = await fetch(`${baseUrl}/orders/${orderId}`, {
+      const response = await fetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -54,7 +69,6 @@ export default function Orders() {
       });
 
       if (response.ok) {
-        // Update the order status in the local state
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === orderId ? { ...order, status: "CANCELLED" } : order
@@ -73,6 +87,13 @@ export default function Orders() {
     }
   };
 
+  const parseDate = (ts) => {
+    if (!ts) return "N/A";
+    if (ts._seconds) return new Date(ts._seconds * 1000).toLocaleDateString();
+    const d = new Date(ts);
+    return isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString();
+  };
+
   return (
     <div className="my-account-content account-order">
       <div className="wrap-account-order">
@@ -87,13 +108,30 @@ export default function Orders() {
             </tr>
           </thead>
           <tbody>
-            {orders.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="text-center">
+                  <div className="spinner-border spinner-border-sm me-2" role="status" />
+                  Loading orders...
+                </td>
+              </tr>
+            ) : orders.length > 0 ? (
               orders.map((order) => (
                 <tr key={order?.id} className="tf-order-item">
-                  <td>#{order?.id}</td>
-                  <td>{order?.createdAt?._seconds ? new Date(order.createdAt._seconds * 1000).toLocaleDateString() : new Date(order?.createdAt).toLocaleDateString()}</td>
-                  <td>{order?.status}</td>
-                  <td>{order?.netTotal?.toFixed(2)}</td>
+                  <td>#{order?.id?.slice(-6)}</td>
+                  <td>{parseDate(order?.createdAt)}</td>
+                  <td>
+                    <span className={`badge ${
+                      order?.status === "DELIVERED" ? "bg-success" :
+                      order?.status === "CANCELLED" ? "bg-danger" :
+                      order?.status === "PROCESSING" ? "bg-info" :
+                      order?.status === "DISPATCHED" ? "bg-primary" :
+                      "bg-warning text-dark"
+                    }`}>
+                      {order?.status}
+                    </span>
+                  </td>
+                  <td>৳{order?.netTotal?.toFixed(2) || "0.00"}</td>
                   <td>
                     <div style={{ display: "flex", gap: "8px", flexWrap: "nowrap", alignItems: "center" }}>
                       <Link

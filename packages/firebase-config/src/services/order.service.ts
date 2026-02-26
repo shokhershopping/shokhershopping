@@ -63,11 +63,20 @@ export async function getOrderById(
     }
 
     // Fetch order items subcollection
-    const itemsSnapshot = await ordersCollection
-      .doc(id)
-      .collection(Collections.ORDER_ITEMS)
-      .orderBy('createdAt', 'asc')
-      .get();
+    let itemsSnapshot;
+    try {
+      itemsSnapshot = await ordersCollection
+        .doc(id)
+        .collection(Collections.ORDER_ITEMS)
+        .orderBy('createdAt', 'asc')
+        .get();
+    } catch {
+      // Fallback if index not available
+      itemsSnapshot = await ordersCollection
+        .doc(id)
+        .collection(Collections.ORDER_ITEMS)
+        .get();
+    }
 
     const items = itemsSnapshot.docs.map((itemDoc) => ({
       id: itemDoc.id,
@@ -91,17 +100,52 @@ export async function getOrdersByUserId(
   page: number = 1
 ): Promise<IResponse<PaginatedResult<FirestoreOrder>['data']>> {
   try {
-    const query = ordersCollection
-      .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc');
+    // Try with composite index (userId + createdAt desc)
+    try {
+      const query = ordersCollection
+        .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc');
 
-    const result = await paginateQuery<FirestoreOrder>(query, { limit, page });
+      const result = await paginateQuery<FirestoreOrder>(query, { limit, page });
 
-    return successResponse(result.data, 'User orders retrieved successfully', {
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-    });
+      return successResponse(result.data, 'User orders retrieved successfully', {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+      });
+    } catch (indexError) {
+      // If composite index is missing, fall back to simple query without orderBy
+      // and sort in memory
+      console.warn('Composite index may be missing for orders userId+createdAt, falling back to in-memory sort:',
+        indexError instanceof Error ? indexError.message : indexError);
+
+      const snapshot = await ordersCollection
+        .where('userId', '==', userId)
+        .limit(limit)
+        .get();
+
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as FirestoreOrder[];
+
+      // Sort by createdAt descending in memory
+      data.sort((a, b) => {
+        const aTime = a.createdAt && typeof a.createdAt === 'object' && 'toMillis' in a.createdAt
+          ? (a.createdAt as Timestamp).toMillis()
+          : 0;
+        const bTime = b.createdAt && typeof b.createdAt === 'object' && 'toMillis' in b.createdAt
+          ? (b.createdAt as Timestamp).toMillis()
+          : 0;
+        return bTime - aTime;
+      });
+
+      return successResponse(data, 'User orders retrieved successfully', {
+        total: data.length,
+        page: 1,
+        limit,
+      });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to retrieve user orders', 500, message);

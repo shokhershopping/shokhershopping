@@ -78,11 +78,6 @@ export const lithiumMenuItems: LithiumMenuItem = {
         icon: 'CrmDashTwoIcon',
       },
       {
-        name: 'Affiliate',
-        href: routes.affiliate.dashboard,
-        icon: 'AffiliateColoredIcon',
-      },
-      {
         name: 'Logistics',
         href: routes.logistics.dashboard,
         icon: 'TruckIcon',

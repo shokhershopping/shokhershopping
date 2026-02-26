@@ -82,21 +82,9 @@ export default function CreateOrder({
     setLoading(true);
 
     try {
-      // CRITICAL: Validate that we have address IDs
-      // For legacy orders, we should have at least one address (they're populated in the edit page)
-      const billingAddressId = order?.billingAddress?.id || order?.shippingAddress?.id;
-      const shippingAddressId = order?.shippingAddress?.id || order?.billingAddress?.id;
-
-      if (!billingAddressId || !shippingAddressId) {
-        throw new Error(
-          'Critical Error: Address IDs are missing from the order object. ' +
-          'Please refresh the page and try again. If the problem persists, contact support.'
-        );
-      }
-
       // Prepare billing address data
       const billingAddressData = {
-        id: billingAddressId,
+        ...(order?.billingAddress || {}),
         userId: order?.userId,
         name: `${data.billingAddress.firstName} ${data.billingAddress.lastName}`,
         address: data.billingAddress.street,
@@ -105,28 +93,15 @@ export default function CreateOrder({
         country: data.billingAddress.country,
         zip: data.billingAddress.zip,
         phone: data.billingAddress.phoneNumber,
-        isPrimary: false,
       };
 
       // Prepare shipping address data
       let shippingAddressData;
       if (sameShippingAddress) {
-        // When same as billing, use the same address ID and data
-        shippingAddressData = {
-          id: shippingAddressId,
-          userId: order?.userId,
-          name: `${data.billingAddress.firstName} ${data.billingAddress.lastName}`,
-          address: data.billingAddress.street,
-          city: data.billingAddress.city,
-          state: data.billingAddress.state,
-          country: data.billingAddress.country,
-          zip: data.billingAddress.zip,
-          phone: data.billingAddress.phoneNumber,
-          isPrimary: false,
-        };
+        shippingAddressData = { ...billingAddressData };
       } else {
         shippingAddressData = {
-          id: shippingAddressId,
+          ...(order?.shippingAddress || {}),
           userId: order?.userId,
           name: `${data.shippingAddress?.firstName} ${data.shippingAddress?.lastName}`,
           address: data.shippingAddress?.street,
@@ -135,27 +110,22 @@ export default function CreateOrder({
           country: data.shippingAddress?.country,
           zip: data.shippingAddress?.zip,
           phone: data.shippingAddress?.phoneNumber,
-          isPrimary: false,
         };
       }
 
-      // Prepare order data
+      // Prepare order update payload
       const orderUpdateData = {
-        order: {
-          userId: order?.userId,
-          status: data.orderStatus,
-          deliveryCharge: order?.deliveryCharge,
-          deliveryOption: order?.deliveryOption,
-          couponId: order?.couponId || undefined,
-        },
+        status: data.orderStatus,
         billingAddress: billingAddressData,
         shippingAddress: shippingAddressData,
+        note: data.note || '',
+        paymentMethod: data.paymentMethod || order?.paymentMethod,
       };
 
       const response = await fetch(
         `/api/orders/${id}`,
         {
-          method: 'PUT',
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -165,15 +135,6 @@ export default function CreateOrder({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-
-        // Show validation errors if available
-        if (errorData.errors && Array.isArray(errorData.errors)) {
-          const errorMessages = errorData.errors
-            .map((err: any) => `${err.field}: ${err.message}`)
-            .join(', ');
-          throw new Error(errorMessages);
-        }
-
         throw new Error(errorData.message || 'Failed to update order');
       }
 

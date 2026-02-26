@@ -88,23 +88,18 @@ export default function OrderView({ order }: OrderViewProps) {
     if (!order?.items) return cartItems;
 
     return order.items.map((item: any) => {
-      const product = item.product || item.variableProduct;
-      const image = product?.images?.[0];
-
-      // Use Firebase Storage URL directly, or fallback to placeholder
-      let imageUrl =
-        'https://isomorphic-furyroad.s3.amazonaws.com/public/products/modern/7.webp'; // Default placeholder
-      if (image?.url) {
-        imageUrl = image.url;
-      } else if (image?.path) {
-        imageUrl = image.path;
-      }
+      // Order items store denormalized product data directly
+      const name = item.productName || 'Unknown Product';
+      const price = item.productPrice || 0;
+      const imageUrl =
+        item.productImageUrl ||
+        'https://isomorphic-furyroad.s3.amazonaws.com/public/products/modern/7.webp';
 
       return {
         id: item.id,
-        name: product?.name || 'Unknown Product',
+        name,
         image: imageUrl,
-        price: product?.price || 0,
+        price,
         quantity: item.quantity,
       };
     });

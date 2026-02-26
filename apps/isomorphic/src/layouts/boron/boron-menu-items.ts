@@ -49,7 +49,6 @@ import {
   PiArrowsOutLineHorizontalDuotone,
   PiClipboardTextDuotone,
   PiFolderUserDuotone,
-  PiChartPieSliceDuotone,
   PiPresentationChartDuotone,
   PiScalesDuotone,
 } from 'react-icons/pi';
@@ -169,15 +168,6 @@ export const menuItems = [
     shortcut: {
       modifiers: 'alt',
       key: 'w',
-    },
-  },
-  {
-    name: 'Affiliate',
-    href: routes.affiliate.dashboard,
-    icon: PiChartPieSliceDuotone,
-    shortcut: {
-      modifiers: 'alt',
-      key: 'e',
     },
   },
   {

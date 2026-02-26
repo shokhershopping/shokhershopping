@@ -15,9 +15,9 @@ export default function WhatsAppButton() {
   }, []);
 
   const handleClick = () => {
-    // WhatsApp phone number: +880 1619-917370
-    // Format for WhatsApp URL: 8801619917370
-    const phoneNumber = "8801619917370";
+    // WhatsApp phone number: +880 1841-917370
+    // Format for WhatsApp URL: 8801841917370
+    const phoneNumber = "8801841917370";
     const message = encodeURIComponent("Hello! I'm interested in your products.");
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

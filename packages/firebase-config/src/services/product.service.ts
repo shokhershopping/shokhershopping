@@ -14,6 +14,65 @@ const productsCollection = adminDb.collection(Collections.PRODUCTS);
 const categoriesCollection = adminDb.collection(Collections.CATEGORIES);
 
 /**
+ * Check if a SKU is already in use by another product or variant.
+ * Returns true if the SKU is unique (available), false if taken.
+ * @param sku - The SKU to check
+ * @param excludeProductId - Optional product ID to exclude (for updates)
+ * @param excludeVariantId - Optional variant ID to exclude (for updates)
+ */
+export async function isSkuUnique(
+  sku: string,
+  excludeProductId?: string,
+  excludeVariantId?: string
+): Promise<boolean> {
+  if (!sku || !sku.trim()) return true;
+
+  const normalizedSku = sku.trim();
+
+  // Check products collection
+  const productSnapshot = await productsCollection
+    .where('sku', '==', normalizedSku)
+    .limit(1)
+    .get();
+
+  if (!productSnapshot.empty) {
+    const found = productSnapshot.docs[0];
+    if (found.id !== excludeProductId) return false;
+  }
+
+  // Check all variant subcollections using collectionGroup
+  try {
+    const variantSnapshot = await adminDb
+      .collectionGroup(Collections.VARIANTS)
+      .where('sku', '==', normalizedSku)
+      .limit(1)
+      .get();
+
+    if (!variantSnapshot.empty) {
+      const found = variantSnapshot.docs[0];
+      if (found.id !== excludeVariantId) return false;
+    }
+  } catch {
+    // collectionGroup may fail without a Firestore index.
+    // Fallback: check each product's variants individually.
+    const allProducts = await productsCollection.select().get();
+    for (const productDoc of allProducts.docs) {
+      const variantSnap = await productDoc.ref
+        .collection(Collections.VARIANTS)
+        .where('sku', '==', normalizedSku)
+        .limit(1)
+        .get();
+      if (!variantSnap.empty) {
+        const found = variantSnap.docs[0];
+        if (found.id !== excludeVariantId) return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
  * Update productCount on categories when products are created/deleted.
  */
 async function updateCategoryProductCounts(categoryIds: string[], increment: number): Promise<void> {
@@ -87,10 +146,18 @@ export async function getProductById(
     }
 
     // Fetch variants from subcollection
-    const variantsSnapshot = await docRef
-      .collection(Collections.VARIANTS)
-      .orderBy('createdAt', 'desc')
-      .get();
+    let variantsSnapshot;
+    try {
+      variantsSnapshot = await docRef
+        .collection(Collections.VARIANTS)
+        .orderBy('createdAt', 'desc')
+        .get();
+    } catch {
+      // Fallback without ordering if index not available
+      variantsSnapshot = await docRef
+        .collection(Collections.VARIANTS)
+        .get();
+    }
 
     const variableProducts = variantsSnapshot.docs.map((vDoc) => ({
       id: vDoc.id,
@@ -325,6 +392,14 @@ export async function createProduct(data: {
   categoryNames?: string[];
 }): Promise<IResponse<FirestoreProduct>> {
   try {
+    // Validate SKU uniqueness
+    if (data.sku && data.sku.trim()) {
+      const unique = await isSkuUnique(data.sku.trim());
+      if (!unique) {
+        return errorResponse(`SKU "${data.sku.trim()}" is already in use`, 409);
+      }
+    }
+
     const now = Timestamp.now();
     const searchTokens = generateSearchTokens(
       `${data.name} ${data.brand || ''}`
@@ -341,7 +416,7 @@ export async function createProduct(data: {
       price: data.price,
       salePrice: data.salePrice ?? null,
       brand: data.brand ?? null,
-      sku: data.sku ?? null,
+      sku: data.sku?.trim() ?? null,
       stock: data.stock ?? 0,
       kind: (data.kind as FirestoreProduct['kind']) ?? 'PHYSICAL',
       status: (data.status as FirestoreProduct['status']) ?? 'DRAFT',
@@ -383,6 +458,15 @@ export async function updateProduct(
 
     if (!doc.exists) {
       return errorResponse('Product not found', 404);
+    }
+
+    // Validate SKU uniqueness if SKU is being updated
+    if (data.sku && data.sku.trim()) {
+      const unique = await isSkuUnique(data.sku.trim(), id);
+      if (!unique) {
+        return errorResponse(`SKU "${data.sku.trim()}" is already in use`, 409);
+      }
+      data.sku = data.sku.trim();
     }
 
     const updateData: Record<string, unknown> = {
@@ -520,6 +604,14 @@ export async function createVariant(
       return errorResponse('Product not found', 404);
     }
 
+    // Validate SKU uniqueness
+    if (data.sku && data.sku.trim()) {
+      const unique = await isSkuUnique(data.sku.trim());
+      if (!unique) {
+        return errorResponse(`SKU "${data.sku.trim()}" is already in use`, 409);
+      }
+    }
+
     const now = Timestamp.now();
     const variantData: Omit<FirestoreVariant, 'id'> = {
       name: data.name,
@@ -529,7 +621,7 @@ export async function createVariant(
       price: data.price,
       salePrice: data.salePrice ?? null,
       stock: data.stock ?? 0,
-      sku: data.sku,
+      sku: data.sku?.trim() || '',
       status: (data.status as FirestoreVariant['status']) ?? 'DRAFT',
       createdAt: now,
       updatedAt: now,
@@ -565,6 +657,15 @@ export async function updateVariant(
 
     if (!doc.exists) {
       return errorResponse('Variant not found', 404);
+    }
+
+    // Validate SKU uniqueness if SKU is being updated
+    if (data.sku && data.sku.trim()) {
+      const unique = await isSkuUnique(data.sku.trim(), undefined, variantId);
+      if (!unique) {
+        return errorResponse(`SKU "${data.sku.trim()}" is already in use`, 409);
+      }
+      data.sku = data.sku.trim();
     }
 
     const updateData = {

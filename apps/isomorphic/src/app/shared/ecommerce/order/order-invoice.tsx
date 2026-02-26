@@ -40,19 +40,18 @@ export default function OrderInvoice({
   // Generate invoice number if not provided
   const invNumber = invoiceNumber || `INV-${order.id.slice(0, 8).toUpperCase()}`;
 
-  // Prepare items for table
+  // Prepare items for table — items store denormalized product data
   const invoiceItems = (order.items || []).map((item: any, index: number) => {
-    const product = item.product || item.variableProduct;
-    const price = product?.salePrice || product?.price || 0;
+    const price = item.productPrice || 0;
     const total = price * item.quantity;
 
     return {
       id: String(index + 1),
       product: {
-        name: product?.name || 'Unknown Product',
-        variant: item.variableProduct ? item.variableProduct.name : null,
+        name: item.productName || 'Unknown Product',
+        variant: null,
       },
-      sku: item.variableProduct?.sku || item.product?.sku || 'N/A',
+      sku: item.sku || item.productId?.slice(0, 12) || 'N/A',
       quantity: item.quantity,
       unitPrice: price,
       total,

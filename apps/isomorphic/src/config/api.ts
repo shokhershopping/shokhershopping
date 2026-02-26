@@ -27,8 +27,8 @@ export const api = {
     stats: '/dashboard?type=stats',
     salesReport: '/dashboard?type=sales-report',
     topProducts: '/dashboard?type=top-products',
-    customerAnalytics: '/dashboard?type=stats',
-    userLocation: '/dashboard?type=stats',
+    customerAnalytics: '/dashboard?type=customer-analytics',
+    userLocation: '/dashboard?type=user-location',
     stockReport: '/dashboard?type=stock-report',
   },
 };

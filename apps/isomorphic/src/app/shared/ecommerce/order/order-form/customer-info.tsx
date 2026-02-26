@@ -81,10 +81,7 @@ export default function CustomerInfo({ className, order }: CustomerInfoProps) {
             <span className="mb-2 font-normal">Order ID</span> {order?.id}
           </Text>
           <hr className="my-6" />
-          <Text
-            as="p"
-            className="mt-3 flex flex-col font-semibold text-gray-700"
-          >
+          <div className="mt-3 flex flex-col font-semibold text-gray-700">
             <span className="mb-2 font-normal">Items</span>
             {order?.items?.map((item: any) => (
               <p key={item.id} className="flex justify-between text-gray-600">
@@ -92,7 +89,7 @@ export default function CustomerInfo({ className, order }: CustomerInfoProps) {
                 <span> x {item.quantity}</span>
               </p>
             ))}
-          </Text>
+          </div>
           <hr className="my-6" />
 
           <Text
