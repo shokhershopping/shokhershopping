@@ -80,7 +80,7 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  transpilePackages: ['core'],
+  transpilePackages: ['core', 'firebase-config'],
   typescript: {
     ignoreBuildErrors: true,
   },
