@@ -88,13 +88,18 @@ export default function ProductsTable({
           viewMode === 'product'
             ? async (rows) => {
                 try {
-                  const deletePromises = rows.map((row: any) =>
-                    fetch(
-                      `/api/products/${row.id}`,
-                      {
-                        method: 'DELETE',
-                      }
-                    )
+                  // Normalize: rows can be an array of objects ({id}) or an array of ID strings
+                  const ids = rows.map((row: any) =>
+                    typeof row === 'string' ? row : row.id
+                  ).filter(Boolean);
+
+                  if (ids.length === 0) {
+                    toast.error('No valid products to delete');
+                    return;
+                  }
+
+                  const deletePromises = ids.map((id: string) =>
+                    fetch(`/api/products/${id}`, { method: 'DELETE' })
                   );
 
                   const results = await Promise.all(deletePromises);
@@ -106,9 +111,10 @@ export default function ProductsTable({
                     );
                   }
 
-                  setData((prev) => prev.filter((r) => !rows.includes(r)));
+                  const idSet = new Set(ids);
+                  setData((prev) => prev.filter((r) => !idSet.has(r.id)));
                   table.resetRowSelection();
-                  toast.success(`${rows.length} product(s) deleted successfully`);
+                  toast.success(`${ids.length} product(s) deleted successfully`);
                 } catch (error) {
                   toast.error('Failed to delete some products');
                 }

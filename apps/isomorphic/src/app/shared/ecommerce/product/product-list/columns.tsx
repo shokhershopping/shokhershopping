@@ -151,7 +151,7 @@ export const productsListColumns = [
           placement="top"
           color="invert"
         >
-          <Link href={routes.eCommerce.ediProduct(row.original?.id || '')}>
+          <Link href={routes.eCommerce.editProduct(row.original?.id || '')}>
             <ActionIcon
               as="span"
               size="sm"

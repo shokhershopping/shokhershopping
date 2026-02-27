@@ -93,16 +93,24 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
           imgHoverSrc: product.images?.[1]?.path
             ? getImageUrl(product.images[1].path)
             : "/default-product-image.jpg",
-          colors:
-            product.variableProducts?.map((variant) => ({
-              name: variant.specifications?.color || "Default",
-              colorClass: (
-                variant.specifications?.color || "default"
-              ).toLowerCase(),
-              imgSrc: variant.images?.[0]?.path
-                ? getImageUrl(variant.images[0].path)
-                : "/default-product-image.jpg",
-            })) || [],
+          colors: (() => {
+            const seen = new Set();
+            return (product.variableProducts || []).reduce((acc, variant) => {
+              const colorName = (variant.specifications?.color || variant.color || "Default").trim();
+              const colorKey = colorName.toLowerCase();
+              if (colorKey && !seen.has(colorKey)) {
+                seen.add(colorKey);
+                acc.push({
+                  name: colorName,
+                  colorClass: colorKey,
+                  imgSrc: variant.images?.[0]?.path
+                    ? getImageUrl(variant.images[0].path)
+                    : "/default-product-image.jpg",
+                });
+              }
+              return acc;
+            }, []);
+          })(),
         }));
 
         setLatestProducts(transformedProducts);

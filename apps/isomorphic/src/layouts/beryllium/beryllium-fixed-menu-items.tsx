@@ -189,7 +189,7 @@ export const berylliumMenuItems: MenuItemsType[] = [
           },
           {
             name: 'Edit Product',
-            href: routes.eCommerce.ediProduct(DUMMY_ID),
+            href: routes.eCommerce.editProduct(DUMMY_ID),
           },
           {
             name: 'Categories',

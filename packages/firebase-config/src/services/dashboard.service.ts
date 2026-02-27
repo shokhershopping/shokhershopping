@@ -347,7 +347,6 @@ export async function getStockReport(
       total,
       page,
       limit,
-      totalPages,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';

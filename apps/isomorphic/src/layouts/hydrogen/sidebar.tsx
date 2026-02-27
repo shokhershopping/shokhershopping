@@ -20,12 +20,11 @@ export default function Sidebar({ className }: { className?: string }) {
         >
           <Image
             src="/logo.png"
-            alt="Logo"
+            alt="Shokher Shopping"
             width={120}
-            height={40}
-            className="mx-auto h-auto w-1/2"
+            height={120}
+            style={{ objectFit: "contain", maxHeight: "100px", width: "auto", margin: "0 auto" }}
           />
-          <h2 className="text-center text-lg">Shokher Shop</h2>
         </Link>
       </div>
 

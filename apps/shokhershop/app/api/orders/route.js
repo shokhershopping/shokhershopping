@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createOrder, getOrders } from 'firebase-config/services/order.service';
 import { getProductById } from 'firebase-config/services/product.service';
 import { getUserById } from 'firebase-config/services/user.service';
+import { notifyAdmins } from 'firebase-config/services/admin-notification.helper';
 
 export async function GET(request) {
   try {
@@ -124,6 +125,17 @@ export async function POST(request) {
     };
 
     const result = await createOrder(orderData, enrichedItems);
+
+    // Notify admins about new order
+    if (result.status === 'success' && result.data) {
+      const orderId = result.data.id;
+      const itemCount = enrichedItems.length;
+      notifyAdmins(
+        'New Order Received',
+        `Order #${orderId.slice(0, 8)} — ${itemCount} item${itemCount > 1 ? 's' : ''}, ৳${netTotal.toFixed(2)}`,
+        `/orders/${orderId}`
+      );
+    }
 
     const statusCode = result.status === 'success' ? 201 : (result.code || 500);
     return NextResponse.json(result, { status: statusCode });

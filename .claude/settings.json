@@ -4,11 +4,15 @@
       "Bash(ls:*)",
       "Read(//c/Users/jahid/Desktop/shokershoppin/shokhershop-firebase/**)",
       "Bash(cat:*)",
-      "Bash(npx firebase:*)"
+      "Bash(npx firebase:*)",
+      "Bash(pnpm build)",
+      "Bash(pnpm turbo run build --filter=@shokhershopping/dashboard --filter=@shokhershopping/web)"
     ],
     "additionalDirectories": [
       "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\isomorphic\\src\\app\\coupons\\[id]",
-      "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\isomorphic\\src\\app\\api\\affiliates"
+      "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\isomorphic\\src\\app\\api\\affiliates",
+      "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\isomorphic\\src\\app\\api\\orders\\[id]",
+      "c:\\Users\\jahid\\Desktop\\shokershoppin\\shokhershop-firebase\\apps\\shokhershop\\app\\api\\orders\\[id]"
     ]
   }
 }

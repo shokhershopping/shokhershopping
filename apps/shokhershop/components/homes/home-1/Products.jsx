@@ -61,34 +61,63 @@ export default function Products() {
     return apiProducts.map((product) => {
       const defaultImageUrl = "/default-product-image.jpg";
 
-      // Helper function to get image URL with fallbacks
+      // Helper function to get image URL - handles {path} objects and raw URL strings
       const getImageUrl = (image) => {
-        if (!image?.path) return null;
-        return resolveImageUrl(image.path);
+        if (!image) return null;
+        // Raw URL string
+        if (typeof image === "string") return resolveImageUrl(image);
+        // Object with path
+        if (image.path) return resolveImageUrl(image.path);
+        // Object with url
+        if (image.url) return resolveImageUrl(image.url);
+        return null;
       };
 
-      // Main product images
+      // Collect all possible image sources for the product
       const mainImages = Array.isArray(product?.images) ? product.images : [];
-      const primaryImageUrl = getImageUrl(mainImages[0]) || defaultImageUrl;
-      const hoverImageUrl = getImageUrl(mainImages[1]) || primaryImageUrl;
+      // Also check imageUrls directly (raw URLs from backend)
+      const rawImageUrls = Array.isArray(product?.imageUrls) ? product.imageUrls : [];
 
-      // Process variants
+      let primaryImageUrl = getImageUrl(mainImages[0]) || getImageUrl(rawImageUrls[0]);
+      let hoverImageUrl = getImageUrl(mainImages[1]) || getImageUrl(rawImageUrls[1]);
+
+      // If no base product images, use first variant's images
+      if (!primaryImageUrl) {
+        const variants = Array.isArray(product.variableProducts) ? product.variableProducts : [];
+        for (const v of variants) {
+          const vImages = Array.isArray(v.images) ? v.images : [];
+          const vRawUrls = Array.isArray(v.imageUrls) ? v.imageUrls : [];
+          const firstImg = getImageUrl(vImages[0]) || getImageUrl(vRawUrls[0]);
+          if (firstImg) {
+            primaryImageUrl = firstImg;
+            hoverImageUrl = getImageUrl(vImages[1]) || getImageUrl(vRawUrls[1]) || firstImg;
+            break;
+          }
+        }
+      }
+      primaryImageUrl = primaryImageUrl || defaultImageUrl;
+      hoverImageUrl = hoverImageUrl || primaryImageUrl;
+
+      // Process variants - deduplicate by color
+      const seenColors = new Set();
       const colors = Array.isArray(product.variableProducts)
-        ? product.variableProducts.map((variant) => {
-            // Get first image from variant's images
-            const variantImage = Array.isArray(variant.images)
-              ? variant.images[0]
-              : null;
-            const variantImageUrl =
-              getImageUrl(variantImage) || primaryImageUrl;
-
-            return {
-              name: variant.specifications?.color,
-              colorClass:
-                variant.specifications?.color?.toLowerCase() || "default",
-              imgSrc: variantImageUrl,
-            };
-          })
+        ? product.variableProducts.reduce((acc, variant) => {
+            const colorName = (variant.specifications?.color || variant.color || '').trim();
+            const colorKey = colorName?.toLowerCase();
+            if (colorKey && !seenColors.has(colorKey)) {
+              seenColors.add(colorKey);
+              const vImgs = Array.isArray(variant.images) ? variant.images : [];
+              const vRawUrls = Array.isArray(variant.imageUrls) ? variant.imageUrls : [];
+              const variantImageUrl =
+                getImageUrl(vImgs[0]) || getImageUrl(vRawUrls[0]) || primaryImageUrl;
+              acc.push({
+                name: colorName,
+                colorClass: colorKey || "default",
+                imgSrc: variantImageUrl,
+              });
+            }
+            return acc;
+          }, [])
         : [];
 
       return {

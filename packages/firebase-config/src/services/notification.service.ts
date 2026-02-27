@@ -63,7 +63,7 @@ export async function getNotificationsByUserId(
     }
 
     // Sort by createdAt descending
-    notifications.sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+    notifications.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 
     return successResponse(notifications, 'Notifications retrieved successfully', {
       total,
@@ -153,6 +153,55 @@ export async function markAsRead(
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to mark notification as read', 500, message);
+  }
+}
+
+/**
+ * Get unread notification count for a user.
+ */
+export async function getUnreadCount(
+  userId: string
+): Promise<number> {
+  try {
+    const snapshot = await adminDb
+      .collectionGroup(Collections.NOTIFICATION_RECIPIENTS)
+      .where('userId', '==', userId)
+      .where('isRead', '==', false)
+      .get();
+    return snapshot.size;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Mark all notifications as read for a user.
+ */
+export async function markAllAsRead(
+  userId: string
+): Promise<IResponse<null>> {
+  try {
+    const snapshot = await adminDb
+      .collectionGroup(Collections.NOTIFICATION_RECIPIENTS)
+      .where('userId', '==', userId)
+      .where('isRead', '==', false)
+      .get();
+
+    if (snapshot.empty) {
+      return successResponse(null, 'No unread notifications');
+    }
+
+    const batch = adminDb.batch();
+    const now = Timestamp.now();
+    for (const doc of snapshot.docs) {
+      batch.update(doc.ref, { isRead: true, readAt: now });
+    }
+    await batch.commit();
+
+    return successResponse(null, 'All notifications marked as read');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error occurred';
+    return errorResponse('Failed to mark all as read', 500, message);
   }
 }
 

@@ -140,11 +140,11 @@ export default function QuickAdd() {
 
     variants.forEach((variant) => {
       const color =
-        variant.specifications?.color || variant.name?.split("-")[0]?.trim();
-      if (color && !colorMap.has(color)) {
+        (variant.specifications?.color || variant.color || variant.name?.split("-")[0] || '').trim();
+      if (color && !colorMap.has(color.toLowerCase())) {
         // Get the first image for this variant
         const variantImage = variant.images?.[0];
-        colorMap.set(color, {
+        colorMap.set(color.toLowerCase(), {
           value: color,
           className: `bg-${color.toLowerCase().replace(/\s+/g, "-")}`,
           image: variantImage,
@@ -164,9 +164,8 @@ export default function QuickAdd() {
     variants
       .filter((variant) => {
         const variantColor =
-          variant.specifications?.color ||
-          variant.name?.split("-")[0]?.trim();
-        return variantColor === colorValue;
+          (variant.specifications?.color || variant.color || variant.name?.split("-")[0] || '').trim();
+        return variantColor.toLowerCase() === colorValue?.toLowerCase();
       })
       .forEach((variant) => {
         const size =
@@ -189,10 +188,10 @@ export default function QuickAdd() {
   const findMatchingVariant = (variants, colorValue, sizeValue) => {
     return variants.find((variant) => {
       const variantColor =
-        variant.specifications?.color || variant.name?.split("-")[0]?.trim();
+        (variant.specifications?.color || variant.color || variant.name?.split("-")[0] || '').trim();
       const variantSize =
         variant.specifications?.size || variant.name?.split("-")[1]?.trim();
-      return variantColor === colorValue && variantSize === sizeValue;
+      return variantColor.toLowerCase() === colorValue?.toLowerCase() && variantSize === sizeValue;
     });
   };
 

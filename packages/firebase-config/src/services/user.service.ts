@@ -4,7 +4,7 @@ import { Collections } from '../collections/index';
 import { successResponse, errorResponse } from '../helpers/response';
 import { paginateQuery } from '../helpers/pagination';
 import type { FirestoreUser } from '../types/user.types';
-import type { Role } from '../types/enums';
+import { Role } from '../types/enums';
 import type { IResponse } from '../helpers/response';
 import type { PaginatedResult } from '../helpers/pagination';
 
@@ -184,5 +184,20 @@ export async function updateUserMetadata(
     const message =
       error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to update user metadata', 500, message);
+  }
+}
+
+/**
+ * Get all admin user IDs.
+ */
+export async function getAdminUserIds(): Promise<string[]> {
+  try {
+    const snapshot = await usersCollection
+      .where('role', '==', Role.ADMIN)
+      .select()
+      .get();
+    return snapshot.docs.map((doc) => doc.id);
+  } catch {
+    return [];
   }
 }

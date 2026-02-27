@@ -19,11 +19,12 @@ export default function page() {
                   <div className="box-left">
                     <Link href={`/`}>
                       <Image
-                        alt="logo"
+                        alt="Shokher Shopping"
                         className="logo"
                         src="/images/logo/logo.png"
                         width="136"
-                        height="21"
+                        height="136"
+                        style={{ objectFit: "contain", maxHeight: "50px", width: "auto" }}
                       />
                     </Link>
                   </div>

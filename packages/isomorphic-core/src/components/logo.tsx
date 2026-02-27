@@ -41,6 +41,12 @@ export default function Logo({ iconOnly = false, ...props }: IconProps) {
     //     />
     //   )}
     // </svg>
-    <Image src="/logo.png" alt="Logo" width={155} height={28} />
+    <Image
+      src="/logo.png"
+      alt="Shokher Shopping"
+      width={iconOnly ? 60 : 155}
+      height={iconOnly ? 60 : 155}
+      style={{ objectFit: "contain", maxHeight: iconOnly ? "60px" : "80px", width: "auto" }}
+    />
   );
 }

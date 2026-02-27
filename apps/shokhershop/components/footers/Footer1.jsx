@@ -79,18 +79,19 @@ export default function Footer1({ bgColor = "" }) {
                   <div className="footer-logo">
                     <Link href={`/`}>
                       <Image
-                        alt="image"
+                        alt="Shokher Shopping"
                         src="/images/logo/logo2.png"
                         width="136"
-                        height="21"
+                        height="136"
+                        style={{ objectFit: "contain", maxHeight: "80px", width: "auto" }}
                       />
                     </Link>
                   </div>
                   <ul>
                     <li>
                       <p>
-                        Address: দোকান: ৩,৪, ৫ তলা, গ্লোব শপিং সেন্টার, {" "}
-                        <br /> নিউ মার্কেট, ঢাকা-১২০৫
+                        Address: Shop: 3,4, 5th Floor, Globe Shopping Center,New Market, Dhaka-1205 {" "}
+                        <br /> 
                       </p>
                     </li>
                     <li>

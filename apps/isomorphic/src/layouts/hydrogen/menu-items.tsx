@@ -12,6 +12,7 @@ import {
   PiImageDuotone,
   PiTextTDuotone,
   PiTruckDuotone,
+  PiGearDuotone,
 } from 'react-icons/pi';
 import type { UserRole } from '@/lib/firebase-auth-provider';
 
@@ -79,7 +80,7 @@ export const menuItems: MenuItem[] = [
     icon: <PiCurrencyDollarDuotone />,
     roles: ['ADMIN'],
   },
-{
+  {
     name: 'Notifications',
     href: routes.eCommerce.notifications,
     icon: <PiBellDuotone />,
@@ -122,6 +123,12 @@ export const menuItems: MenuItem[] = [
     name: 'Delivery Areas',
     href: routes.eCommerce.deliveryAreas,
     icon: <PiTruckDuotone />,
+    roles: ['ADMIN'],
+  },
+  {
+    name: 'Settings',
+    href: routes.eCommerce.settings,
+    icon: <PiGearDuotone />,
     roles: ['ADMIN'],
   },
   // Admin management - only visible to admins

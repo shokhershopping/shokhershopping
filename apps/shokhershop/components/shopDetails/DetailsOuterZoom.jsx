@@ -15,11 +15,12 @@ export default function DetailsOuterZoom({ product }) {
     const seen = new Set();
     return (
       product.variableProducts?.reduce((acc, variant) => {
-        const colorKey = variant.specifications?.color?.toLowerCase();
+        const rawColor = variant.specifications?.color || variant.color;
+        const colorKey = rawColor?.trim()?.toLowerCase();
         if (colorKey && !seen.has(colorKey)) {
           seen.add(colorKey);
           acc.push({
-            value: variant.specifications?.color,
+            value: rawColor?.trim(),
             className: colorKey,
             variantId: variant.id,
             colorValue:
@@ -31,15 +32,18 @@ export default function DetailsOuterZoom({ product }) {
     );
   })();
 
+  // Group all sizes by normalized color key
   const colorWiseVariantSizes = product.variableProducts?.reduce(
     (acc, variant) => {
-      const color = variant.specifications?.color?.toLowerCase();
+      const rawColor = variant.specifications?.color || variant.color;
+      const color = rawColor?.trim()?.toLowerCase();
+      if (!color) return acc;
       if (!acc[color]) {
         acc[color] = [];
       }
       acc[color].push({
         id: variant.id,
-        value: variant.specifications?.size,
+        value: variant.specifications?.size || variant.size || 'One Size',
       });
       return acc;
     },
@@ -58,7 +62,7 @@ export default function DetailsOuterZoom({ product }) {
 
   // Set initial size based on first color's first size
   const initialSize = colorWiseVariantSizes[
-    initialColor.value?.toLowerCase()
+    initialColor.value?.trim()?.toLowerCase()
   ]?.[0] || {
     id: product.id || "default-size",
     value: product.specifications?.size || "M",
@@ -72,7 +76,7 @@ export default function DetailsOuterZoom({ product }) {
   useEffect(() => {
     if (variantColors.length > 0) {
       const sizesForColor =
-        colorWiseVariantSizes[currentColor.value?.toLowerCase()];
+        colorWiseVariantSizes[currentColor.value?.trim()?.toLowerCase()];
       if (sizesForColor && sizesForColor.length > 0) {
         setCurrentSize(sizesForColor[0]);
       }
@@ -94,9 +98,9 @@ export default function DetailsOuterZoom({ product }) {
   // Get all variant images (from all color variants)
   const allVariantImages =
     product.variableProducts?.flatMap((variant) =>
-      variant.images?.map((img) => ({
+      (variant.images || []).map((img) => ({
         ...img,
-        color: variant.specifications?.color,
+        color: (variant.specifications?.color || variant.color || '')?.trim(),
         variantId: variant.id,
       }))
     ) || [];
@@ -106,7 +110,7 @@ export default function DetailsOuterZoom({ product }) {
 
   const handleColorChange = (color) => {
     const selected = variantColors.find(
-      (c) => c.value?.toLowerCase() === color.toLowerCase()
+      (c) => c.value?.trim()?.toLowerCase() === color?.trim()?.toLowerCase()
     );
     if (selected) {
       setCurrentColor(selected);
@@ -300,7 +304,7 @@ export default function DetailsOuterZoom({ product }) {
                     </div>
                     <form className="variant-picker-values">
                       {colorWiseVariantSizes[
-                        currentColor.value?.toLowerCase()
+                        currentColor.value?.trim()?.toLowerCase()
                       ]?.map((size) => (
                         <React.Fragment key={size.id}>
                           <input

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { FirebaseAuthProvider } from "@/lib/firebase-auth-provider";
+import MetaPixel from "@/components/common/MetaPixel";
 import { Toaster } from "react-hot-toast";
 import "../public/scss/main.scss";
 import "photoswipe/dist/photoswipe.css";
@@ -70,6 +71,8 @@ export default function RootLayout({ children }) {
 
   useEffect(() => {
     setScrollDirection("up");
+    const lastScrollY = { current: window.scrollY };
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
@@ -88,8 +91,6 @@ export default function RootLayout({ children }) {
 
       lastScrollY.current = currentScrollY;
     };
-
-    const lastScrollY = { current: window.scrollY };
 
     // Add scroll event listener
     window.addEventListener("scroll", handleScroll);
@@ -164,6 +165,7 @@ export default function RootLayout({ children }) {
     <FirebaseAuthProvider>
       <html lang="en" suppressHydrationWarning>
         <body className="preload-wrapper" suppressHydrationWarning>
+          <MetaPixel />
           <div className="preload preload-container" id="preloader">
             <div className="preload-logo">
               <div className="spinner"></div>

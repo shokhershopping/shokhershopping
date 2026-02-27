@@ -6,7 +6,7 @@ import PageHeader from '@/app/shared/page-header';
 import ProductsTable from '@/app/shared/ecommerce/product/product-list/table';
 import { metaObject } from '@/config/site.config';
 import ExportButton from '@/app/shared/export-button';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getProducts } from 'firebase-config/services/product.service';
 
 export const metadata = {
   ...metaObject('Products'),
@@ -30,20 +30,9 @@ const pageHeader = {
 };
 
 export default async function ProductsPage() {
-  const products = await fetch(
-    `${getBaseUrl()}/api/products?limit=1000000`,
-    {
-      cache: 'no-store',
-    }
-  );
+  const result = await getProducts(1000000, 1);
 
-  if (!products.ok) {
-    throw new Error('Failed to fetch products');
-  }
-
-  const data: any = await products.json();
-
-  const rawItems = Array.isArray(data?.data) ? data.data : [];
+  const rawItems = Array.isArray(result?.data) ? result.data : [];
 
   const productsData = rawItems.map((product: any) => {
     return {

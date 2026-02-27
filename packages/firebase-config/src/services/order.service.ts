@@ -269,6 +269,31 @@ export async function updateOrder(
 }
 
 /**
+ * Find an order by Steadfast consignment ID.
+ */
+export async function getOrderBySteadfastConsignmentId(
+  consignmentId: number
+): Promise<IResponse<FirestoreOrder | null>> {
+  try {
+    const snapshot = await ordersCollection
+      .where('steadfastConsignmentId', '==', consignmentId)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return errorResponse('Order not found for this consignment', 404);
+    }
+
+    const doc = snapshot.docs[0];
+    const order = { id: doc.id, ...doc.data() } as FirestoreOrder;
+    return successResponse(order, 'Order found');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error occurred';
+    return errorResponse('Failed to find order by consignment ID', 500, message);
+  }
+}
+
+/**
  * Update only the order status.
  */
 export async function updateOrderStatus(

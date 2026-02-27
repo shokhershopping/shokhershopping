@@ -13,6 +13,15 @@ import { ActionIcon, Select, Text } from 'rizzui';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
+// Parse Firestore Timestamp ({_seconds, _nanoseconds}) or string/number to Date
+function parseFirestoreDate(ts: any): Date {
+  if (!ts) return new Date();
+  if (ts._seconds) return new Date(ts._seconds * 1000);
+  if (ts.seconds) return new Date(ts.seconds * 1000);
+  const d = new Date(ts);
+  return isNaN(d.getTime()) ? new Date() : d;
+}
+
 const ORDER_STATUSES = [
   { value: 'PENDING', label: 'Pending' },
   { value: 'PROCESSING', label: 'Processing' },
@@ -29,16 +38,30 @@ function OrderStatusCell({ orderId, currentStatus }: { orderId: string; currentS
     if (newStatus === status) return;
     setIsUpdating(true);
     try {
-      const res = await fetch(`/api/orders/${orderId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        setStatus(newStatus);
-        toast.success(`Order status updated to ${newStatus}`);
+      // When dispatching, create Steadfast shipment automatically
+      if (newStatus === 'DISPATCHED') {
+        const res = await fetch(`/api/orders/${orderId}/dispatch`, {
+          method: 'POST',
+        });
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          setStatus(newStatus);
+          toast.success(`Shipment created with Steadfast! Tracking: ${data.data?.trackingCode || ''}`);
+        } else {
+          toast.error(data.message || 'Failed to dispatch order');
+        }
       } else {
-        toast.error('Failed to update order status');
+        const res = await fetch(`/api/orders/${orderId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus }),
+        });
+        if (res.ok) {
+          setStatus(newStatus);
+          toast.success(`Order status updated to ${newStatus}`);
+        } else {
+          toast.error('Failed to update order status');
+        }
       }
     } catch {
       toast.error('Failed to update order status');
@@ -109,13 +132,13 @@ export const ordersColumns = (expanded: boolean = true) => {
       id: 'createdAt',
       size: 200,
       header: 'Created',
-      cell: ({ row }) => <DateCell date={new Date(row.original.createdAt)} />,
+      cell: ({ row }) => <DateCell date={parseFirestoreDate(row.original.createdAt)} />,
     }),
     columnHelper.accessor('updatedAt', {
       id: 'updatedAt',
       size: 200,
       header: 'Modified',
-      cell: ({ row }) => <DateCell date={new Date(row.original.updatedAt)} />,
+      cell: ({ row }) => <DateCell date={parseFirestoreDate(row.original.updatedAt)} />,
     }),
     columnHelper.accessor('status', {
       id: 'status',

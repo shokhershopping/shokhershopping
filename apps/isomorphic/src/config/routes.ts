@@ -5,7 +5,7 @@ export const routes = {
     products: '/products',
     createProduct: '/products/create',
     productDetails: (slug: string) => `/products/${slug}`,
-    ediProduct: (slug: string) => `/products/${slug}/edit`,
+    editProduct: (slug: string) => `/products/${slug}/edit`,
 
     // categories
     categories: '/categories',
@@ -59,6 +59,9 @@ export const routes = {
     deliveryAreas: '/delivery-areas',
     createDeliveryArea: '/delivery-areas/create',
     editDeliveryArea: (id: string) => `/delivery-areas/${id}/edit`,
+
+    // settings
+    settings: '/settings',
 
     // admin management
     admin: '/admin',

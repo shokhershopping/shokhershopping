@@ -16,7 +16,43 @@ import cn from '@core/utils/class-names';
 import { toCurrency } from '@core/utils/to-currency';
 import { formatDate } from '@core/utils/format-date';
 import usePrice from '@core/hooks/use-price';
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { Button, Badge } from 'rizzui';
+import toast from 'react-hot-toast';
+import { PiCopySimple, PiArrowsClockwise, PiPackage, PiTruck, PiMapPin, PiHouse, PiCheckCircle, PiXCircle, PiPause } from 'react-icons/pi';
+
+const STEADFAST_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  in_review: { label: 'Placed with Courier', color: 'text-blue-600 bg-blue-50' },
+  pending: { label: 'Pending Pickup', color: 'text-yellow-600 bg-yellow-50' },
+  hold: { label: 'On Hold', color: 'text-orange-600 bg-orange-50' },
+  delivered_approval_pending: { label: 'Delivered (Confirming)', color: 'text-green-600 bg-green-50' },
+  partial_delivered_approval_pending: { label: 'Partially Delivered', color: 'text-yellow-600 bg-yellow-50' },
+  cancelled_approval_pending: { label: 'Cancellation Pending', color: 'text-red-600 bg-red-50' },
+  unknown_approval_pending: { label: 'Unknown (Pending)', color: 'text-gray-600 bg-gray-50' },
+  delivered: { label: 'Delivered', color: 'text-green-700 bg-green-100' },
+  partial_delivered: { label: 'Partially Delivered', color: 'text-yellow-700 bg-yellow-100' },
+  cancelled: { label: 'Cancelled', color: 'text-red-700 bg-red-100' },
+  unknown: { label: 'Unknown', color: 'text-gray-600 bg-gray-100' },
+};
+
+// Courier delivery journey steps
+const courierJourneySteps = [
+  { id: 1, label: 'Placed with Courier', icon: PiPackage, statuses: ['in_review'] },
+  { id: 2, label: 'Picked Up', icon: PiTruck, statuses: ['pending'] },
+  { id: 3, label: 'In Transit', icon: PiMapPin, statuses: ['hold'] },
+  { id: 4, label: 'Out for Delivery', icon: PiTruck, statuses: ['delivered_approval_pending', 'partial_delivered_approval_pending'] },
+  { id: 5, label: 'Delivered', icon: PiHouse, statuses: ['delivered', 'partial_delivered'] },
+];
+
+const getCourierStep = (status: string): number => {
+  if (!status) return 0;
+  if (['cancelled', 'cancelled_approval_pending'].includes(status)) return -1; // cancelled
+  if (['unknown', 'unknown_approval_pending'].includes(status)) return 0;
+  for (const step of courierJourneySteps) {
+    if (step.statuses.includes(status)) return step.id;
+  }
+  return 1; // default to first step
+};
 
 const orderStatusSteps = [
   { id: 1, label: 'Order Pending', status: 'PENDING' },
@@ -73,6 +109,97 @@ function WidgetCard({
 }
 
 export default function OrderView({ order }: OrderViewProps) {
+  const [trackingStatus, setTrackingStatus] = useState(order?.steadfastStatus || '');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Silent fetch (no toast) for auto-refresh
+  const silentRefresh = useCallback(async () => {
+    if (!order?.id || !order?.steadfastConsignmentId) return;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(`/api/orders/${order.id}/track`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === 'success' && data.data?.steadfastStatus) {
+        setTrackingStatus(data.data.steadfastStatus);
+      }
+    } catch {
+      // Silent fail for auto-refresh
+    }
+  }, [order?.id, order?.steadfastConsignmentId]);
+
+  // Auto-refresh on page load + poll every 60s for active shipments
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    if (!order?.steadfastConsignmentId) return;
+
+    // Fetch latest status on mount
+    silentRefresh();
+
+    // Only poll if not in a final state
+    const finalStatuses = ['delivered', 'cancelled', 'partial_delivered'];
+    const currentSfStatus = order.steadfastStatus || '';
+    if (!finalStatuses.includes(currentSfStatus)) {
+      intervalRef.current = setInterval(silentRefresh, 60000);
+    }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [order?.steadfastConsignmentId, order?.steadfastStatus, silentRefresh]);
+
+  // Manual refresh with toast feedback
+  const refreshTracking = useCallback(async () => {
+    if (!order?.id) return;
+    setIsRefreshing(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/track`);
+      const data = await res.json();
+      if (data.status === 'success' && data.data?.steadfastStatus) {
+        setTrackingStatus(data.data.steadfastStatus);
+        toast.success('Tracking status updated');
+      } else {
+        toast.error(data.message || 'Failed to refresh tracking');
+      }
+    } catch {
+      toast.error('Failed to refresh tracking');
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [order?.id]);
+
+  const [isSendingToCourier, setIsSendingToCourier] = useState(false);
+  const [courierTrackingCode, setCourierTrackingCode] = useState(order?.steadfastTrackingCode || '');
+  const [courierConsignmentId, setCourierConsignmentId] = useState(order?.steadfastConsignmentId || '');
+
+  const sendToCourier = useCallback(async () => {
+    if (!order?.id) return;
+    setIsSendingToCourier(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/dispatch`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        setCourierTrackingCode(data.data?.trackingCode || '');
+        setCourierConsignmentId(data.data?.consignmentId || '');
+        setTrackingStatus(data.data?.steadfastStatus || 'in_review');
+        toast.success(`Shipment created! Tracking: ${data.data?.trackingCode || ''}`);
+      } else {
+        toast.error(data.message || 'Failed to send to courier');
+      }
+    } catch {
+      toast.error('Failed to send to courier');
+    } finally {
+      setIsSendingToCourier(false);
+    }
+  }, [order?.id]);
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  }, []);
+
   // Get data from cart/atoms (for create order flow)
   const {
     items: cartItems,
@@ -148,15 +275,22 @@ export default function OrderView({ order }: OrderViewProps) {
   // Get current order status
   const currentOrderStatus = order ? getOrderStatusStep(order.status) : 3;
 
-  // Get customer data
-  const customer = order?.user || {
-    name: 'Customer',
-    email: '',
-    image: 'https://isomorphic-furyroad.s3.amazonaws.com/public/avatar.png',
+  // Get customer data from order fields
+  const customer = {
+    name: order?.userName || order?.billingAddress?.name || 'Customer',
+    email: order?.userEmail || '',
+    phone: order?.billingAddress?.phone || '',
   };
 
-  // Get order date
-  const orderDate = order?.createdAt ? new Date(order.createdAt) : new Date();
+  // Get order date - handle Firestore Timestamp ({_seconds, _nanoseconds}) and string/number
+  const orderDate = useMemo(() => {
+    if (!order?.createdAt) return new Date();
+    const ts = order.createdAt;
+    if (ts._seconds) return new Date(ts._seconds * 1000);
+    if (ts.seconds) return new Date(ts.seconds * 1000);
+    const d = new Date(ts);
+    return isNaN(d.getTime()) ? new Date() : d;
+  }, [order?.createdAt]);
   return (
     <div className="@container">
       <div className="flex flex-wrap justify-center border-b border-t border-gray-300 py-4 font-medium text-gray-700 @5xl:justify-start">
@@ -305,37 +439,197 @@ export default function OrderView({ order }: OrderViewProps) {
             </div>
           </WidgetCard>
 
+          {order && (() => {
+            const hasTracking = !!(courierTrackingCode || order.steadfastTrackingCode);
+            const isDispatchedOrDelivered = ['DISPATCHED', 'DELIVERED'].includes(order.status);
+
+            // Show "Send to Courier" button if dispatched but no tracking
+            if (!hasTracking && isDispatchedOrDelivered) {
+              return (
+                <div className="">
+                  <Title as="h3" className="mb-3.5 text-base font-semibold @5xl:mb-5 4xl:text-lg">
+                    Courier Tracking
+                  </Title>
+                  <div className="rounded-lg border border-dashed border-orange-300 bg-orange-50/50 px-5 py-6 text-center @5xl:rounded-xl">
+                    <PiTruck className="mx-auto mb-3 h-10 w-10 text-orange-400" />
+                    <Text className="mb-1 font-medium text-gray-700">No courier shipment yet</Text>
+                    <Text className="mb-4 text-sm text-gray-500">
+                      This order was dispatched without a Steadfast shipment.
+                    </Text>
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={sendToCourier}
+                      disabled={isSendingToCourier}
+                    >
+                      <PiTruck className={cn('me-1.5 h-4 w-4', isSendingToCourier && 'animate-bounce')} />
+                      {isSendingToCourier ? 'Creating Shipment...' : 'Send to Steadfast Courier'}
+                    </Button>
+                  </div>
+                </div>
+              );
+            }
+
+            if (!hasTracking) return null;
+
+            const currentCourierStatus = trackingStatus || order.steadfastStatus || 'unknown';
+            const courierStep = getCourierStep(currentCourierStatus);
+            const isCancelled = courierStep === -1;
+            const statusInfo = STEADFAST_STATUS_MAP[currentCourierStatus] || STEADFAST_STATUS_MAP.unknown;
+
+            return (
+              <div className="">
+                <Title as="h3" className="mb-3.5 text-base font-semibold @5xl:mb-5 4xl:text-lg">
+                  Courier Tracking
+                </Title>
+                <div className="rounded-lg border border-muted @5xl:rounded-xl">
+                  {/* Status Badge Header */}
+                  <div className="flex items-center justify-between border-b border-muted px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      {isCancelled ? (
+                        <PiXCircle className="h-5 w-5 text-red-500" />
+                      ) : courierStep >= 5 ? (
+                        <PiCheckCircle className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <PiTruck className="h-5 w-5 text-primary" />
+                      )}
+                      <Text className="font-semibold">{statusInfo.label}</Text>
+                    </div>
+                    <span className={cn('rounded-full px-2.5 py-1 text-xs font-medium', statusInfo.color)}>
+                      {isCancelled ? 'Cancelled' : courierStep >= 5 ? 'Complete' : 'In Progress'}
+                    </span>
+                  </div>
+
+                  {/* Visual Journey Tracker */}
+                  {!isCancelled ? (
+                    <div className="px-5 py-6">
+                      {/* Progress Bar */}
+                      <div className="relative mb-2 flex items-center justify-between">
+                        {/* Background line */}
+                        <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gray-100" />
+                        {/* Active line */}
+                        <div
+                          className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-primary transition-all duration-700 ease-out"
+                          style={{ width: `${Math.max(0, ((Math.min(courierStep, 5) - 1) / 4) * 100)}%` }}
+                        />
+
+                        {/* Step Icons */}
+                        {courierJourneySteps.map((step) => {
+                          const StepIcon = step.icon;
+                          const isActive = courierStep >= step.id;
+                          const isCurrent = courierStep === step.id;
+                          return (
+                            <div key={step.id} className="relative z-10 flex flex-col items-center">
+                              <div
+                                className={cn(
+                                  'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-500',
+                                  isActive
+                                    ? 'border-primary bg-primary text-white'
+                                    : 'border-gray-200 bg-white text-gray-300',
+                                  isCurrent && 'ring-4 ring-primary/20'
+                                )}
+                              >
+                                {isCurrent && step.id !== 5 ? (
+                                  <StepIcon className="h-5 w-5 animate-bounce" />
+                                ) : (
+                                  <StepIcon className="h-5 w-5" />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Step Labels */}
+                      <div className="flex justify-between">
+                        {courierJourneySteps.map((step) => {
+                          const isActive = courierStep >= step.id;
+                          return (
+                            <Text
+                              key={step.id}
+                              className={cn(
+                                'w-14 text-center text-[10px] leading-tight',
+                                isActive ? 'font-medium text-gray-700' : 'text-gray-400'
+                              )}
+                            >
+                              {step.label}
+                            </Text>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 px-5 py-6 text-red-500">
+                      <PiXCircle className="h-8 w-8" />
+                      <Text className="font-medium text-red-500">Shipment Cancelled</Text>
+                    </div>
+                  )}
+
+                  {/* Tracking Details */}
+                  <div className="space-y-3 border-t border-muted px-5 py-4">
+                    <div className="flex items-center justify-between">
+                      <Text className="text-xs text-gray-500">Consignment ID</Text>
+                      <Text className="text-sm font-medium">{courierConsignmentId || order.steadfastConsignmentId}</Text>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Text className="text-xs text-gray-500">Tracking Code</Text>
+                      <div className="flex items-center gap-1.5">
+                        <Text className="text-sm font-medium">{courierTrackingCode || order.steadfastTrackingCode}</Text>
+                        <button
+                          onClick={() => copyToClipboard(courierTrackingCode || order.steadfastTrackingCode)}
+                          className="text-gray-400 hover:text-gray-600"
+                          title="Copy tracking code"
+                        >
+                          <PiCopySimple className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Text className="text-xs text-gray-500">Courier</Text>
+                      <Text className="text-sm font-medium">Steadfast</Text>
+                    </div>
+                  </div>
+
+                  {/* Refresh Button */}
+                  <div className="border-t border-muted px-5 py-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                      onClick={refreshTracking}
+                      disabled={isRefreshing}
+                    >
+                      <PiArrowsClockwise className={cn('me-1.5 h-4 w-4', isRefreshing && 'animate-spin')} />
+                      {isRefreshing ? 'Refreshing...' : 'Refresh Status'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           <WidgetCard
             title="Customer Details"
             childrenWrapperClass="py-5 @5xl:py-8 flex"
           >
-            <div className="relative aspect-square h-16 w-16 shrink-0 @5xl:h-20 @5xl:w-20">
-              <Image
-                fill
-                alt="avatar"
-                className="rounded-full object-cover"
-                sizes="(max-width: 768px) 100vw"
-                src={
-                  customer.image ||
-                  'https://isomorphic-furyroad.s3.amazonaws.com/public/avatar.png'
-                }
-              />
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-white @5xl:h-20 @5xl:w-20 @5xl:text-2xl">
+              {(customer.name || 'C').charAt(0).toUpperCase()}
             </div>
             <div className="ps-4 @5xl:ps-6">
               <Title
                 as="h3"
                 className="mb-2.5 text-base font-semibold @7xl:text-lg"
               >
-                {customer.name || 'Customer'}
+                {customer.name}
               </Title>
               {customer.email && (
                 <Text as="p" className="mb-2 break-all last:mb-0">
                   {customer.email}
                 </Text>
               )}
-              {billingAddress?.phone && (
+              {(customer.phone || billingAddress?.phone) && (
                 <Text as="p" className="mb-2 last:mb-0">
-                  {billingAddress.phone}
+                  {customer.phone || billingAddress?.phone}
                 </Text>
               )}
             </div>

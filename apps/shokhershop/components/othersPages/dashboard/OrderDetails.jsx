@@ -6,10 +6,26 @@ import { getImageUrl } from "@/lib/getImageUrl";
 import toast from "react-hot-toast";
 import CancelOrderModal from "@/components/modals/CancelOrderModal";
 
+const STEADFAST_STATUS_MAP = {
+  in_review: { label: "Placed with Courier", color: "#0d6efd" },
+  pending: { label: "Pending Pickup", color: "#ffc107" },
+  hold: { label: "On Hold", color: "#fd7e14" },
+  delivered_approval_pending: { label: "Delivered (Confirming)", color: "#198754" },
+  partial_delivered_approval_pending: { label: "Partially Delivered", color: "#ffc107" },
+  cancelled_approval_pending: { label: "Cancellation Pending", color: "#dc3545" },
+  unknown_approval_pending: { label: "Unknown (Pending)", color: "#6c757d" },
+  delivered: { label: "Delivered", color: "#198754" },
+  partial_delivered: { label: "Partially Delivered", color: "#ffc107" },
+  cancelled: { label: "Cancelled", color: "#dc3545" },
+  unknown: { label: "Unknown", color: "#6c757d" },
+};
+
 export default function OrderDetails({ order }) {
   const router = useRouter();
   const [cancelling, setCancelling] = useState(false);
   const [orderStatus, setOrderStatus] = useState(order?.status);
+  const [trackingStatus, setTrackingStatus] = useState(order?.steadfastStatus || "");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     setOrderStatus(order?.status);
@@ -97,6 +113,50 @@ export default function OrderDetails({ order }) {
       toast.error("Failed to cancel order. Please try again.");
     } finally {
       setCancelling(false);
+    }
+  };
+
+  // Auto-refresh tracking on page load + poll every 60s
+  useEffect(() => {
+    if (!order?.steadfastTrackingCode) return;
+
+    const silentRefresh = async () => {
+      try {
+        const res = await fetch(`/api/orders/${order.id}/track`);
+        const data = await res.json();
+        if (data.status === "success" && data.data?.steadfastStatus) {
+          setTrackingStatus(data.data.steadfastStatus);
+        }
+      } catch {
+        // Silent fail
+      }
+    };
+
+    silentRefresh();
+
+    const finalStatuses = ["delivered", "cancelled", "partial_delivered"];
+    if (!finalStatuses.includes(order.steadfastStatus || "")) {
+      const interval = setInterval(silentRefresh, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [order?.steadfastTrackingCode, order?.steadfastStatus, order?.id]);
+
+  const refreshTracking = async () => {
+    if (!order?.id) return;
+    setIsRefreshing(true);
+    try {
+      const res = await fetch(`/api/orders/${order.id}/track`);
+      const data = await res.json();
+      if (data.status === "success" && data.data?.steadfastStatus) {
+        setTrackingStatus(data.data.steadfastStatus);
+        toast.success("Tracking status updated");
+      } else {
+        toast.error(data.message || "Failed to refresh tracking");
+      }
+    } catch {
+      toast.error("Failed to refresh tracking");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -403,17 +463,50 @@ export default function OrderDetails({ order }) {
             </ul>
           </div>
           <div className="widget-content-inner">
-            <p>
-              Our courier service is dedicated to providing fast, reliable, and
-              secure delivery solutions tailored to meet your needs. Whether
-              you&apos;re sending documents, parcels, or larger shipments, our team
-              ensures that your items are handled with the utmost care and
-              delivered on time. With a commitment to customer satisfaction,
-              real-time tracking, and a wide network of routes, we make it easy
-              for you to send and receive packages both locally and
-              internationally. Choose our service for a seamless and efficient
-              delivery experience.
-            </p>
+            {order.steadfastTrackingCode ? (
+              <div>
+                <ul>
+                  <li className="d-flex justify-content-between text-2">
+                    <span>Tracking Code</span>
+                    <span className="fw-6">{order.steadfastTrackingCode}</span>
+                  </li>
+                  <li className="d-flex justify-content-between text-2 mt_8">
+                    <span>Delivery Status</span>
+                    <span
+                      className="fw-6"
+                      style={{
+                        color:
+                          (STEADFAST_STATUS_MAP[trackingStatus || order.steadfastStatus] || STEADFAST_STATUS_MAP.unknown).color,
+                      }}
+                    >
+                      {(STEADFAST_STATUS_MAP[trackingStatus || order.steadfastStatus] || STEADFAST_STATUS_MAP.unknown).label}
+                    </span>
+                  </li>
+                  <li className="d-flex justify-content-between text-2 mt_8">
+                    <span>Courier</span>
+                    <span className="fw-6">Steadfast</span>
+                  </li>
+                </ul>
+                <button
+                  onClick={refreshTracking}
+                  disabled={isRefreshing}
+                  className="tf-btn btn-outline-dark animate-hover-btn rounded-0 mt_20"
+                  style={{
+                    opacity: isRefreshing ? 0.6 : 1,
+                    cursor: isRefreshing ? "not-allowed" : "pointer",
+                    width: "100%",
+                  }}
+                >
+                  <span>{isRefreshing ? "Refreshing..." : "Refresh Tracking Status"}</span>
+                </button>
+              </div>
+            ) : (
+              <p>
+                {currentStatus === "DISPATCHED" || currentStatus === "DELIVERED"
+                  ? "Courier tracking information is not available for this order."
+                  : "Courier tracking will be available once your order is dispatched."}
+              </p>
+            )}
           </div>
           <div className="widget-content-inner">
             <p className="text-2 text_success">

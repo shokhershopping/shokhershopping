@@ -38,6 +38,10 @@ export interface FirestoreOrder {
   billingAddress: OrderAddress | null;
   shippingAddress: OrderAddress | null;
   transaction: OrderTransaction | null;
+  /** Steadfast courier tracking fields */
+  steadfastConsignmentId?: number | null;
+  steadfastTrackingCode?: string | null;
+  steadfastStatus?: string | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

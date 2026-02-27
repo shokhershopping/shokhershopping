@@ -58,6 +58,7 @@ export {
   updateUser,
   deleteUser,
   updateUserMetadata,
+  getAdminUserIds,
 } from './services/user.service';
 
 export {
@@ -121,6 +122,7 @@ export {
   getOrders,
   getOrderById,
   getOrdersByUserId,
+  getOrderBySteadfastConsignmentId,
   createOrder,
   updateOrder,
   updateOrderStatus,
@@ -137,8 +139,12 @@ export {
   getNotificationsByUserId,
   createNotification,
   markAsRead,
+  markAllAsRead,
+  getUnreadCount,
   deleteNotification,
 } from './services/notification.service';
+
+export { notifyAdmins } from './services/admin-notification.helper';
 
 export {
   getDashboardStats,
@@ -183,3 +189,20 @@ export {
   updateDeliveryArea,
   deleteDeliveryArea,
 } from './services/delivery-area.service';
+
+export {
+  getSettings,
+  updateSettings,
+} from './services/settings.service';
+
+export {
+  createSteadfastOrder,
+  getSteadfastStatus,
+  getSteadfastStatusByTracking,
+} from './services/steadfast.service';
+export type {
+  SteadfastOrderData,
+  SteadfastConsignment,
+  SteadfastCreateResponse,
+  SteadfastStatusResponse,
+} from './services/steadfast.service';

@@ -1,7 +1,7 @@
 import Footer1 from "@/components/footers/Footer1";
 import Header2 from "@/components/headers/Header2";
 import PaymentConfirmation from "@/components/othersPages/PaymentConfirmation";
-import React from "react";
+import React, { Suspense } from "react";
 
 export const metadata = {
   title: "Payment Confirmation || Ecomus - Ultimate Nextjs Ecommerce Template",
@@ -17,7 +17,9 @@ export default function page() {
         </div>
       </div>
 
-      <PaymentConfirmation />
+      <Suspense fallback={<div className="text-center py-5">Loading...</div>}>
+        <PaymentConfirmation />
+      </Suspense>
       <Footer1 />
     </>
   );

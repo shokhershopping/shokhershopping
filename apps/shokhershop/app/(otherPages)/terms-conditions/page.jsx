@@ -1,186 +1,189 @@
 import Footer1 from "@/components/footers/Footer1";
 import Header1 from "@/components/headers/Header1";
+import Link from "next/link";
 import React from "react";
+
+export const metadata = {
+  title: "Terms & Conditions | Shokher Shopping",
+  description: "ব্যবহারের শর্তাবলী - Shokher Shopping",
+};
 
 export default function page() {
   return (
     <>
       <Header1 />
       <>
-        {/* page-title */}
         <div className="tf-page-title style-2">
           <div className="container-full">
             <div className="heading text-center">Terms &amp; Conditions</div>
+            <p className="text-center text-color-1 mt_5">
+              ব্যবহারের শর্তাবলী
+            </p>
           </div>
         </div>
-        {/* /page-title */}
-        {/* main-page */}
+
         <section className="flat-spacing-25">
           <div className="container">
             <div className="tf-main-area-page tf-terms-conditions">
+              <p>
+                Shokher Shopping ওয়েবসাইটে প্রবেশ এবং অর্ডার করার মাধ্যমে
+                আপনি নিম্নলিখিত শর্তাবলীতে সম্মত হচ্ছেন। আমরা আপনাকে অনুরোধ
+                করব এগুলো মনোযোগ সহকারে পড়তে।
+              </p>
+
               <div className="box">
-                <h4>These Terms and Conditions May Change</h4>
-                <p>
-                  We reserve the right to update or modify these terms and
-                  conditions at any time without prior notice. Your use of
-                  shop.company.com and shop.beetle.com.sg following any such
-                  change constitutes your agreement to follow and be bound by
-                  the terms and conditions as changed. For this reason, we
-                  encourage you to review these terms and conditions whenever
-                  you use this website.
-                </p>
+                <h5 className="mt_30 mb_16">১. সেবা গ্রহণের শর্ত</h5>
+                <ul className="tag-list">
+                  <li>
+                    Shokher Shopping একটি অনলাইন ভিত্তিক প্রতিষ্ঠান যা ড্রেস ও
+                    ইসলামিক পোশাক সামগ্রী বিক্রি করে।
+                  </li>
+                  <li>
+                    আপনি আমাদের ওয়েবসাইট www.shokhershopping.com ব্যবহার করে
+                    অর্ডার করলে তা আমাদের নিয়ম ও নীতির অধীনে পরিচালিত হবে।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Limitations of Liability</h4>
-                <p>
-                  The Company Pte Ltd shall not assume any responsibility, and
-                  shall not be liable for, any damages to, or viruses that may
-                  infect, your computer, telecommunication equipment, or other
-                  property caused by or arising from your access to, use of, or
-                  browsing this website or your downloading of any materials,
-                  from this website. IN NO EVENT WILL THE COMPANY PRIVATE
-                  LIMITED NOR THEIR RESPECTIVE OFFICERS, DIRECTORS, EMPLOYEES,
-                  SHAREHOLDERS, AFFILIATES, AGENTS, SUCCESSORS, ASSIGNS, RETAIL
-                  PARTNERS NOR ANY PARTY INVOLVED IN THE CREATION, PRODUCTION OR
-                  TRANSMISSION OF THIS WEB SITE BE LIABLE TO ANY PARTY FOR ANY
-                  INDIRECT, SPECIAL, PUNITIVE, INCIDENTAL OR CONSEQUENTIAL
-                  DAMAGES (INCLUDING, WITHOUT LIMITATION, THOSE RESULTING FROM
-                  LOST PROFITS, LOST DATA OR BUSINESS INTERRUPTION) ARISING OUT
-                  OF THE USE, INABILITY TO USE, OR THE RESULTS OF USE OF THIS
-                  WEB SITE, ANY WEB SITES LINKED TO THIS WEB SITE, OR THE
-                  MATERIALS, INFORMATION OR SERVICES CONTAINED AT ANY OR ALL
-                  SUCH SITES, WHETHER BASED ON WARRANTY, CONTRACT, TORT OR ANY
-                  OTHER LEGAL THEORY AND WHETHER OR NOT ADVISED OF THE
-                  POSSIBILITY OF SUCH DAMAGES. THE FOREGOING LIMITATIONS OF
-                  LIABILITY DO NOT APPLY TO THE EXTENT PROHIBITED BY LAW. PLEASE
-                  REFER TO YOUR LOCAL LAWS FOR ANY SUCH PROHIBITIONS.
-                </p>
-                <p>
-                  IN THE EVENT OF ANY PROBLEM WITH THIS WEBSITE OR ANY CONTENT,
-                  YOU AGREE THAT YOUR SOLE REMEDY IS TO CEASE USING THIS
-                  WEBSITE. IN THE EVENT OF ANY PROBLEM WITH THE PRODUCTS OR
-                  SERVICES THAT YOU HAVE PURCHASED ON OR THROUGH THIS WEB SITE,
-                  YOU AGREE THAT YOUR REMEDY, IF ANY, IS FROM THE MANUFACTURER
-                  OF SUCH PRODUCTS OR SUPPLIER OF SUCH SERVICES, IN ACCORDANCE
-                  WITH SUCH MANUFACTURER’S OR SUPPLIER’S WARRANTY, OR TO SEEK A
-                  RETURN AND REFUND FOR SUCH PRODUCT OR SERVICES IN ACCORDANCE
-                  WITH THE RETURNS AND REFUNDS POLICIES POSTED ON THIS WEB SITE.
-                  This site may include inaccuracies, mistakes or typographical
-                  errors. CharlesKeith.com does not warrant that the content
-                  will be uninterrupted or error free.
-                </p>
+                <h5 className="mt_30 mb_16">২. পণ্যের তথ্য ও স্টক</h5>
+                <ul className="tag-list">
+                  <li>
+                    সকল পণ্যের ছবি ও বিবরণ যথাসম্ভব বাস্তবতার সঙ্গে মিল রেখে
+                    প্রদর্শন করা হয়।
+                  </li>
+                  <li>
+                    যেকোনো প্রোডাক্টের মূল্য, ডিজাইন, কালার, সাইজ এবং স্টক
+                    বিনা নোটিশে পরিবর্তন হতে পারে।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Copyright and Trademark</h4>
-                <p>
-                  Unless otherwise indicated, material on this website,
-                  including but not limited to texts, images, illustrations,
-                  software, audio clips, video clips, animation files, is
-                  subject to the copyright and trademark rights of The Company
-                  Private Limited. Consequently, the material on this website
-                  may not be copied, reproduced, modified, posted, transmitted,
-                  distributed, in whole or in part in any form whatsoever,
-                  without the prior written consent of The Company Private
-                  Limited. All rights reserved.
-                </p>
+                <h5 className="mt_30 mb_16">৩. মূল্য ও পেমেন্ট</h5>
+                <ul className="tag-list">
+                  <li>
+                    অর্ডারকৃত প্রোডাক্টের পেমেন্ট কাস্টমার ক্যাশ অন ডেলিভারি
+                    বা পূর্ব নির্ধারিত মাধ্যম অনুযায়ী পরিশোধ করবেন।
+                  </li>
+                  <li>
+                    কিছু বিশেষ এলাকার জন্য ডেলিভারি চার্জ অগ্রিম প্রদান করতে
+                    হতে পারে।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Products, Content and Specifications</h4>
-                <p>
-                  All features, content, specifications, products and prices of
-                  products and services described or depicted on this website
-                  are subject to change at any time without notice. Certain
-                  weights, measures and similar descriptions are approximate and
-                  are provided for convenience purposes only. We make all
-                  reasonable efforts to accurately display the attributes of our
-                  products, including the applicable colors; however, the actual
-                  color you see will depend on your computer system and we
-                  cannot guarantee that your computer will accurately display
-                  such colors. The inclusion of any products or services in this
-                  website at a particular time does not imply or warrant that
-                  these products or services will be available at any time. It
-                  is your responsibility to ascertain and obey all applicable
-                  local, state and international laws in regard to the
-                  possession, use and sale of any item purchased from this
-                  website. By placing an order, you represent that the products
-                  ordered will be used only in a lawful manner.
-                </p>
+                <h5 className="mt_30 mb_16">৪. ডেলিভারি ও রিটার্ন</h5>
+                <ul className="tag-list">
+                  <li>
+                    ডেলিভারি সাধারণত ১–৫ কার্যদিবসের মধ্যে সম্পন্ন হয়।
+                  </li>
+                  <li>
+                    রিটার্ন বা এক্সচেঞ্জ পলিসি অনুযায়ী নির্দিষ্ট শর্তে
+                    প্রোডাক্ট পরিবর্তন করা যেতে পারে।
+                  </li>
+                  <li>
+                    বিস্তারিত জানতে{" "}
+                    <Link href="/delivery-return" style={{ textDecoration: "underline" }}>
+                      রিটার্ন পলিসি
+                    </Link>{" "}
+                    পড়ুন।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Shipping Limitations</h4>
-                <p>
-                  When an order is placed, it will be shipped to an address
-                  designated by the purchaser as long as that shipping address
-                  is compliant with the shipping restrictions contained on this
-                  website. All purchases from this website are made pursuant to
-                  a shipment contract. As a result, risk of loss and title for
-                  items purchased from this website pass to you upon delivery of
-                  the items to the carrier. You are responsible for filing any
-                  claims with carriers for damaged and/or lost shipments.
-                </p>
+                <h5 className="mt_30 mb_16">৫. অর্ডার বাতিল / পরিবর্তন</h5>
+                <ul className="tag-list">
+                  <li>
+                    অর্ডার কনফার্ম হওয়ার পর তা বাতিল বা পরিবর্তন করার
+                    সময়সীমা সীমিত।
+                  </li>
+                  <li>
+                    প্যাকেজ ডেলিভারির জন্য হস্তান্তর হয়ে গেলে কোনো পরিবর্তন
+                    করা সম্ভব হয় না।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Duties and Taxes</h4>
-                <p>
-                  You are responsible for duties and taxes outside Singapore.
-                  All items entering a foreign country are subject to customs
-                  inspection and assessment of the duties and taxes in
-                  accordance with that country’s national laws.
-                </p>
+                <h5 className="mt_30 mb_16">
+                  ৬. ব্যক্তিগত তথ্যের গোপনীয়তা
+                </h5>
+                <ul className="tag-list">
+                  <li>
+                    আপনার দেওয়া সকল তথ্য আমাদের{" "}
+                    <Link href="/privacy-policy" style={{ textDecoration: "underline" }}>
+                      প্রাইভেসি পলিসি
+                    </Link>{" "}
+                    অনুযায়ী সুরক্ষিত রাখা হয়।
+                  </li>
+                  <li>
+                    আমরা আপনার তথ্য তৃতীয় পক্ষের কাছে বিক্রি করি না।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Your Account</h4>
-                <p>
-                  You are responsible for maintaining the confidentiality of
-                  your account and password information, and you agree to accept
-                  responsibility for all activities that occur under your
-                  account and password. This website and The Company Pte Ltd
-                  reserves the right to refuse service, terminate accounts
-                  remove or edit content or cancel orders.By placing an order,
-                  you warrant that you are over 18 years of age, and that you
-                  are providing shop.company.com or shop.beetle.com.sg with
-                  accurate, truthful information and that you have the authority
-                  to place the order.
-                </p>
+                <h5 className="mt_30 mb_16">৭. দায়বদ্ধতার সীমা</h5>
+                <ul className="tag-list">
+                  <li>
+                    ওয়েবসাইট ব্যবহারের সময় যেকোনো কারিগরি ত্রুটি, ভুল
+                    প্রোডাক্ট ইনফো বা স্টক সমস্যার জন্য Shokher Shopping দায়ী
+                    থাকবে না।
+                  </li>
+                  <li>
+                    অর্ডার সংক্রান্ত যেকোনো সমস্যা হলে আমাদের কাস্টমার সার্ভিস
+                    টিম সর্বোচ্চ সহযোগিতা করবে।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Exchange and Refund Policy (Singapore Outlets Only)</h4>
-                <p>
-                  New, unused full-price merchandise purchased at store retail
-                  store may be exchange at any boutique with an original receipt
-                  within 7 days of purchase. After 7 days, the merchandise may
-                  not be exchanged.We offer a no-refund policy on all
-                  merchandises, however, for merchandise qualifying for an
-                  exchange, item may be exchange for store credits which may be
-                  used at our Singapore outlets only.Merchandise on sale may not
-                  be exchanged or returned. All merchandise must be returned in
-                  sellable condition, otherwise, an exchange would not be
-                  allowed.We reserve the right to reject any form of exchange
-                  without the original receipt.
-                </p>
+                <h5 className="mt_30 mb_16">৮. নীতি পরিবর্তনের অধিকার</h5>
+                <ul className="tag-list">
+                  <li>
+                    Shokher Shopping যে কোনো সময় আমাদের Terms &amp; Conditions
+                    আপডেট বা পরিবর্তন করতে পারে।
+                  </li>
+                  <li>
+                    পরিবর্তনের পর ওয়েবসাইট ব্যবহারে আপনি নতুন শর্তাবলী মেনে
+                    চলতে বাধ্য থাকবেন।
+                  </li>
+                </ul>
               </div>
+
               <div className="box">
-                <h4>Exchange and Refund Policy (Online Shop)</h4>
-                <span>Electronic Communications</span>
+                <h5 className="mt_30 mb_16">যোগাযোগ</h5>
                 <p>
-                  When you visit this website and/or send email to us, you
-                  consent to receive electronic communications from us. You
-                  agree that all agreements, notices, disclosures and other
-                  communications that we sent you electronically satisfy any
-                  legal requirement that such communications be in writing
+                  কোনো প্রশ্ন, অভিযোগ বা পরামর্শের জন্য যোগাযোগ করুন:
                 </p>
-                <p>
-                  Exclusions of Warranties
-                  <br />
-                  The Company Private Limited makes no representative or
-                  warranty regarding the good working order or condition of this
-                  website, its suitability for use, or that its use will be
-                  uninterrupted or error-free. All information or material
-                  provided in this website to you â€œas isâ€ and without
-                  warranties of any kind, expressed or implied, including
-                  without limitation, warranties or conditions of
-                  merchantability, fitness, quality, durability or suitability
-                  for any particular purpose, or non-infringement.
+                <ul className="tag-list">
+                  <li>
+                    Email:{" "}
+                    <a href="mailto:shokhershopping@outlook.com">
+                      shokhershopping@outlook.com
+                    </a>
+                  </li>
+                  <li>
+                    Hotline:{" "}
+                    <a href="https://api.whatsapp.com/send/?phone=8801841917370">
+                      01841917370
+                    </a>{" "}
+                    (WhatsApp) /{" "}
+                    <a href="tel:09602917370">09602917370</a> (Call)
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                className="mt_30 p-4 radius-10"
+                style={{ backgroundColor: "#f7f7f7" }}
+              >
+                <p className="text-center" style={{ fontStyle: "italic" }}>
+                  Shokher Shopping-এ অর্ডার করার মাধ্যমে আপনি আমাদের নির্ধারিত
+                  সব নিয়ম ও শর্তাবলী মেনে চলতে সম্মত হচ্ছেন।
                 </p>
               </div>
             </div>

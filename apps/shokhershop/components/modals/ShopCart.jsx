@@ -78,7 +78,7 @@ export default function ShopCart() {
                     {cartProducts.map((elm, i) => (
                       <div key={i} className="tf-mini-cart-item">
                         <div className="tf-mini-cart-image">
-                          <Link href={`/product-detail/${elm.productId}`}>
+                          <Link href={`/product-detail/${elm.id}`}>
                             <Image
                               alt={elm.name}
                               src={getImageSrc(elm)}

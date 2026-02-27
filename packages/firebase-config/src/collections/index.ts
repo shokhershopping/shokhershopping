@@ -17,7 +17,7 @@ export const Collections = {
   CARTS: 'carts',
   NOTIFICATIONS: 'notifications',
   NOTIFICATION_RECIPIENTS: 'recipients',
-INVOICES: 'invoices',
+  INVOICES: 'invoices',
   QNA: 'qna',
   REPLIES: 'replies',
   BANNERS: 'banners',

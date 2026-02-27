@@ -22,7 +22,8 @@ export default function ShopDefault() {
 
   const itemsPerPage = 12;
   const pathSegments = pathname.split("/").filter(Boolean);
-  const isShopRoot = pathSegments.length === 1 && pathSegments[0] === "shop";
+  const shopRootPaths = ["shop", "shop-default"];
+  const isShopRoot = pathSegments.length === 1 && shopRootPaths.includes(pathSegments[0]);
   const categoryId = isShopRoot ? null : pathSegments[pathSegments.length - 1];
 
   useEffect(() => {
@@ -66,15 +67,38 @@ export default function ShopDefault() {
 
     const defaultImageUrl = "/default-product-image.jpg";
 
+    // Helper - handles {path} objects, {url} objects, and raw URL strings
     const getImageUrl = (image) => {
-      if (!image?.path) return null;
-      return resolveImageUrl(image.path);
+      if (!image) return null;
+      if (typeof image === "string") return resolveImageUrl(image);
+      if (image.path) return resolveImageUrl(image.path);
+      if (image.url) return resolveImageUrl(image.url);
+      return null;
     };
 
     return apiProducts.map((product) => {
       const mainImages = Array.isArray(product?.images) ? product.images : [];
-      const primaryImageUrl = getImageUrl(mainImages[0]) || defaultImageUrl;
-      const hoverImageUrl = getImageUrl(mainImages[1]) || primaryImageUrl;
+      const rawImageUrls = Array.isArray(product?.imageUrls) ? product.imageUrls : [];
+
+      let primaryImageUrl = getImageUrl(mainImages[0]) || getImageUrl(rawImageUrls[0]);
+      let hoverImageUrl = getImageUrl(mainImages[1]) || getImageUrl(rawImageUrls[1]);
+
+      // If no base product images, use first variant's images
+      if (!primaryImageUrl) {
+        const variants = Array.isArray(product.variableProducts) ? product.variableProducts : [];
+        for (const v of variants) {
+          const vImages = Array.isArray(v.images) ? v.images : [];
+          const vRawUrls = Array.isArray(v.imageUrls) ? v.imageUrls : [];
+          const firstImg = getImageUrl(vImages[0]) || getImageUrl(vRawUrls[0]);
+          if (firstImg) {
+            primaryImageUrl = firstImg;
+            hoverImageUrl = getImageUrl(vImages[1]) || getImageUrl(vRawUrls[1]) || firstImg;
+            break;
+          }
+        }
+      }
+      primaryImageUrl = primaryImageUrl || defaultImageUrl;
+      hoverImageUrl = hoverImageUrl || primaryImageUrl;
 
       // Group images by variantId first
       const imagesByVariant = {};
@@ -87,23 +111,27 @@ export default function ShopDefault() {
         }
       });
 
+      // Deduplicate by color - show only one dot per unique color
+      const seenColors = new Set();
       const colors = Array.isArray(product.variableProducts)
-        ? product.variableProducts.map((variant) => {
-            // Try variant-level images first, then product-level images grouped by variantId
-            const variantOwnImages = Array.isArray(variant.images) ? variant.images : [];
-            const variantGroupedImages = imagesByVariant[variant.id] || [];
-            const variantImage = variantOwnImages[0] || variantGroupedImages[0];
-            const variantImageUrl =
-              getImageUrl(variantImage) || defaultImageUrl;
-
-            return {
-              name: variant.specifications?.color || variant.color || "Default",
-              colorClass: (
-                variant.specifications?.color?.toLowerCase() || "default"
-              ).replace(/\s+/g, "-"),
-              imgSrc: variantImageUrl,
-            };
-          })
+        ? product.variableProducts.reduce((acc, variant) => {
+            const colorName = (variant.specifications?.color || variant.color || "Default").trim();
+            const colorKey = colorName.toLowerCase();
+            if (!seenColors.has(colorKey)) {
+              seenColors.add(colorKey);
+              const variantOwnImages = Array.isArray(variant.images) ? variant.images : [];
+              const variantRawUrls = Array.isArray(variant.imageUrls) ? variant.imageUrls : [];
+              const variantGroupedImages = imagesByVariant[variant.id] || [];
+              const variantImageUrl =
+                getImageUrl(variantOwnImages[0]) || getImageUrl(variantRawUrls[0]) || getImageUrl(variantGroupedImages[0]) || defaultImageUrl;
+              acc.push({
+                name: colorName,
+                colorClass: colorKey.replace(/\s+/g, "-") || "default",
+                imgSrc: variantImageUrl,
+              });
+            }
+            return acc;
+          }, [])
         : [];
 
       return {
