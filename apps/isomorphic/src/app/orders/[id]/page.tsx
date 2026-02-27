@@ -5,7 +5,9 @@ import Link from 'next/link';
 import OrderView from '@/app/shared/ecommerce/order/order-view';
 import PrintInvoiceButton from '@/app/shared/ecommerce/order/print-invoice-button';
 import PrintStickerButton from '@/app/shared/ecommerce/order/print-sticker-button';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getOrderById } from 'firebase-config/services/order.service';
+
+export const dynamic = 'force-dynamic';
 
 export default async function OrderDetailsPage({ params }: any) {
   const id = (await params).id;
@@ -13,17 +15,10 @@ export default async function OrderDetailsPage({ params }: any) {
   let order = null;
 
   try {
-    // Fetch order data from API
-    const orderResponse = await fetch(`${getBaseUrl()}/api/orders/${id}`, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (orderResponse.ok) {
-      const orderData: any = await orderResponse.json();
-      order = orderData.data;
+    const result = await getOrderById(id);
+    if (result.status === 'success' && result.data) {
+      // Serialize Firestore data to plain JSON for client components
+      order = JSON.parse(JSON.stringify(result.data));
     }
   } catch {
     // Continue without order data - will fall back to cart state

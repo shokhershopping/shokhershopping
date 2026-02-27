@@ -6,7 +6,7 @@ import PageHeader from '@/app/shared/page-header';
 import { metaObject } from '@/config/site.config';
 import { Button } from 'rizzui/button';
 import { routes } from '@/config/routes';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getProductById } from 'firebase-config/services/product.service';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -41,25 +41,16 @@ const pageHeader = {
   ],
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditProductPage({ params }: any) {
   const slug = (await params).slug;
 
-  // Fetch product data based on slug
-  const productResponse = await fetch(
-    `${getBaseUrl()}/api/products/${slug}`,
-    {
-      cache: 'no-store',
-    }
-  );
-  if (!productResponse.ok) {
-    throw new Error('Failed to fetch product data');
-  }
-  const data: any = await productResponse.json();
-  const productData = data.data;
-  if (!productData) {
+  const result = await getProductById(slug);
+  if (result.status !== 'success' || !result.data) {
     return <div>Product not found</div>;
   }
-
+  const productData = JSON.parse(JSON.stringify(result.data));
   const transformedProductData = {
     title: productData.name,
     sku: productData.sku,

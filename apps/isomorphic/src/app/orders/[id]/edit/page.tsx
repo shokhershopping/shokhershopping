@@ -6,8 +6,7 @@ import { metaObject } from '@/config/site.config';
 import PageHeader from '@/app/shared/page-header';
 import CreateOrder from '@/app/shared/ecommerce/order/create-order';
 import { orderData } from '@/app/shared/ecommerce/order/order-form/form-utils';
-import toast from 'react-hot-toast';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getOrderById } from 'firebase-config/services/order.service';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,21 +43,16 @@ const pageHeader = {
   ],
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditOrderPage({ params }: any) {
   const id = (await params).id;
 
-  const orderResponse = await fetch(
-    `${getBaseUrl()}/api/orders/${id}`,
-    {
-      cache: 'no-store',
-    }
-  );
-  if (!orderResponse.ok) {
-    toast.error('Failed to fetch order data');
+  const result = await getOrderById(id);
+  if (result.status !== 'success' || !result.data) {
     throw new Error('Failed to fetch order data');
   }
-  const data: any = await orderResponse.json();
-  let orderData = data.data;
+  let orderData = JSON.parse(JSON.stringify(result.data));
 
   // CRITICAL FIX: Handle legacy orders without billingAddress
   // If billingAddress is missing but shippingAddress exists, use shipping as billing

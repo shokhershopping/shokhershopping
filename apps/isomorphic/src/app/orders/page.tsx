@@ -7,11 +7,13 @@ import { PiPlusBold } from 'react-icons/pi';
 import { orderData } from '@/data/order-data';
 import { metaObject } from '@/config/site.config';
 import ExportButton from '@/app/shared/export-button';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getOrders } from 'firebase-config/services/order.service';
 
 export const metadata = {
   ...metaObject('Orders'),
 };
+
+export const dynamic = 'force-dynamic';
 
 const pageHeader = {
   title: 'Orders',
@@ -31,18 +33,10 @@ const pageHeader = {
 };
 
 export default async function OrdersPage() {
-  const orders = await fetch(
-    `${getBaseUrl()}/api/orders?limit=1000000`,
-    {
-      cache: 'no-store',
-    }
-  );
-  if (!orders.ok) {
-    throw new Error('Failed to fetch orders');
-  }
-  const data: any = await orders.json();
-
-  const rawOrders = Array.isArray(data?.data) ? data.data : [];
+  const result = await getOrders(1000000, 1);
+  const rawOrders = JSON.parse(JSON.stringify(
+    result.status === 'success' && Array.isArray(result.data) ? result.data : []
+  ));
 
   // Helper to parse Firestore timestamps
   const parseTimestamp = (ts: any): string => {

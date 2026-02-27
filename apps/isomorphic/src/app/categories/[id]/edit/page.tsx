@@ -5,7 +5,7 @@ import CreateCategory from '@/app/shared/ecommerce/category/create-category';
 import Link from 'next/link';
 import { metaObject } from '@/config/site.config';
 import { Metadata } from 'next';
-import { getBaseUrl } from '@/lib/get-base-url';
+import { getCategoryById } from 'firebase-config/services/category.service';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -40,19 +40,12 @@ const pageHeader = {
   ],
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditCategoryPage({ params }: any) {
   const id = (await params).id;
-  const res = await fetch(
-    `${getBaseUrl()}/api/categories/${id}`,
-    {
-      cache: 'no-store',
-    }
-  );
-  if (!res.ok) {
-    throw new Error('Failed to fetch category data');
-  }
-  const data: any = await res.json();
-  const cat = data?.data;
+  const result = await getCategoryById(id);
+  const cat = result.status === 'success' ? JSON.parse(JSON.stringify(result.data)) : null;
   if (!cat) {
     return <div>Category not found</div>;
   }
