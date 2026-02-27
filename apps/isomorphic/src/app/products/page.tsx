@@ -12,6 +12,8 @@ export const metadata = {
   ...metaObject('Products'),
 };
 
+export const dynamic = 'force-dynamic';
+
 const pageHeader = {
   title: 'Products',
   breadcrumb: [
@@ -32,7 +34,9 @@ const pageHeader = {
 export default async function ProductsPage() {
   const result = await getProducts(1000000, 1);
 
-  const rawItems = Array.isArray(result?.data) ? result.data : [];
+  const rawItems = JSON.parse(JSON.stringify(
+    Array.isArray(result?.data) ? result.data : []
+  ));
 
   const productsData = rawItems.map((product: any) => {
     return {
