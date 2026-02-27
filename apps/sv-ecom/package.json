@@ -4,7 +4,7 @@
   "private": true,
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "echo 'Skipping sv-ecom build (not deployed)'",
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "dev:dc": "docker-compose down && docker-compose up -d && docker exec express-api npx prisma generate && docker exec -it express-api npx prisma migrate dev --name init && docker exec -it express-api npx prisma studio",
