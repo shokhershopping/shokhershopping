@@ -303,14 +303,25 @@ html[dir="rtl"] {
     line-height: 34px;
     margin-bottom: 12px;
   }
+  .wrapper-header {
+    flex-wrap: nowrap !important;
+  }
+  /* Hamburger icon - shrink to fit */
   .wrapper-header > .tf-lg-hidden {
     flex: 0 0 auto !important;
     width: auto !important;
     padding-right: 8px !important;
     max-width: unset !important;
   }
+  /* Logo - shrink to fit */
   .wrapper-header > .tf-lg-hidden + div {
     flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: unset !important;
+  }
+  /* Icons (search, account, wishlist, cart) - grow to fill remaining space, push to right */
+  .wrapper-header > div:last-child {
+    flex: 1 1 0 !important;
     width: auto !important;
     max-width: unset !important;
   }
