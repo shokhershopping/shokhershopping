@@ -12,7 +12,7 @@ export default function Header1() {
     <header id="header" className="header-default header-absolute">
       <div className="px_15 lg-px_40">
         <div className="row wrapper-header align-items-center">
-          <div className="col-md-4 col-3 tf-lg-hidden">
+          <div className="col-md-4 col-2 tf-lg-hidden">
             <a
               href="#mobileMenu"
               data-bs-toggle="offcanvas"
@@ -51,7 +51,7 @@ export default function Header1() {
               </ul>
             </nav>
           </div>
-          <div className="col-xl-3 col-md-4 col-3">
+          <div className="col-xl-3 col-md-4 col-4">
             <ul className="nav-icon d-flex justify-content-end align-items-center gap-20">
               <li className="nav-search">
                 <a

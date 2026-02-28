@@ -305,10 +305,11 @@ html[dir="rtl"] {
   }
   .logo-header {
     justify-content: flex-start !important;
+    text-align: left !important;
   }
   .logo-header img {
     width: auto !important;
-    max-height: 50px !important;
+    max-height: 38px !important;
   }
 }
 
