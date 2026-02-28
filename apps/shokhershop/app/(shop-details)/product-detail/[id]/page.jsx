@@ -7,13 +7,17 @@ import ShopDetailsTab from "@/components/shopDetails/ShopDetailsTab";
 import React from "react";
 import Link from "next/link";
 import DetailsOuterZoom from "@/components/shopDetails/DetailsOuterZoom";
-export const metadata = {
-  title: "Shop Details || Ecomus - Ultimate Nextjs Ecommerce Template",
-  description: "Ecomus - Ultimate Nextjs Ecommerce Template",
-};
 import { allProducts } from "@/data/products";
 import ProductSinglePrevNext from "@/components/common/ProductSinglePrevNext";
-import { getBaseUrl } from "@/lib/getBaseUrl";
+import { getProductById } from "firebase-config/services/product.service";
+import { transformProduct } from "@/lib/transformProduct";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Shop Details || Shokher Shopping",
+  description: "Shokher Shopping - Product Details",
+};
 
 export default async function page({ params }) {
   const { id } = await params;
@@ -21,18 +25,10 @@ export default async function page({ params }) {
   let fetchError = null;
 
   try {
-    const response = await fetch(
-      `${getBaseUrl()}/api/products/${id}`
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch product");
-    }
-
-    const res = await response.json();
-    // Use the fetched product if available
-    if (res.data) {
-      product = res.data;
+    const result = await getProductById(id);
+    if (result.status === "success" && result.data) {
+      const raw = JSON.parse(JSON.stringify(result.data));
+      product = transformProduct(raw);
     }
   } catch (err) {
     fetchError = err.message;
@@ -59,18 +55,15 @@ export default async function page({ params }) {
         </div>
       </div>
 
-      {/* Show error if fetch failed */}
       {fetchError && (
         <div className="container alert alert-warning">
-          Couldn't fetch latest product data: {fetchError}. Showing local data
+          Couldn&apos;t fetch latest product data: {fetchError}. Showing local data
           instead.
         </div>
       )}
 
       <DetailsOuterZoom product={product} />
       <ShopDetailsTab product={product} />
-      {/* <Products />
-      <RecentProducts /> */}
       <Footer1 />
     </>
   );
