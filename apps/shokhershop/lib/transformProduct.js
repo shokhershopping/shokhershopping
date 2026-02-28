@@ -19,6 +19,11 @@ function transformImageUrls(imageUrls, variantId = null) {
   }));
 }
 
+function safeNumber(val, fallback = 0) {
+  const num = Number(val);
+  return isNaN(num) ? fallback : num;
+}
+
 export function transformProduct(product) {
   if (!product) return product;
 
@@ -26,13 +31,20 @@ export function transformProduct(product) {
 
   const variableProducts = (product.variableProducts || []).map((variant) => ({
     ...variant,
+    price: safeNumber(variant.price, 0),
+    salePrice: safeNumber(variant.salePrice, 0),
     images: transformImageUrls(variant.imageUrls, variant.id),
   }));
 
   return {
     ...product,
+    price: safeNumber(product.price, 0),
+    salePrice: safeNumber(product.salePrice, 0),
     images,
     variableProducts,
+    // Ensure these fields exist for the detail page components
+    deliveryTime: product.deliveryTime || '3-5',
+    returnTime: product.returnTime || '30',
   };
 }
 
