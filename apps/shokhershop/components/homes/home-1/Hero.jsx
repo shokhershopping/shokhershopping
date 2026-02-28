@@ -55,9 +55,9 @@ export default function Hero() {
               <div className="wrap-slider">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
+                  className="hero-slide-img"
                   alt={title || "banner"}
                   src={imgSrc}
-                  style={{ width: "100%", height: "auto", display: "block" }}
                 />
                 <div className="box-content">
                   <div className="container">

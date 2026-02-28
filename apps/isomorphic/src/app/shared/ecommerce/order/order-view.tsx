@@ -20,6 +20,9 @@ import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { Button, Badge } from 'rizzui';
 import toast from 'react-hot-toast';
 import { PiCopySimple, PiArrowsClockwise, PiPackage, PiTruck, PiMapPin, PiHouse, PiCheckCircle, PiXCircle, PiPause } from 'react-icons/pi';
+import PrintInvoiceButton from './print-invoice-button';
+import PrintStickerButton from './print-sticker-button';
+import PrintShippingStickerButton from './print-shipping-sticker-button';
 
 const STEADFAST_STATUS_MAP: Record<string, { label: string; color: string }> = {
   in_review: { label: 'Placed with Courier', color: 'text-blue-600 bg-blue-50' },
@@ -308,6 +311,15 @@ export default function OrderView({ order }: OrderViewProps) {
           Cash on Delivery
         </span>
       </div>
+
+      {/* Print Action Buttons */}
+      {order && (
+        <div className="flex flex-wrap gap-3 border-b border-gray-200 py-4">
+          <PrintShippingStickerButton order={order} />
+          <PrintInvoiceButton order={order} variant="admin" buttonText="Print Invoice" />
+          <PrintStickerButton order={order} />
+        </div>
+      )}
       <div className="items-start pt-10 @5xl:grid @5xl:grid-cols-12 @5xl:gap-7 @6xl:grid-cols-10 @7xl:gap-10">
         <div className="space-y-7 @5xl:col-span-8 @5xl:space-y-10 @6xl:col-span-7">
           {orderNote && (

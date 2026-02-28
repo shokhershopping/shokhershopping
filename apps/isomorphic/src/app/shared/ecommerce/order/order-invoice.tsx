@@ -113,7 +113,22 @@ export default function OrderInvoice({
     },
   ];
 
-  const trackingUrl = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/orders/${order.id}`;
+  // QR code content: Order ID + Customer info
+  const customerName = order.billingAddress?.name || order.user?.name || order.userName || 'Customer';
+  const customerPhone = order.billingAddress?.phone || order.shippingAddress?.phone || '';
+  const customerAddress = [
+    order.billingAddress?.address || order.shippingAddress?.address,
+    order.billingAddress?.city || order.shippingAddress?.city,
+    order.billingAddress?.state || order.shippingAddress?.state,
+  ].filter(Boolean).join(', ');
+
+  const qrContent = [
+    `Order: ${invNumber}`,
+    `Name: ${customerName}`,
+    `Phone: ${customerPhone}`,
+    `Address: ${customerAddress}`,
+    `Amount: ৳${order.netTotal || order.total || 0}`,
+  ].join('\n');
 
   return (
     <div className={cn('invoice-container w-full rounded-xl border border-muted p-5 sm:p-6 lg:p-8 2xl:p-10', className)}>
@@ -167,7 +182,7 @@ export default function OrderInvoice({
             Bill To
           </Title>
           <Text className="mb-1 text-sm font-semibold">
-            {order.billingAddress?.name || order.user?.name || 'Customer'}
+            {customerName}
           </Text>
           {variant === 'admin' && order.user?.email && (
             <Text className="mb-1 text-xs">{order.user.email}</Text>
@@ -187,13 +202,14 @@ export default function OrderInvoice({
           )}
         </div>
 
-        {/* QR Code */}
-        <div className="flex justify-center sm:justify-end print:hidden">
+        {/* QR Code with Order + Customer Info */}
+        <div className="flex flex-col items-center sm:items-end">
           <QRCodeSVG
-            value={trackingUrl}
+            value={qrContent}
             size={90}
             className="h-20 w-20 lg:h-24 lg:w-24"
           />
+          <Text className="mt-1 text-[10px] text-gray-400">Scan for order info</Text>
         </div>
       </div>
 
