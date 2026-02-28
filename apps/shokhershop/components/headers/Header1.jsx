@@ -40,7 +40,7 @@ export default function Header1() {
                 src="/images/logo/logo.png"
                 width="136"
                 height="136"
-                style={{ objectFit: "contain", maxHeight: "80px", width: "auto" }}
+                style={{ objectFit: "contain", maxHeight: "55px", width: "auto" }}
               />
             </Link>
           </div>

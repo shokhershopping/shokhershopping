@@ -306,6 +306,10 @@ html[dir="rtl"] {
   .logo-header {
     justify-content: flex-start !important;
   }
+  .logo-header img {
+    width: auto !important;
+    max-height: 50px !important;
+  }
 }
 
 @media (max-width: 575px) {
