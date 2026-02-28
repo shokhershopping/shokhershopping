@@ -17,6 +17,18 @@ import BannerCollection from "@/components/homes/multi-brand/BannerCollection";
 export const metadata = {
   title: "Shop Stylish Clothing for Men & Women | ShokherShopping",
   description: "Discover the latest fashion trends at ShokherShopping. Shop high-quality, affordable clothing for men, women & kids. Fast shipping & easy returns!",
+  openGraph: {
+    title: "ShokherShopping - শখের শপিং",
+    description: "Discover the latest fashion trends at ShokherShopping. Shop high-quality, affordable clothing for men, women & kids.",
+    images: [{ url: "/og-image.png", width: 512, height: 512, alt: "ShokherShopping Logo" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "ShokherShopping - শখের শপিং",
+    description: "Discover the latest fashion trends at ShokherShopping.",
+    images: ["/og-image.png"],
+  },
 };
 export default function Home() {
   return (
