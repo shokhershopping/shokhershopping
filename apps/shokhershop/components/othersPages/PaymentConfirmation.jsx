@@ -105,48 +105,50 @@ export default function PaymentConfirmation() {
               </p>
             </div>
             <div className="tf-page-cart-checkout">
-              <div className="d-flex align-items-center justify-content-between mb_15">
-                <div className="fs-18">Date</div>
-                <p>{orderDate}</p>
-              </div>
-              <div className="d-flex align-items-center justify-content-between mb_15">
-                <div className="fs-18">Payment method</div>
-                <p>{order.transaction?.method || "Cash on delivery"}</p>
-              </div>
-              <div className="d-flex align-items-center justify-content-between mb_15">
-                <div className="fs-18">Name</div>
-                <p>{shippingAddress.name || "-"}</p>
-              </div>
-              <div className="d-flex align-items-center justify-content-between mb_15">
-                <div className="fs-18">Address</div>
-                <p>
-                  {[shippingAddress.address, shippingAddress.city]
-                    .filter(Boolean)
-                    .join(", ") || "-"}
-                </p>
-              </div>
-              <div className="d-flex align-items-center justify-content-between mb_15">
-                <div className="fs-18">Phone</div>
-                <p>{shippingAddress.phone || "-"}</p>
-              </div>
-              {order.deliveryCharge > 0 && (
-                <div className="d-flex align-items-center justify-content-between mb_15">
-                  <div className="fs-18">Delivery Charge</div>
-                  <p>৳{order.deliveryCharge} BDT</p>
-                </div>
-              )}
-              {order.discount > 0 && (
-                <div className="d-flex align-items-center justify-content-between mb_15">
-                  <div className="fs-18">Discount</div>
-                  <p className="text-success">-৳{order.discount} BDT</p>
-                </div>
-              )}
-              <div className="d-flex align-items-center justify-content-between mb_24">
-                <div className="fs-22 fw-6">Total</div>
-                <span className="total-value">
-                  ৳{Number(order.total || 0).toFixed(2)} BDT
-                </span>
-              </div>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap", width: "140px" }}>Date</td>
+                    <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px" }}>{orderDate}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Payment method</td>
+                    <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px" }}>{order.transaction?.method || "Cash on delivery"}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Name</td>
+                    <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px" }}>{shippingAddress.name || "-"}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Address</td>
+                    <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px", lineHeight: "1.5" }}>
+                      {[shippingAddress.address, shippingAddress.city]
+                        .filter(Boolean)
+                        .join(", ") || "-"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Phone</td>
+                    <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px" }}>{shippingAddress.phone || "-"}</td>
+                  </tr>
+                  {order.deliveryCharge > 0 && (
+                    <tr>
+                      <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Delivery Charge</td>
+                      <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px" }}>৳{order.deliveryCharge} BDT</td>
+                    </tr>
+                  )}
+                  {order.discount > 0 && (
+                    <tr>
+                      <td style={{ padding: "10px 0", fontWeight: 500, fontSize: "16px", verticalAlign: "top", whiteSpace: "nowrap" }}>Discount</td>
+                      <td style={{ padding: "10px 0", textAlign: "right", fontSize: "16px", color: "#28a745" }}>-৳{order.discount} BDT</td>
+                    </tr>
+                  )}
+                  <tr style={{ borderTop: "2px solid #dee2e6" }}>
+                    <td style={{ padding: "14px 0", fontWeight: 700, fontSize: "20px" }}>Total</td>
+                    <td style={{ padding: "14px 0", textAlign: "right", fontWeight: 700, fontSize: "20px" }}>৳{Number(order.total || 0).toFixed(2)} BDT</td>
+                  </tr>
+                </tbody>
+              </table>
               <div className="d-flex gap-10">
                 <Link
                   href="/shop"
