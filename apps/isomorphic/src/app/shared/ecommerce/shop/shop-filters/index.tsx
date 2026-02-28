@@ -1,17 +1,12 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ActionIcon, Title, Button } from 'rizzui';
 import { useDrawer } from '@/app/shared/drawer-views/use-drawer';
 import RatingFilter from '@/app/shared/ecommerce/shop/shop-filters/rating-filter';
 import PriceFilter from '@/app/shared/ecommerce/shop/shop-filters/price-filter';
-import GenderSpecificFilter from '@/app/shared/ecommerce/shop/shop-filters/gender-specific-filter';
 import { useFilterControls } from '@core/hooks/use-filter-control';
-import {
-  initialState,
-  categoriesData,
-  brandsData,
-  colorsData,
-} from '@/app/shared/ecommerce/shop/shop-filters/filter-utils';
+import { initialState } from '@/app/shared/ecommerce/shop/shop-filters/filter-utils';
 import FilterWithSearch from '@core/components/filter-with-search';
 import { PiXBold } from 'react-icons/pi';
 import hasSearchedParams from '@core/utils/has-searched-params';
@@ -23,6 +18,25 @@ export default function ShopFilters() {
   >(initialState);
 
   const { closeDrawer } = useDrawer();
+
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/categories?limit=50')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 'success' && Array.isArray(data.data)) {
+          setCategories(
+            data.data.map((cat: any, i: number) => ({
+              id: cat.id || i + 1,
+              name: cat.name,
+              count: cat.productCount || 0,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -40,27 +54,10 @@ export default function ShopFilters() {
       </div>
 
       <div className="custom-scrollbar h-[calc(100vh-136px)] space-y-9 overflow-y-auto px-5 py-6">
-        <GenderSpecificFilter state={state} applyFilter={applyFilter} />
         <FilterWithSearch
           title="Category"
           name="categories"
-          data={categoriesData}
-          state={state}
-          applyFilter={applyFilter}
-          clearFilter={clearFilter}
-        />
-        <FilterWithSearch
-          title="Brand"
-          name="brands"
-          data={brandsData}
-          state={state}
-          applyFilter={applyFilter}
-          clearFilter={clearFilter}
-        />
-        <FilterWithSearch
-          title="Color"
-          name="colors"
-          data={colorsData}
+          data={categories}
           state={state}
           applyFilter={applyFilter}
           clearFilter={clearFilter}
