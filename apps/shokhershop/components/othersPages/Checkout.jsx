@@ -40,13 +40,7 @@ export default function Checkout() {
     sameAsShipping: true,
   });
 
-  // Check authentication and redirect if needed
-  useEffect(() => {
-    if (isAuthLoaded && !isSignedIn) {
-      // Redirect to login with callback to return to checkout
-      router.push("/login?redirect_url=/checkout");
-    }
-  }, [isAuthLoaded, isSignedIn, router]);
+  // Guest checkout enabled - no login redirect needed
 
   // Pre-fill form with user data from Firebase
   useEffect(() => {
@@ -205,13 +199,6 @@ export default function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate authentication
-    if (!isSignedIn) {
-      setError("You must be logged in to place an order");
-      router.push("/login?redirect_url=/checkout");
-      return;
-    }
-
     // Validate required billing fields
     if (!formData.billingFirstName.trim() || !formData.billingLastName.trim()) {
       setError("First name and last name are required");
@@ -304,7 +291,10 @@ export default function Checkout() {
       const selectedArea = deliveryAreas.find((a) => a.id === selectedAreaId);
       const orderData = {
         order: {
-          userId: firebaseUser?.uid,
+          userId: firebaseUser?.uid || null,
+          guestName: !firebaseUser ? `${formData.billingFirstName} ${formData.billingLastName}` : undefined,
+          guestEmail: !firebaseUser ? formData.billingEmail : undefined,
+          guestPhone: !firebaseUser ? formData.billingPhone : undefined,
           deliveryCharge: deliveryCharge,
           deliveryAreaName: selectedArea?.name || '',
           ...(coupon ? { couponId: coupon.id, discount: couponDiscount } : {}),
@@ -339,42 +329,19 @@ export default function Checkout() {
       const newOrderId = result.data?.id;
       // Clear cart on success
       setCartProducts([]);
-      router.push(newOrderId ? `/payment-confirmation?orderId=${newOrderId}` : "/my-account-orders");
+      if (newOrderId) {
+        router.push(`/payment-confirmation?orderId=${newOrderId}`);
+      } else if (isSignedIn) {
+        router.push("/my-account-orders");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       setError(err.message || "An error occurred during checkout");
     } finally {
       setLoading(false);
     }
   };
-
-  // Show loading state while checking authentication or user
-  if (!isAuthLoaded || isLoadingUser) {
-    return (
-      <section className="flat-spacing-11">
-        <div className="container">
-          <div className="text-center py-5">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3">Loading checkout...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  // If not authenticated, show message (should redirect via useEffect)
-  if (!isSignedIn) {
-    return (
-      <section className="flat-spacing-11">
-        <div className="container">
-          <div className="text-center py-5">
-            <p>Redirecting to sign in...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className="flat-spacing-11">

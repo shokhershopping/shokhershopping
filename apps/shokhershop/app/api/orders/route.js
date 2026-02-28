@@ -29,13 +29,6 @@ export async function POST(request) {
     const body = await request.json();
     const { order = {}, items = [], shippingAddress, billingAddress } = body;
 
-    if (!order.userId) {
-      return NextResponse.json(
-        { status: 'error', message: 'User ID is required', data: null },
-        { status: 400 }
-      );
-    }
-
     if (!items.length) {
       return NextResponse.json(
         { status: 'error', message: 'Order must have at least one item', data: null },
@@ -43,17 +36,19 @@ export async function POST(request) {
       );
     }
 
-    // Lookup user info
-    let userName = '';
-    let userEmail = '';
-    try {
-      const userResult = await getUserById(order.userId);
-      if (userResult.status === 'success' && userResult.data) {
-        userName = userResult.data.name || userResult.data.email || '';
-        userEmail = userResult.data.email || '';
+    // Lookup user info (or use guest info)
+    let userName = order.guestName || '';
+    let userEmail = order.guestEmail || '';
+    if (order.userId) {
+      try {
+        const userResult = await getUserById(order.userId);
+        if (userResult.status === 'success' && userResult.data) {
+          userName = userResult.data.name || userResult.data.email || userName;
+          userEmail = userResult.data.email || userEmail;
+        }
+      } catch (_) {
+        // Continue even if user lookup fails
       }
-    } catch (_) {
-      // Continue even if user lookup fails
     }
 
     // Lookup product details for each item and compute totals
@@ -109,9 +104,11 @@ export async function POST(request) {
     const netTotal = total + deliveryCharge - couponDiscount;
 
     const orderData = {
-      userId: order.userId,
+      userId: order.userId || null,
       userName,
       userEmail,
+      guestPhone: order.guestPhone || null,
+      isGuestOrder: !order.userId,
       status: 'PENDING',
       deliveryCharge,
       total,
