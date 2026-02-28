@@ -303,9 +303,19 @@ html[dir="rtl"] {
     line-height: 34px;
     margin-bottom: 12px;
   }
+  .wrapper-header > .tf-lg-hidden {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    padding-right: 8px !important;
+    max-width: unset !important;
+  }
+  .wrapper-header > .tf-lg-hidden + div {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: unset !important;
+  }
   .logo-header {
     justify-content: flex-start !important;
-    text-align: left !important;
   }
   .logo-header img {
     width: auto !important;
