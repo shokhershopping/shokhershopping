@@ -145,7 +145,7 @@ export default function Context({ children }) {
     }
   };
 
-  const addToWishlist = async (product) => {
+  const addToWishlist = async (productOrId) => {
     // Check if user is authenticated
     if (!isUserLoaded) {
       toast.error("Please wait while we load your session...");
@@ -163,16 +163,33 @@ export default function Context({ children }) {
       return;
     }
 
+    // Handle both: addToWishlist(product) and addToWishlist(product.id)
+    let product = productOrId;
+    if (typeof productOrId === 'string') {
+      // Called with just an ID — fetch product data from API
+      try {
+        const res = await fetch(`/api/products/${productOrId}`);
+        if (res.ok) {
+          const result = await res.json();
+          product = result.data || { id: productOrId };
+        } else {
+          product = { id: productOrId };
+        }
+      } catch {
+        product = { id: productOrId };
+      }
+    }
+
+    const productId = product.id || product.productId;
     const isInWishlist = wishList.some((item) =>
-      item.productId === product.id || item.variantId === product.id
+      item.productId === productId || item.variantId === productId
     );
 
     try {
       if (isInWishlist) {
         // REMOVE FROM WISHLIST
-        // Find the wishlist item to get its database ID
         const wishlistItem = wishList.find((item) =>
-          item.productId === product.id || item.variantId === product.id
+          item.productId === productId || item.variantId === productId
         );
 
         if (!wishlistItem) {
@@ -188,7 +205,7 @@ export default function Context({ children }) {
             },
             body: JSON.stringify({
               userId: user.id,
-              itemIds: [wishlistItem.id], // Send WishlistItem.id, not product.id
+              itemIds: [wishlistItem.id],
             }),
           }
         );
@@ -197,16 +214,21 @@ export default function Context({ children }) {
           throw new Error(`Failed to remove from wishlist: ${response.status}`);
         }
 
-        // Get the updated wishlist from backend response
         const result = await response.json();
         const updatedWishList = result.data?.items || [];
 
-        // Update state with backend response
         setWishList(updatedWishList);
         localStorage.setItem("wishlist", JSON.stringify(updatedWishList));
         toast.success("Removed from wishlist");
       } else {
         // ADD TO WISHLIST
+        // Resolve image URL from various possible fields
+        const imgUrl = product.imgSrc
+          || (product.images?.[0]?.path)
+          || (product.images?.[0]?.url)
+          || (product.imageUrls?.[0])
+          || '';
+
         const response = await fetch(
           `/api/wishlists`,
           {
@@ -216,9 +238,9 @@ export default function Context({ children }) {
             },
             body: JSON.stringify({
               userId: user.id,
-              productId: product.id,
+              productId: productId,
               productName: product.title || product.name || '',
-              productImageUrl: product.imgSrc || product.imageUrls?.[0] || '',
+              productImageUrl: imgUrl,
               productPrice: product.salePrice || product.price || 0,
             }),
           }
@@ -228,11 +250,9 @@ export default function Context({ children }) {
           throw new Error(`Failed to add to wishlist: ${response.status}`);
         }
 
-        // Get the updated wishlist from backend response
         const result = await response.json();
         const updatedWishList = result.data?.items || [];
 
-        // Update state with backend response (includes proper IDs and structure)
         setWishList(updatedWishList);
         localStorage.setItem("wishlist", JSON.stringify(updatedWishList));
         toast.success("Added to wishlist");
