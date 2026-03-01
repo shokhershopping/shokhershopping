@@ -9,6 +9,7 @@ import type { ProductStatus } from '../types/enums';
 import type { IResponse } from '../helpers/response';
 import type { PaginatedResult } from '../helpers/pagination';
 import type { QueryFilter } from '../helpers/query-builder';
+import { getAllDescendantIds } from './category.service';
 
 const productsCollection = adminDb.collection(Collections.PRODUCTS);
 const categoriesCollection = adminDb.collection(Collections.CATEGORIES);
@@ -105,8 +106,18 @@ export async function getProducts(
     if (filters?.status) {
       queryFilters.push({ field: 'status', operator: '==', value: filters.status });
     }
+
     if (filters?.categoryId) {
-      queryFilters.push({ field: 'categoryIds', operator: 'array-contains', value: filters.categoryId });
+      // Get all descendant category IDs so parent categories also show subcategory products
+      const descendantIds = await getAllDescendantIds(filters.categoryId);
+      const allCategoryIds = [filters.categoryId, ...descendantIds];
+
+      if (allCategoryIds.length === 1) {
+        queryFilters.push({ field: 'categoryIds', operator: 'array-contains', value: allCategoryIds[0] });
+      } else {
+        // array-contains-any supports up to 30 values
+        queryFilters.push({ field: 'categoryIds', operator: 'array-contains-any', value: allCategoryIds.slice(0, 30) });
+      }
     }
 
     let result;
@@ -118,16 +129,12 @@ export async function getProducts(
       });
       result = await paginateQuery<FirestoreProduct>(query, { limit, page });
     } catch (indexError) {
-      // If composite index is missing, retry without orderBy for category queries
-      if (filters?.categoryId) {
-        console.warn('Firestore index error, retrying without orderBy:', indexError);
-        const fallbackQuery = buildQuery(productsCollection, {
-          filters: queryFilters,
-        });
-        result = await paginateQuery<FirestoreProduct>(fallbackQuery, { limit, page });
-      } else {
-        throw indexError;
-      }
+      // If composite index is missing, retry without orderBy
+      console.warn('Firestore index error, retrying without orderBy:', indexError);
+      const fallbackQuery = buildQuery(productsCollection, {
+        filters: queryFilters,
+      });
+      result = await paginateQuery<FirestoreProduct>(fallbackQuery, { limit, page });
     }
 
     // Fetch variants for each product
