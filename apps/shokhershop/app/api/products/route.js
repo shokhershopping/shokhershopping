@@ -12,6 +12,10 @@ export async function GET(request) {
 
     const result = await getProducts(limit, page, { status, categoryId });
 
+    if (result.status === 'error') {
+      console.error('getProducts returned error:', result.message, result.details || '');
+    }
+
     if (result.status === 'success' && Array.isArray(result.data)) {
       result.data = transformProducts(result.data);
     }

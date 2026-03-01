@@ -109,13 +109,26 @@ export async function getProducts(
       queryFilters.push({ field: 'categoryIds', operator: 'array-contains', value: filters.categoryId });
     }
 
-    const query = buildQuery(productsCollection, {
-      filters: queryFilters,
-      orderByField: 'createdAt',
-      orderDirection: 'desc',
-    });
-
-    const result = await paginateQuery<FirestoreProduct>(query, { limit, page });
+    let result;
+    try {
+      const query = buildQuery(productsCollection, {
+        filters: queryFilters,
+        orderByField: 'createdAt',
+        orderDirection: 'desc',
+      });
+      result = await paginateQuery<FirestoreProduct>(query, { limit, page });
+    } catch (indexError) {
+      // If composite index is missing, retry without orderBy for category queries
+      if (filters?.categoryId) {
+        console.warn('Firestore index error, retrying without orderBy:', indexError);
+        const fallbackQuery = buildQuery(productsCollection, {
+          filters: queryFilters,
+        });
+        result = await paginateQuery<FirestoreProduct>(fallbackQuery, { limit, page });
+      } else {
+        throw indexError;
+      }
+    }
 
     // Fetch variants for each product
     const productsWithVariants = await attachVariantsToProducts(result.data);
@@ -126,6 +139,7 @@ export async function getProducts(
       limit: result.limit,
     });
   } catch (error) {
+    console.error('getProducts error:', error);
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
     return errorResponse('Failed to retrieve products', 500, message);
   }

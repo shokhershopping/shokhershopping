@@ -52,7 +52,7 @@ export default function ShopDefault() {
         setProducts(transformed);
         setFinalSorted(transformed);
       } catch (error) {
-        // Silently handle fetch error
+        console.error('Failed to fetch products:', error);
       } finally {
         setLoading(false);
       }
