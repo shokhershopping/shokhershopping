@@ -217,71 +217,52 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
                       <div className="row">
                         {" "}
                         {/* Added nested row for subcategories */}
-                        {category.children.map((subCategory) => (
+                        {category.children.map((subCategory) => {
+                          const catImg = subCategory.imageUrl || subCategory.sliderImageUrl;
+                          return (
                           <div
                             key={subCategory.id}
-                            className="col-lg-3 col-md-4 col-sm-6"
+                            className="col-lg-2 col-md-3 col-sm-4"
                           >
-                            <div className="position-relative">
-                              {subCategory.imageUrl && (
-                                <Link href={`/shop/${subCategory.id}`}>
-                                  <Image
-                                    src={getImageUrl(subCategory.imageUrl)}
-                                    alt={subCategory.name}
-                                    width={300}
-                                    height={200}
-                                    style={{ width: "100%", height: "auto", borderRadius: "8px", marginBottom: "8px", objectFit: "cover", maxHeight: "160px" }}
-                                  />
-                                </Link>
-                              )}
-                              <div className="menu-heading">
-                                <Link
-                                  href={`/shop/${subCategory.id}`}
-                                  className={`menu-link-text link position-relative ${
-                                    pathname.startsWith(
-                                      `/shop/${subCategory.id}`
-                                    ) ||
-                                    subCategory.grandchildren?.some(
-                                      (grandchild) =>
-                                        pathname.startsWith(
-                                          `/shop/${grandchild.id}`
-                                        )
-                                    )
-                                      ? "activeMenu"
-                                      : ""
-                                  }`}
-                                >
-                                  {subCategory.name}
-                                </Link>
-                              </div>
-
-                              {subCategory.grandchildren?.length > 0 && (
-                                <div className="sub-sub-menu">
-                                  <ul className="menu-list">
-                                    {subCategory.grandchildren.map(
-                                      (grandchild) => (
-                                        <li key={grandchild.id}>
-                                          <Link
-                                            href={`/shop/${grandchild.id}`}
-                                            className={`menu-link-text link position-relative ${
-                                              pathname.startsWith(
-                                                `/shop/${grandchild.id}`
-                                              )
-                                                ? "activeMenu"
-                                                : ""
-                                            }`}
-                                          >
-                                            {grandchild.name}
-                                          </Link>
-                                        </li>
-                                      )
-                                    )}
-                                  </ul>
+                            <Link href={`/shop/${subCategory.id}`} className="d-block text-center">
+                              {catImg ? (
+                                <Image
+                                  src={getImageUrl(catImg)}
+                                  alt={subCategory.name}
+                                  width={200}
+                                  height={200}
+                                  style={{ width: "100%", height: "auto", borderRadius: "8px", marginBottom: "8px", objectFit: "cover", maxHeight: "140px" }}
+                                />
+                              ) : (
+                                <div style={{ width: "100%", height: "100px", borderRadius: "8px", marginBottom: "8px", backgroundColor: "#f5f5f5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <span style={{ fontSize: "32px", opacity: 0.4 }}>&#128717;</span>
                                 </div>
                               )}
-                            </div>
+                              <span className="menu-link-text fw-6" style={{ fontSize: "13px" }}>
+                                {subCategory.name}
+                              </span>
+                            </Link>
+
+                            {subCategory.grandchildren?.length > 0 && (
+                              <ul className="menu-list mt-2" style={{ listStyle: "none", padding: 0 }}>
+                                {subCategory.grandchildren.map(
+                                  (grandchild) => (
+                                    <li key={grandchild.id}>
+                                      <Link
+                                        href={`/shop/${grandchild.id}`}
+                                        className="menu-link-text link"
+                                        style={{ fontSize: "12px" }}
+                                      >
+                                        {grandchild.name}
+                                      </Link>
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            )}
                           </div>
-                        ))}
+                          );
+                        })}
                         <div className="col-lg-4">
                           <div className="menu-heading">Best seller</div>
                           <div className="hover-sw-nav hover-sw-2">
