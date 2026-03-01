@@ -115,7 +115,7 @@ export default function Footer1({ bgColor = "" }) {
                   <ul className="tf-social-icon d-flex gap-10">
                     <li>
                       <a
-                        href="https://www.facebook.com/shoppingshokher"
+                        href="https://www.facebook.com/shokhershoppings"
                         target="_blank"
                         className="box-icon w_34 round social-facebook social-line"
                       >
@@ -124,7 +124,7 @@ export default function Footer1({ bgColor = "" }) {
                     </li>
                     <li>
                       <a
-                        href="https://x.com/shoppingshokher"
+                        href="https://x.com/shoppingshokher?t=0gLxZ1UBpdnohYzyTehamw&s=09"
                         target="_blank"
                         className="box-icon w_34 round social-twiter social-line"
                       >
@@ -133,7 +133,7 @@ export default function Footer1({ bgColor = "" }) {
                     </li>
                     <li>
                       <a
-                        href="https://www.instagram.com/shokhershopping"
+                        href="https://www.instagram.com/shokhershopping?igsh=OWtteGloYm5jZWph"
                         target="_blank"
                         className="box-icon w_34 round social-instagram social-line"
                       >
@@ -142,7 +142,7 @@ export default function Footer1({ bgColor = "" }) {
                     </li>
                     <li>
                       <a
-                        href="https://www.tiktok.com/@shokhershopping"
+                        href="https://www.tiktok.com/@shokhershopping?_t=ZS-8xX5qwdvadd&_r=1"
                         target="_blank"
                         className="box-icon w_34 round social-tiktok social-line"
                       >
@@ -151,7 +151,7 @@ export default function Footer1({ bgColor = "" }) {
                     </li>
                     <li>
                       <a
-                        href="https://www.pinterest.com/shokhershopping"
+                        href="https://www.pinterest.com/shokhershopping/"
                         target="_blank"
                         className="box-icon w_34 round social-pinterest social-line"
                       >
@@ -162,7 +162,7 @@ export default function Footer1({ bgColor = "" }) {
                       <a
                         href="https://api.whatsapp.com/send/?phone=8801841917370&text&type=phone_number&app_absent=0&wame_ctl=1"
                         target="_blank"
-                        className="box-icon w_34 round social-pinterest social-line"
+                        className="box-icon w_34 round social-whatsapp social-line"
                       >
                         <i className="icon fs-14 icon-whatsapp" />
                       </a>
