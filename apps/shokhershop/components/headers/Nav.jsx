@@ -220,20 +220,31 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
                         {category.children.map((subCategory) => (
                           <div
                             key={subCategory.id}
-                            className="col-lg-3 col-md-4 col-sm-6" // Responsive column sizing
+                            className="col-lg-3 col-md-4 col-sm-6"
                           >
                             <div className="position-relative">
+                              {subCategory.imageUrl && (
+                                <Link href={`/shop/${subCategory.id}`}>
+                                  <Image
+                                    src={getImageUrl(subCategory.imageUrl)}
+                                    alt={subCategory.name}
+                                    width={300}
+                                    height={200}
+                                    style={{ width: "100%", height: "auto", borderRadius: "8px", marginBottom: "8px", objectFit: "cover", maxHeight: "160px" }}
+                                  />
+                                </Link>
+                              )}
                               <div className="menu-heading">
                                 <Link
-                                  href={`/shop/${category.id}/${subCategory.id}`}
+                                  href={`/shop/${subCategory.id}`}
                                   className={`menu-link-text link position-relative ${
                                     pathname.startsWith(
-                                      `/shop/${category.id}/${subCategory.id}`
+                                      `/shop/${subCategory.id}`
                                     ) ||
                                     subCategory.grandchildren?.some(
                                       (grandchild) =>
                                         pathname.startsWith(
-                                          `/shop/${category.id}/${subCategory.id}/${grandchild.id}`
+                                          `/shop/${grandchild.id}`
                                         )
                                     )
                                       ? "activeMenu"
@@ -251,10 +262,10 @@ export default function Nav({ isArrow = true, textColor = "", Linkfs = "" }) {
                                       (grandchild) => (
                                         <li key={grandchild.id}>
                                           <Link
-                                            href={`/shop/${category.id}/${subCategory.id}/${grandchild.id}`}
+                                            href={`/shop/${grandchild.id}`}
                                             className={`menu-link-text link position-relative ${
                                               pathname.startsWith(
-                                                `/shop/${category.id}/${subCategory.id}/${grandchild.id}`
+                                                `/shop/${grandchild.id}`
                                               )
                                                 ? "activeMenu"
                                                 : ""
