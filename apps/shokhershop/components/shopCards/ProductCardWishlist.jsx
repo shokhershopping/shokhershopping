@@ -10,12 +10,15 @@ export const ProductCardWishlist = ({ product }) => {
   // Handle both structures: product.product (wishlist item) or direct product
   const wishProduct = product?.product || product;
 
-  // Get default image paths with safety checks
-  const defaultImage = wishProduct?.images?.[0]?.path || '';
-  const defaultHoverImage = wishProduct?.images?.[1]?.path || wishProduct?.images?.[0]?.path || '';
+  // Support both Firestore wishlist item fields and full product fields
+  const productId = wishProduct?.productId || wishProduct?.id;
+  const productName = wishProduct?.productName || wishProduct?.name || '';
+  const productPrice = wishProduct?.productPrice || wishProduct?.salePrice || wishProduct?.price || 0;
+  const productImage = wishProduct?.productImageUrl || wishProduct?.images?.[0]?.path || '';
+  const productHoverImage = wishProduct?.images?.[1]?.path || productImage;
 
-  const [currentImage, setCurrentImage] = useState(defaultImage);
-  const [hoverImage, setHoverImage] = useState(defaultHoverImage);
+  const [currentImage, setCurrentImage] = useState(productImage);
+  const [hoverImage, setHoverImage] = useState(productHoverImage);
 
   const { setQuickViewItem } = useContextElement();
   const {
@@ -28,7 +31,7 @@ export const ProductCardWishlist = ({ product }) => {
   } = useContextElement();
 
   // Safety check after hooks - don't render if no valid product
-  if (!wishProduct || !wishProduct.id) {
+  if (!wishProduct || !productId) {
     return null;
   }
 
@@ -36,7 +39,7 @@ export const ProductCardWishlist = ({ product }) => {
     <div className="card-product fl-item" key={product.id}>
       <div className="card-product-wrapper">
         <Link
-          href={`/product-detail/${wishProduct.id}`}
+          href={`/product-detail/${productId}`}
           className="product-img"
         >
           <Image
@@ -143,10 +146,10 @@ export const ProductCardWishlist = ({ product }) => {
         )}
       </div>
       <div className="card-product-info">
-        <Link href={`/product-detail/${product.id}`} className="title link">
-          {wishProduct.name}
+        <Link href={`/product-detail/${productId}`} className="title link">
+          {productName}
         </Link>
-        <span className="price">TK {wishProduct.salePrice}</span>
+        <span className="price">TK {productPrice}</span>
         {product.colors && (
           <ul className="list-color-product">
             {product.colors.map((color) => (

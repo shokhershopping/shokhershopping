@@ -164,7 +164,7 @@ export default function Context({ children }) {
     }
 
     const isInWishlist = wishList.some((item) =>
-      item.productId === product.id || item.variableProductId === product.id
+      item.productId === product.id || item.variantId === product.id
     );
 
     try {
@@ -172,7 +172,7 @@ export default function Context({ children }) {
         // REMOVE FROM WISHLIST
         // Find the wishlist item to get its database ID
         const wishlistItem = wishList.find((item) =>
-          item.productId === product.id || item.variableProductId === product.id
+          item.productId === product.id || item.variantId === product.id
         );
 
         if (!wishlistItem) {
@@ -216,7 +216,10 @@ export default function Context({ children }) {
             },
             body: JSON.stringify({
               userId: user.id,
-              items: [{ productId: product.id }],
+              productId: product.id,
+              productName: product.title || product.name || '',
+              productImageUrl: product.imgSrc || product.imageUrls?.[0] || '',
+              productPrice: product.salePrice || product.price || 0,
             }),
           }
         );
@@ -258,8 +261,10 @@ export default function Context({ children }) {
     }
 
     try {
+      // Support both full product objects (with .id) and wishlist items (with .productId)
+      const lookupId = product.productId || product.id;
       const wishlistItem = wishList.find((item) =>
-        item.productId === product.id || item.variableProductId === product.id
+        item.productId === lookupId || item.variantId === lookupId || item.id === product.id
       );
 
       if (!wishlistItem) {
@@ -307,7 +312,7 @@ export default function Context({ children }) {
   };
   const isAddedtoWishlist = (id) => {
     return wishList.some((item) =>
-      item.productId === id || item.variableProductId === id
+      item.productId === id || item.variantId === id
     );
   };
 
