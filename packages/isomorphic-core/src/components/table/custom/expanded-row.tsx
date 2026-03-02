@@ -41,7 +41,8 @@ export function CustomExpandedComponent<TData extends Record<string, any>>(
               <Title as="h4" className="mb-0.5 text-sm font-medium">
                 {product.name}
               </Title>
-              <Text className="mb-1 text-gray-500">{product.category}</Text>
+              {product.category && <Text className="mb-1 text-gray-500">{product.category}</Text>}
+              {product.sku && <Text className="mb-1 text-xs text-gray-500">SKU: {product.sku}</Text>}
               <Text className="text-xs text-gray-500">
                 Unit Price: ৳{product.price}
               </Text>

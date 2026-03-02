@@ -63,6 +63,7 @@ export default async function OrdersPage() {
       image: item.productImageUrl || 'https://placehold.co/600x400.png',
       price: item.productPrice ?? 0,
       quantity: item.quantity,
+      sku: item.productSku || item.sku || null,
     })),
   }));
   return (

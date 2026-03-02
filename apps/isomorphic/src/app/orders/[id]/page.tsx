@@ -6,8 +6,35 @@ import OrderView from '@/app/shared/ecommerce/order/order-view';
 import PrintInvoiceButton from '@/app/shared/ecommerce/order/print-invoice-button';
 import PrintStickerButton from '@/app/shared/ecommerce/order/print-sticker-button';
 import { getOrderById } from 'firebase-config/services/order.service';
+import { getProductById } from 'firebase-config/services/product.service';
 
 export const dynamic = 'force-dynamic';
+
+async function enrichOrderItemsWithSku(orderData: any) {
+  if (!orderData?.items) return orderData;
+  const enrichedItems = await Promise.all(
+    orderData.items.map(async (item: any) => {
+      if (!item.productSku && item.productId) {
+        try {
+          const productResult = await getProductById(item.productId);
+          if (productResult.status === 'success' && productResult.data) {
+            const product = productResult.data as any;
+            let sku = product.sku || null;
+            if (item.variantId && product.variableProducts) {
+              const variant = product.variableProducts.find((v: any) => v.id === item.variantId);
+              if (variant?.sku) sku = variant.sku;
+            }
+            return { ...item, productSku: sku };
+          }
+        } catch {
+          // ignore enrichment errors
+        }
+      }
+      return item;
+    })
+  );
+  return { ...orderData, items: enrichedItems };
+}
 
 export default async function OrderDetailsPage({ params }: any) {
   const id = (await params).id;
@@ -17,8 +44,10 @@ export default async function OrderDetailsPage({ params }: any) {
   try {
     const result = await getOrderById(id);
     if (result.status === 'success' && result.data) {
+      // Enrich items with SKU from products (for orders created before SKU was stored)
+      const enrichedData = await enrichOrderItemsWithSku(result.data);
       // Serialize Firestore data to plain JSON for client components
-      order = JSON.parse(JSON.stringify(result.data));
+      order = JSON.parse(JSON.stringify(enrichedData));
     }
   } catch {
     // Continue without order data - will fall back to cart state
