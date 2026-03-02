@@ -51,7 +51,7 @@ export default function OrderInvoice({
         name: item.productName || 'Unknown Product',
         variant: null,
       },
-      sku: item.sku || item.productId?.slice(0, 12) || 'N/A',
+      sku: item.productSku || item.sku || 'N/A',
       quantity: item.quantity,
       unitPrice: price,
       total,

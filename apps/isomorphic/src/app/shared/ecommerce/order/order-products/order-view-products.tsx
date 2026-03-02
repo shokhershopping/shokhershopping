@@ -33,6 +33,15 @@ const columns = [
     ),
   },
   {
+    title: <HeaderCell title="SKU" />,
+    dataIndex: 'sku',
+    key: 'sku',
+    width: 120,
+    render: (sku: string) => (
+      <Text className="text-sm text-gray-600">{sku || '—'}</Text>
+    ),
+  },
+  {
     title: <HeaderCell title="Product Price" align="right" />,
     dataIndex: 'price',
     key: 'price',

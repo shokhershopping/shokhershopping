@@ -231,6 +231,7 @@ export default function OrderView({ order }: OrderViewProps) {
         image: imageUrl,
         price,
         quantity: item.quantity,
+        sku: item.productSku || item.sku || null,
       };
     });
   }, [order, cartItems]);
