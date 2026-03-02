@@ -5,6 +5,7 @@ import {
   updateOrderStatus,
   deleteOrder,
 } from 'firebase-config/services/order.service';
+import { getProductById } from 'firebase-config/services/product.service';
 import { notifyAdmins } from 'firebase-config/services/admin-notification.helper';
 
 type RouteContext = {
@@ -15,6 +16,32 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
     const result = await getOrderById(id);
+
+    // Enrich items with SKU from products (for orders created before SKU was stored)
+    if (result.status === 'success' && result.data?.items) {
+      const enrichedItems = await Promise.all(
+        (result.data as any).items.map(async (item: any) => {
+          if (!item.productSku && item.productId) {
+            try {
+              const productResult = await getProductById(item.productId);
+              if (productResult.status === 'success' && productResult.data) {
+                const product = productResult.data as any;
+                let sku = product.sku || null;
+                if (item.variantId && product.variableProducts) {
+                  const variant = product.variableProducts.find((v: any) => v.id === item.variantId);
+                  if (variant?.sku) sku = variant.sku;
+                }
+                return { ...item, productSku: sku };
+              }
+            } catch {
+              // ignore enrichment errors
+            }
+          }
+          return item;
+        })
+      );
+      (result.data as any).items = enrichedItems;
+    }
 
     const statusCode = result.status === 'success' ? 200 : (result.code || 500);
     return NextResponse.json(result, { status: statusCode });

@@ -181,6 +181,7 @@ export async function createOrder(
     productName: string;
     productPrice: number;
     productImageUrl?: string;
+    productSku?: string;
   }>
 ): Promise<IResponse<FirestoreOrder>> {
   try {
@@ -221,6 +222,7 @@ export async function createOrder(
         productName: item.productName,
         productPrice: item.productPrice,
         productImageUrl: item.productImageUrl ?? null,
+        productSku: item.productSku ?? null,
         createdAt: now,
       };
       batch.set(itemRef, itemData);

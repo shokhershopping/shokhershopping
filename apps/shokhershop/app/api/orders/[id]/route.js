@@ -13,18 +13,26 @@ export async function GET(_request, { params }) {
         result.data.items.map(async (item) => {
           const needsEnrichment =
             !item.productName || item.productName === 'Unknown Product' ||
-            !item.productPrice || item.productPrice === 0;
+            !item.productPrice || item.productPrice === 0 ||
+            !item.productSku;
 
           if (needsEnrichment && item.productId) {
             try {
               const productResult = await getProductById(item.productId);
               if (productResult.status === 'success' && productResult.data) {
                 const product = productResult.data;
+                let sku = product.sku || null;
+                // Check variant SKU if applicable
+                if (item.variantId && product.variableProducts) {
+                  const variant = product.variableProducts.find(v => v.id === item.variantId);
+                  if (variant?.sku) sku = variant.sku;
+                }
                 return {
                   ...item,
                   productName: product.name || item.productName || 'Unknown Product',
                   productPrice: product.salePrice || product.price || item.productPrice || 0,
                   productImageUrl: product.imageUrls?.[0] || item.productImageUrl || null,
+                  productSku: sku || item.productSku || null,
                 };
               }
             } catch (err) {

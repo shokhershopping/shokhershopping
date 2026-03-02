@@ -56,5 +56,6 @@ export interface FirestoreOrderItem {
   productName: string;
   productPrice: number;
   productImageUrl: string | null;
+  productSku: string | null;
   createdAt: Timestamp;
 }

@@ -27,6 +27,7 @@ export default function ProductSticker({ order, className }: ProductStickerProps
     id: item.id || String(index),
     name: item.productName || 'Unknown Product',
     price: item.productPrice || 0,
+    sku: item.productSku || item.sku || null,
     quantity: item.quantity || 1,
   }));
 
@@ -36,6 +37,7 @@ export default function ProductSticker({ order, className }: ProductStickerProps
     price: item.price,
     quantity: item.quantity,
     total: item.price * item.quantity,
+    sku: item.sku,
   }));
 
   // QR code content: invoice info with customer name, phone, courier number
@@ -78,6 +80,13 @@ export default function ProductSticker({ order, className }: ProductStickerProps
               {sticker.name}
             </div>
 
+            {/* SKU */}
+            {sticker.sku && (
+              <div className="sticker-sku">
+                SKU: {sticker.sku}
+              </div>
+            )}
+
             {/* Price & Total */}
             <div className="sticker-pricing">
               <div className="sticker-unit-price">
@@ -91,7 +100,7 @@ export default function ProductSticker({ order, className }: ProductStickerProps
             {/* Barcode */}
             <div className="sticker-barcode">
               <Barcode
-                value={orderId || 'N/A'}
+                value={sticker.sku || orderId || 'N/A'}
                 width={2}
                 height={50}
                 fontSize={0}

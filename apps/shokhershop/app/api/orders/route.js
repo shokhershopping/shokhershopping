@@ -60,6 +60,7 @@ export async function POST(request) {
       let productName = item.productName || 'Unknown Product';
       let productPrice = item.productPrice || 0;
       let productImageUrl = item.productImageUrl || null;
+      let productSku = null;
 
       if (item.productId) {
         try {
@@ -69,13 +70,15 @@ export async function POST(request) {
             productName = product.name || productName;
             productPrice = product.salePrice || product.price || productPrice;
             productImageUrl = product.imageUrls?.[0] || productImageUrl;
+            productSku = product.sku || null;
 
-            // If a variant ID was specified, try to find variant price
+            // If a variant ID was specified, try to find variant price/SKU
             if (item.variantId && product.variableProducts) {
               const variant = product.variableProducts.find(v => v.id === item.variantId);
               if (variant) {
                 productPrice = variant.salePrice || variant.price || productPrice;
                 productImageUrl = variant.imageUrls?.[0] || productImageUrl;
+                productSku = variant.sku || productSku;
               }
             }
           } else {
@@ -96,6 +99,7 @@ export async function POST(request) {
         productName,
         productPrice,
         productImageUrl,
+        productSku,
       });
     }
 
