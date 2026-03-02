@@ -17,11 +17,16 @@ const SHOP_PHONE = '+880-1841-917370';
 export default function ProductSticker({ order, className }: ProductStickerProps) {
   if (!order?.items) return null;
 
+  // Customer info for QR code
+  const customerName = order.billingAddress?.name || order.shippingAddress?.name || order.userName || '';
+  const customerPhone = order.billingAddress?.phone || order.shippingAddress?.phone || '';
+  const courierCode = order.steadfastTrackingCode || '';
+  const orderId = order.id || '';
+
   const items = order.items.map((item: any, index: number) => ({
     id: item.id || String(index),
     name: item.productName || 'Unknown Product',
     price: item.productPrice || 0,
-    sku: item.sku || item.productId?.slice(0, 12) || `ITEM-${index + 1}`,
     quantity: item.quantity || 1,
   }));
 
@@ -31,8 +36,16 @@ export default function ProductSticker({ order, className }: ProductStickerProps
     price: item.price,
     quantity: item.quantity,
     total: item.price * item.quantity,
-    sku: item.sku,
   }));
+
+  // QR code content: invoice info with customer name, phone, courier number
+  const qrContent = [
+    `Order: ${orderId}`,
+    `Customer: ${customerName}`,
+    `Phone: ${customerPhone}`,
+    courierCode ? `Courier: ${courierCode}` : '',
+    `Total: ৳${order.netTotal || order.total || 0}`,
+  ].filter(Boolean).join('\n');
 
   return (
     <div className={`sticker-page ${className || ''}`}>
@@ -65,11 +78,6 @@ export default function ProductSticker({ order, className }: ProductStickerProps
               {sticker.name}
             </div>
 
-            {/* SKU */}
-            <div className="sticker-sku">
-              SKU: {sticker.sku}
-            </div>
-
             {/* Price & Total */}
             <div className="sticker-pricing">
               <div className="sticker-unit-price">
@@ -83,7 +91,7 @@ export default function ProductSticker({ order, className }: ProductStickerProps
             {/* Barcode */}
             <div className="sticker-barcode">
               <Barcode
-                value={sticker.sku}
+                value={orderId || 'N/A'}
                 width={2}
                 height={50}
                 fontSize={0}
@@ -92,11 +100,11 @@ export default function ProductSticker({ order, className }: ProductStickerProps
               />
             </div>
 
-            {/* Bottom: QR Code + Contact */}
+            {/* Bottom: QR Code (invoice info) + Contact */}
             <div className="sticker-bottom">
               <div className="sticker-qr">
                 <QRCodeSVG
-                  value={`https://${SHOP_URL}`}
+                  value={qrContent}
                   size={60}
                 />
               </div>
