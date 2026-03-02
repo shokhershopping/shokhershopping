@@ -48,10 +48,9 @@ export default function page() {
                 <div className="wrap-info">
                   <div className="box-left">
                     <div className="title">Supplier</div>
-                    <div className="sub">Jobio LLC</div>
+                    <div className="sub">Shokher Shopping</div>
                     <p className="desc">
-                      2301 Ravenswood Rd Madison,
-                      <br /> WI 53711
+                      Dhaka, Bangladesh
                     </p>
                   </div>
                   <div className="box-right">
@@ -98,9 +97,9 @@ export default function page() {
               </div>
               <div className="footer">
                 <ul className="box-contact">
-                  <li>www.ecomus.com</li>
-                  <li>invoice@ecomus.com</li>
-                  <li>(123) 123-456</li>
+                  <li>shokhershopping.com</li>
+                  <li>support@shokhershopping.com</li>
+                  <li>+880-1841-917370</li>
                 </ul>
               </div>
             </div>

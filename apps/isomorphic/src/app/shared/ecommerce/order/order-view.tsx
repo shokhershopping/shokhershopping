@@ -223,7 +223,7 @@ export default function OrderView({ order }: OrderViewProps) {
       const price = item.productPrice || 0;
       const imageUrl =
         item.productImageUrl ||
-        'https://isomorphic-furyroad.s3.amazonaws.com/public/products/modern/7.webp';
+        'https://placehold.co/600x400.png';
 
       return {
         id: item.id,
