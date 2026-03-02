@@ -199,52 +199,32 @@ export default function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate required billing fields
-    if (!formData.billingFirstName.trim() || !formData.billingLastName.trim()) {
-      setError("First name and last name are required");
-      return;
-    }
-    if (!formData.billingPhone.trim()) {
-      setError("Phone number is required");
+    // Validate required billing fields (only First Name, Address, Phone are mandatory)
+    if (!formData.billingFirstName.trim()) {
+      setError("First name is required");
       return;
     }
     if (!formData.billingAddress.trim()) {
       setError("Address is required");
       return;
     }
-    if (!formData.billingCity.trim()) {
-      setError("City is required");
-      return;
-    }
-    if (!formData.billingZip.trim()) {
-      setError("Zip/Postal code is required");
-      return;
-    }
-    if (!formData.billingEmail.trim()) {
-      setError("Email is required");
+    if (!formData.billingPhone.trim()) {
+      setError("Phone number is required");
       return;
     }
 
     // Validate shipping fields if different from billing
     if (!formData.sameAsShipping) {
-      if (!formData.shippingFirstName.trim() || !formData.shippingLastName.trim()) {
-        setError("Shipping first name and last name are required");
-        return;
-      }
-      if (!formData.shippingPhone.trim()) {
-        setError("Shipping phone number is required");
+      if (!formData.shippingFirstName.trim()) {
+        setError("Shipping first name is required");
         return;
       }
       if (!formData.shippingAddress.trim()) {
         setError("Shipping address is required");
         return;
       }
-      if (!formData.shippingCity.trim()) {
-        setError("Shipping city is required");
-        return;
-      }
-      if (!formData.shippingZip.trim()) {
-        setError("Shipping zip/postal code is required");
+      if (!formData.shippingPhone.trim()) {
+        setError("Shipping phone number is required");
         return;
       }
     }
@@ -364,9 +344,8 @@ export default function Checkout() {
                   />
                 </fieldset>
                 <fieldset className="fieldset">
-                  <label htmlFor="billing-last-name">Last Name *</label>
+                  <label htmlFor="billing-last-name">Last Name</label>
                   <input
-                    required
                     type="text"
                     id="billing-last-name"
                     name="billingLastName"
@@ -377,9 +356,8 @@ export default function Checkout() {
               </div>
 
               <fieldset className="box fieldset">
-                <label htmlFor="billing-city">Town/City *</label>
+                <label htmlFor="billing-city">Town/City</label>
                 <input
-                  required
                   type="text"
                   id="billing-city"
                   name="billingCity"
@@ -402,9 +380,8 @@ export default function Checkout() {
 
               <div className="box grid-2">
                 <fieldset className="fieldset">
-                  <label htmlFor="billing-zip">Zip/Postal Code *</label>
+                  <label htmlFor="billing-zip">Zip/Postal Code</label>
                   <input
-                    required
                     type="text"
                     id="billing-zip"
                     name="billingZip"
@@ -426,9 +403,8 @@ export default function Checkout() {
               </div>
 
               <fieldset className="box fieldset">
-                <label htmlFor="billing-email">Email *</label>
+                <label htmlFor="billing-email">Email</label>
                 <input
-                  required
                   type="email"
                   id="billing-email"
                   name="billingEmail"
@@ -471,9 +447,8 @@ export default function Checkout() {
                       />
                     </fieldset>
                     <fieldset className="fieldset">
-                      <label htmlFor="shipping-last-name">Last Name *</label>
+                      <label htmlFor="shipping-last-name">Last Name</label>
                       <input
-                        required={!formData.sameAsShipping}
                         type="text"
                         id="shipping-last-name"
                         name="shippingLastName"
@@ -484,9 +459,8 @@ export default function Checkout() {
                   </div>
 
                   <fieldset className="box fieldset">
-                    <label htmlFor="shipping-city">Town/City *</label>
+                    <label htmlFor="shipping-city">Town/City</label>
                     <input
-                      required={!formData.sameAsShipping}
                       type="text"
                       id="shipping-city"
                       name="shippingCity"
@@ -509,9 +483,8 @@ export default function Checkout() {
 
                   <div className="box grid-2">
                     <fieldset className="fieldset">
-                      <label htmlFor="shipping-zip">Zip/Postal Code *</label>
+                      <label htmlFor="shipping-zip">Zip/Postal Code</label>
                       <input
-                        required={!formData.sameAsShipping}
                         type="text"
                         id="shipping-zip"
                         name="shippingZip"
