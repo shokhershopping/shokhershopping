@@ -173,6 +173,24 @@ export default function ProductSummary({ className, slug }: { className?: string
         error={errors.brand?.message as string}
       />
 
+      {/* Delivery & Return Time */}
+      <div className="col-span-full grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          label="Delivery Time (Days)"
+          placeholder="e.g. 5"
+          type="text"
+          {...register('deliveryTime')}
+          error={errors.deliveryTime?.message as string}
+        />
+        <Input
+          label="Return Time (Days)"
+          placeholder="e.g. 15"
+          type="text"
+          {...register('returnTime')}
+          error={errors.returnTime?.message as string}
+        />
+      </div>
+
       <Controller
         control={control}
         name="description"

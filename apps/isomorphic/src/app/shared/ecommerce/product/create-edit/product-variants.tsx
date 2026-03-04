@@ -8,15 +8,14 @@ import { useCallback, useState, useEffect, useRef } from 'react';
 import TrashIcon from '@core/components/icons/trash';
 import { PiPlusBold } from 'react-icons/pi';
 import UploadZone from '@core/ui/file-upload/upload-zone';
-import { specificationOption, variantOption } from './form-utils';
+import type { ProductAttribute } from './form-utils';
 
 // Default variant data
 const defaultVariant = {
   name: '',
   description: '',
   images: [],
-  color: '',
-  size: '',
+  specifications: {} as Record<string, string>,
   price: 0,
   salePrice: 0,
   stock: 0,
@@ -37,6 +36,9 @@ export default function ProductVariants({ className, slug }: { className?: strin
   } = useFormContext();
 
   const skuTimers = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
+
+  // Watch product attributes for dynamic rendering
+  const productAttributes: ProductAttribute[] = watch('productAttributes') || [];
 
   const checkVariantSku = useCallback(
     async (sku: string, variantIndex: number) => {
@@ -284,12 +286,7 @@ export default function ProductVariants({ className, slug }: { className?: strin
               (errors?.productVariants as any)?.[variantIndex]?.description
                 ?.message
             }
-            {...register(`productVariants.${variantIndex}.description`, {
-              minLength: {
-                value: 10,
-                message: 'Description must be at least 10 characters',
-              },
-            })}
+            {...register(`productVariants.${variantIndex}.description`)}
           />
 
           <FormGroup
@@ -310,49 +307,40 @@ export default function ProductVariants({ className, slug }: { className?: strin
             />
           </FormGroup>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Controller
-              name={`productVariants.${variantIndex}.color`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  type="text"
-                  value={value}
-                  onChange={onChange}
-                  label="Color"
-                  placeholder="e.g. Red"
-                  error={
-                    (errors?.productVariants as any)?.[variantIndex]?.color
-                      ?.message
-                  }
-                />
+          {/* Dynamic Specification Inputs */}
+          {productAttributes.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {productAttributes.map((attr) =>
+                attr.inputType === 'select' && attr.options && attr.options.length > 0 ? (
+                  <Controller
+                    key={attr.key}
+                    name={`productVariants.${variantIndex}.specifications.${attr.key}`}
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <Select
+                        options={attr.options.map((o) => ({ value: o, label: o }))}
+                        value={value || ''}
+                        onChange={onChange}
+                        label={attr.label}
+                        placeholder={`Select ${attr.label}`}
+                        getOptionValue={(option: any) => option.value}
+                        displayValue={(selected: string) => selected || ''}
+                        dropdownClassName="h-auto"
+                      />
+                    )}
+                  />
+                ) : (
+                  <Input
+                    key={attr.key}
+                    type="text"
+                    label={attr.label}
+                    placeholder={`e.g. ${attr.label}`}
+                    {...register(`productVariants.${variantIndex}.specifications.${attr.key}`)}
+                  />
+                )
               )}
-            />
-
-            <Controller
-              name={`productVariants.${variantIndex}.size`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <Select
-                  options={variantOption}
-                  value={value}
-                  onChange={onChange}
-                  label="Size"
-                  placeholder="Select size"
-                  error={
-                    (errors?.productVariants as any)?.[variantIndex]?.size
-                      ?.message
-                  }
-                  getOptionValue={(option) => option.value}
-                  displayValue={(selected) =>
-                    variantOption.find((opt) => opt.value === selected)
-                      ?.label || ''
-                  }
-                  dropdownClassName="h-auto"
-                />
-              )}
-            />
-          </div>
+            </div>
+          )}
         </div>
       ))}
 

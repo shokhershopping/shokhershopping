@@ -14,12 +14,8 @@ import ProductSummary from '@/app/shared/ecommerce/product/create-edit/product-s
 import { defaultValues } from '@/app/shared/ecommerce/product/create-edit/form-utils';
 import ProductMedia from '@/app/shared/ecommerce/product/create-edit/product-media';
 import PricingInventory from '@/app/shared/ecommerce/product/create-edit/pricing-inventory';
-import ProductIdentifiers from '@/app/shared/ecommerce/product/create-edit/product-identifiers';
-import ShippingInfo from '@/app/shared/ecommerce/product/create-edit/shipping-info';
-import ProductSeo from '@/app/shared/ecommerce/product/create-edit/product-seo';
-import DeliveryEvent from '@/app/shared/ecommerce/product/create-edit/delivery-event';
+import ProductAttributes from '@/app/shared/ecommerce/product/create-edit/product-attributes';
 import ProductVariants from '@/app/shared/ecommerce/product/create-edit/product-variants';
-import ProductTaxonomies from '@/app/shared/ecommerce/product/create-edit/product-tags';
 import FormFooter from '@core/components/form-footer';
 import {
   CreateProductInput,
@@ -32,12 +28,8 @@ const MAP_STEP_TO_COMPONENT: Record<string, React.ComponentType<{ className?: st
   [formParts.summary]: ProductSummary,
   [formParts.media]: ProductMedia,
   [formParts.pricingInventory]: PricingInventory,
+  [formParts.productAttributes]: ProductAttributes,
   [formParts.variantOptions]: ProductVariants,
-  // [formParts.productIdentifiers]: ProductIdentifiers,
-  // [formParts.shipping]: ShippingInfo,
-  // [formParts.seo]: ProductSeo,
-  // [formParts.deliveryEvent]: DeliveryEvent,
-  // [formParts.tagsAndCategory]: ProductTaxonomies,
 };
 
 interface IndexProps {
@@ -68,17 +60,18 @@ export default function CreateEditProduct({
       method = 'PATCH';
     }
 
+    // Build delivery/return time strings
+    const deliveryDays = data.deliveryTime?.trim() || '5';
+    const returnDays = data.returnTime?.trim() || '15';
+
     const transformedData: any = {
       name: data.title,
       description: data.description || 'No description provided',
       sku: data.sku || 'SKU-' + Date.now(),
       imageUrls: data.productImages?.map((image: any) => image.url).filter(Boolean) || [],
-      specifications: {
-        color: data.color || 'Default Color',
-        size: data.size || 'Default Size',
-      },
-      deliveryTime: '5 Days',
-      returnTime: '15 Days',
+      specifications: {},
+      deliveryTime: `${deliveryDays} Days`,
+      returnTime: `${returnDays} Days`,
       price: data.price,
       salePrice: data.salePrice || data.price,
       stock: parseInt(String(data?.currentStock ?? '')) || 0,
@@ -98,12 +91,9 @@ export default function CreateEditProduct({
         (variant) => ({
           id: variant.id || undefined,
           name: variant.name,
-          description: variant.description || 'No description provided',
+          description: variant.description || '',
           imageUrls: variant.images?.map((image: any) => image.url).filter(Boolean) || [],
-          specifications: {
-            color: variant.color || 'Default Color',
-            size: variant.size || 'Default Size',
-          },
+          specifications: variant.specifications || {},
           price: variant.price || 0,
           salePrice: variant.salePrice || variant.price || 0,
           stock: parseInt(String(variant.stock || 0)) || 0,

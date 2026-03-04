@@ -5,6 +5,7 @@ export const formParts = {
   summary: 'summary',
   media: 'media',
   pricingInventory: 'pricingInventory',
+  productAttributes: 'productAttributes',
   productIdentifiers: 'productIdentifiers',
   shipping: 'shipping',
   seo: 'seo',
@@ -27,16 +28,8 @@ export const menuItems = [
     value: formParts.pricingInventory,
   },
   {
-    label: 'Product Identifiers & Custom Fields',
-    value: formParts.productIdentifiers,
-  },
-  {
-    label: 'Shipping',
-    value: formParts.shipping,
-  },
-  {
-    label: 'SEO',
-    value: formParts.seo,
+    label: 'Product Attributes',
+    value: formParts.productAttributes,
   },
   {
     label: 'Variant Options',

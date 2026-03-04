@@ -286,6 +286,7 @@ export default function DetailsOuterZoom({ product }) {
                     </div>
                   )}
 
+                  {colorWiseVariantSizes && Object.keys(colorWiseVariantSizes).length > 0 && (
                   <div className="variant-picker-item">
                     <div className="d-flex justify-content-between align-items-center">
                       <div className="variant-picker-label">
@@ -324,6 +325,7 @@ export default function DetailsOuterZoom({ product }) {
                       ))}
                     </form>
                   </div>
+                  )}
                   <div className="tf-product-info-quantity">
                     <div className="quantity-title fw-6">Quantity</div>
                     <Quantity setQuantity={setQuantity} />

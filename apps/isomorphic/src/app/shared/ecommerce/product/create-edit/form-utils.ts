@@ -14,24 +14,66 @@ export const locationShipping = [
   },
 ];
 export const productVariants = [
-  // {
-  //   name: '',
-  //   description: '',
-  //   images: [],
-  //   specifications: [
-  //     {
-  //       name: '',
-  //       value: '',
-  //     },
-  //   ], // Ensure this exists
-  //   price: 0,
-  //   salePrice: 0,
-  //   stock: 0,
-  //   sku: '',
-  //   status: 'draft',
-  // },
+  // empty default — variants added dynamically
 ];
 
+// ─── Product Attribute Presets ───────────────────────────────────────
+export interface ProductAttribute {
+  key: string;
+  label: string;
+  inputType: 'text' | 'select';
+  options: string[];
+}
+
+export const ATTRIBUTE_PRESETS: Record<string, ProductAttribute[]> = {
+  clothing: [
+    { key: 'color', label: 'Color', inputType: 'text', options: [] },
+    { key: 'size', label: 'Size', inputType: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] },
+  ],
+  shoes: [
+    { key: 'color', label: 'Color', inputType: 'text', options: [] },
+    { key: 'size', label: 'Shoe Size', inputType: 'select', options: ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'] },
+  ],
+  electronics: [
+    { key: 'color', label: 'Color', inputType: 'text', options: [] },
+    { key: 'storage', label: 'Storage', inputType: 'text', options: [] },
+    { key: 'ram', label: 'RAM', inputType: 'text', options: [] },
+  ],
+  generic: [],
+};
+
+export const PRESET_OPTIONS = [
+  { value: 'clothing', label: 'Clothing (Color + Size)' },
+  { value: 'shoes', label: 'Shoes (Color + Shoe Size)' },
+  { value: 'electronics', label: 'Electronics (Color + Storage + RAM)' },
+  { value: 'generic', label: 'Generic (No Attributes)' },
+  { value: 'custom', label: 'Custom Attributes' },
+];
+
+/** Try to detect which preset matches a set of specification keys */
+export function inferPresetFromSpecs(specKeys: string[]): string {
+  const sorted = [...specKeys].sort().join(',');
+  for (const [presetKey, attrs] of Object.entries(ATTRIBUTE_PRESETS)) {
+    const presetSorted = attrs.map((a) => a.key).sort().join(',');
+    if (sorted === presetSorted) return presetKey;
+  }
+  return specKeys.length > 0 ? 'custom' : 'generic';
+}
+
+/** Build ProductAttribute array from specification keys (for edit mode) */
+export function buildAttributesFromSpecs(specKeys: string[], preset: string): ProductAttribute[] {
+  if (preset !== 'custom' && ATTRIBUTE_PRESETS[preset]) {
+    return ATTRIBUTE_PRESETS[preset];
+  }
+  return specKeys.map((key) => ({
+    key,
+    label: key.charAt(0).toUpperCase() + key.slice(1),
+    inputType: 'text' as const,
+    options: [],
+  }));
+}
+
+// ─── Default Values ─────────────────────────────────────────────────
 export function defaultValues(product?: CreateProductInput) {
   return {
     title: product?.title ?? '',
@@ -44,8 +86,12 @@ export function defaultValues(product?: CreateProductInput) {
     currentStock: product?.currentStock ?? '',
     productImages: product?.productImages ?? undefined,
     brand: product?.brand ?? '',
-    color: product?.color ?? '',
-    size: product?.size ?? '',
+    deliveryTime: product?.deliveryTime ?? '5',
+    returnTime: product?.returnTime ?? '15',
+    productAttributePreset: product?.productAttributePreset ?? 'clothing',
+    productAttributes: !isEmpty(product?.productAttributes)
+      ? product?.productAttributes
+      : ATTRIBUTE_PRESETS.clothing,
     productVariants: !isEmpty(product?.productVariants)
       ? product?.productVariants
       : productVariants,
@@ -140,75 +186,30 @@ export const menuItems = [
 
 // Category option
 export const categoryOption = [
-  {
-    value: 'fruits',
-    label: 'Fruits',
-  },
-  {
-    value: 'grocery',
-    label: 'Grocery',
-  },
-  {
-    value: 'meat',
-    label: 'Meat',
-  },
-  {
-    value: 'cat food',
-    label: 'Cat Food',
-  },
+  { value: 'fruits', label: 'Fruits' },
+  { value: 'grocery', label: 'Grocery' },
+  { value: 'meat', label: 'Meat' },
+  { value: 'cat food', label: 'Cat Food' },
 ];
 
 // Type option
 export const typeOption = [
-  {
-    value: 'PHYSICAL',
-    label: 'Physical Product',
-  },
-  {
-    value: 'DIGITAL',
-    label: 'Digital Product',
-  },
+  { value: 'PHYSICAL', label: 'Physical Product' },
+  { value: 'DIGITAL', label: 'Digital Product' },
 ];
 
-// Variant option
+// Legacy exports (kept for backward compat)
 export const variantOption = [
-  {
-    value: 'XS',
-    label: 'XS',
-  },
-  {
-    value: 'S',
-    label: 'S',
-  },
-  {
-    value: 'M',
-    label: 'M',
-  },
-  {
-    value: 'L',
-    label: 'L',
-  },
-  {
-    value: 'XL',
-    label: 'XL',
-  },
-  {
-    value: 'XXL',
-    label: 'XXL',
-  },
-  {
-    value: 'XXXL',
-    label: 'XXXL',
-  },
+  { value: 'XS', label: 'XS' },
+  { value: 'S', label: 'S' },
+  { value: 'M', label: 'M' },
+  { value: 'L', label: 'L' },
+  { value: 'XL', label: 'XL' },
+  { value: 'XXL', label: 'XXL' },
+  { value: 'XXXL', label: 'XXXL' },
 ];
 
 export const specificationOption = [
-  {
-    value: 'Color',
-    label: 'Color',
-  },
-  {
-    value: 'Size',
-    label: 'Size',
-  },
+  { value: 'Color', label: 'Color' },
+  { value: 'Size', label: 'Size' },
 ];
