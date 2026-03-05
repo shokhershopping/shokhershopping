@@ -46,10 +46,15 @@ export default async function EditProductPage({ params }: any) {
   }
   const productData = JSON.parse(JSON.stringify(result.data));
 
-  const firstVariantSpecs = productData.variableProducts?.[0]?.specifications || {};
-  const specKeys = Object.keys(firstVariantSpecs).filter((k) => k !== 'colorValue');
-  const inferredPreset = inferPresetFromSpecs(specKeys);
-  const inferredAttributes = buildAttributesFromSpecs(specKeys, inferredPreset);
+  // Use stored attributes if available, otherwise infer from variant specs
+  let inferredPreset = productData.productAttributePreset || '';
+  let inferredAttributes = productData.productAttributes || [];
+  if (!inferredPreset || inferredAttributes.length === 0) {
+    const firstVariantSpecs = productData.variableProducts?.[0]?.specifications || {};
+    const specKeys = Object.keys(firstVariantSpecs).filter((k) => k !== 'colorValue');
+    inferredPreset = inferPresetFromSpecs(specKeys);
+    inferredAttributes = buildAttributesFromSpecs(specKeys, inferredPreset);
+  }
 
   const transformedProductData = {
     title: productData.name,

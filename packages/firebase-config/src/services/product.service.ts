@@ -411,6 +411,8 @@ export async function createProduct(data: {
   isFeatured?: boolean;
   categoryIds?: string[];
   categoryNames?: string[];
+  productAttributePreset?: string;
+  productAttributes?: Array<{ key: string; label: string; inputType: string; options: string[] }>;
 }): Promise<IResponse<FirestoreProduct>> {
   try {
     // Validate SKU uniqueness
@@ -445,6 +447,8 @@ export async function createProduct(data: {
       isFeatured: data.isFeatured ?? false,
       categoryIds: data.categoryIds ?? [],
       categoryNames: data.categoryNames ?? [],
+      productAttributePreset: data.productAttributePreset ?? null,
+      productAttributes: data.productAttributes ?? [],
       orderCount: 0,
       averageRating: 0,
       reviewCount: 0,

@@ -320,7 +320,10 @@ export default function ProductVariants({ className, slug }: { className?: strin
                       <Select
                         options={attr.options.map((o) => ({ value: o, label: o }))}
                         value={value || ''}
-                        onChange={onChange}
+                        onChange={(val: any) => {
+                          // Ensure we store the string value, not the option object
+                          onChange(typeof val === 'object' && val !== null ? val.value || val : val);
+                        }}
                         label={attr.label}
                         placeholder={`Select ${attr.label}`}
                         getOptionValue={(option: any) => option.value}

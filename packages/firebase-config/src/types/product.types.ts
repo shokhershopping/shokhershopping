@@ -1,6 +1,14 @@
 import type { Timestamp } from 'firebase-admin/firestore';
 import type { ProductType, ProductStatus } from './enums';
 
+/** Product attribute definition (e.g. Color=text, Size=dropdown) */
+export interface ProductAttributeDefinition {
+  key: string;
+  label: string;
+  inputType: 'text' | 'select';
+  options: string[];
+}
+
 /** Firestore: /products/{productId} */
 export interface FirestoreProduct {
   id: string;
@@ -22,6 +30,10 @@ export interface FirestoreProduct {
   isFeatured: boolean;
   categoryIds: string[];
   categoryNames: string[];
+  /** Attribute preset used (clothing, shoes, electronics, generic, custom) */
+  productAttributePreset: string | null;
+  /** Attribute definitions for this product's variants */
+  productAttributes: ProductAttributeDefinition[];
   /** Denormalized counter for "top selling" queries */
   orderCount: number;
   /** Denormalized average rating */

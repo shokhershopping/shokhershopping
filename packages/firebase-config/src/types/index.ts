@@ -3,7 +3,7 @@ export * from './enums';
 
 // Entity types
 export type { FirestoreUser, FirestoreAddress, FirestorePreference } from './user.types';
-export type { FirestoreProduct, FirestoreVariant } from './product.types';
+export type { FirestoreProduct, FirestoreVariant, ProductAttributeDefinition } from './product.types';
 export type { FirestoreCategory } from './category.types';
 export type {
   FirestoreOrder,

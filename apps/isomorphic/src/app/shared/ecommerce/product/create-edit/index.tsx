@@ -79,6 +79,13 @@ export default function CreateEditProduct({
       status: 'PUBLISHED',
       brand: data.brand || 'Shokher Shop',
       categoryIds: [data.categories].filter(Boolean),
+      productAttributePreset: data.productAttributePreset || 'generic',
+      productAttributes: (data.productAttributes || []).map((attr: any) => ({
+        key: attr.key,
+        label: attr.label,
+        inputType: attr.inputType,
+        options: Array.isArray(attr.options) ? attr.options : [],
+      })),
       variants: [],
     };
 
@@ -93,7 +100,12 @@ export default function CreateEditProduct({
           name: variant.name,
           description: variant.description || '',
           imageUrls: variant.images?.map((image: any) => image.url).filter(Boolean) || [],
-          specifications: variant.specifications || {},
+          specifications: Object.fromEntries(
+            Object.entries(variant.specifications || {}).map(([k, v]) => [
+              k,
+              typeof v === 'object' && v !== null ? (v as any).value || String(v) : String(v || ''),
+            ]).filter(([, v]) => v !== '')
+          ),
           price: variant.price || 0,
           salePrice: variant.salePrice || variant.price || 0,
           stock: parseInt(String(variant.stock || 0)) || 0,
