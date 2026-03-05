@@ -4,7 +4,7 @@ import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { Input, Button, ActionIcon, Textarea, Select } from 'rizzui';
 import cn from '@core/utils/class-names';
 import FormGroup from '@/app/shared/form-group';
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import TrashIcon from '@core/components/icons/trash';
 import { PiPlusBold } from 'react-icons/pi';
 import UploadZone from '@core/ui/file-upload/upload-zone';
@@ -113,55 +113,9 @@ export default function ProductVariants({ className, slug }: { className?: strin
     name: 'productVariants',
   });
 
-  // Initialize uploadedFiles state with existing form values
-  const [uploadedFiles, setUploadedFiles] = useState<Record<number, any[]>>(
-    () => {
-      const initialFiles: Record<number, any[]> = {};
-      const currentVariants = getValues('productVariants') || [];
-      currentVariants.forEach((variant: any, index: number) => {
-        initialFiles[index] = variant.images || [];
-      });
-      return initialFiles;
-    }
-  );
-
-  // Watch for changes in productVariants to keep uploadedFiles in sync
-  const watchedVariants = watch('productVariants');
-
-  useEffect(() => {
-    if (watchedVariants) {
-      const newUploadedFiles: Record<number, any[]> = {};
-      watchedVariants.forEach((variant: any, index: number) => {
-        newUploadedFiles[index] = variant.images || [];
-      });
-      setUploadedFiles(newUploadedFiles);
-    }
-  }, [watchedVariants]);
-
   const addVariant = useCallback(() => {
     appendVariant({ ...defaultVariant });
-    // Initialize the new variant's uploadedFiles entry
-    setUploadedFiles((prev) => ({
-      ...prev,
-      [variants.length]: [],
-    }));
-  }, [appendVariant, variants.length]);
-
-  const handleFilesChange = useCallback(
-    (files: any[], variantIndex: number) => {
-      // Update local state
-      setUploadedFiles((prev) => ({
-        ...prev,
-        [variantIndex]: files,
-      }));
-
-      // Update form state
-      setValue(`productVariants.${variantIndex}.images`, files, {
-        shouldValidate: true,
-      });
-    },
-    [setValue]
-  );
+  }, [appendVariant]);
 
   return (
     <FormGroup
@@ -296,14 +250,9 @@ export default function ProductVariants({ className, slug }: { className?: strin
           >
             <UploadZone
               name={`productVariants.${variantIndex}.images`}
-              getValues={() => uploadedFiles[variantIndex] || []}
-              setValue={(name: string, files: any[]) => {
-                handleFilesChange(files, variantIndex);
-              }}
+              getValues={getValues}
+              setValue={setValue}
               className="col-span-full"
-              onUploadedFileChange={(files) => {
-                handleFilesChange(files, variantIndex);
-              }}
             />
           </FormGroup>
 
