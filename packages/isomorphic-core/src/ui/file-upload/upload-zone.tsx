@@ -310,6 +310,7 @@ function UploadButtons({
   return (
     <div className="flex w-full flex-wrap items-center justify-center gap-4 px-6 pb-5 @sm:flex-nowrap @xl:w-auto @xl:justify-end @xl:px-0 @xl:pb-0">
       <Button
+        type="button"
         variant="outline"
         className="w-full gap-2 @xl:w-auto"
         isLoading={isLoading}
@@ -319,6 +320,7 @@ function UploadButtons({
         Clear {files.length} files
       </Button>
       <Button
+        type="button"
         className="w-full gap-2 @xl:w-auto"
         isLoading={isLoading}
         onClick={onUpload}

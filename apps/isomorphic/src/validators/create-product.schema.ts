@@ -41,7 +41,7 @@ export const productFormSchema = z.object({
         specifications: z.record(z.string(), z.string()).optional().default({}),
         price: z.number().positive({ message: 'Price must be positive' }),
         salePrice: z.number().positive({ message: 'Price must be positive' }),
-        stock: z.number().positive({ message: 'Stock must be positive' }),
+        stock: z.number().min(0, { message: 'Stock cannot be negative' }),
         sku: z.string({ message: 'SKU is required' }),
         status: z.string().optional(),
       })

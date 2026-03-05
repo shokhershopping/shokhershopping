@@ -188,10 +188,26 @@ export default function CreateEditProduct({
               <h3 className="font-bold">Form Errors:</h3>
               <ul className="list-disc pl-5">
                 {Object.entries(methods.formState.errors).map(
-                  ([key, error]) => {
+                  ([key, error]: [string, any]) => {
+                    if (error?.message) {
+                      return (
+                        <li key={key} className="text-sm">
+                          {key}: {error.message}
+                        </li>
+                      );
+                    }
+                    if (Array.isArray(error)) {
+                      return error.map((item: any, i: number) =>
+                        item ? Object.entries(item).map(([field, err]: [string, any]) => (
+                          <li key={`${key}.${i}.${field}`} className="text-sm">
+                            Variant {i + 1} - {field}: {err?.message || 'Invalid'}
+                          </li>
+                        )) : null
+                      );
+                    }
                     return (
                       <li key={key} className="text-sm">
-                        {error.message}
+                        {key}: Invalid value
                       </li>
                     );
                   }

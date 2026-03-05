@@ -345,6 +345,7 @@ export default function ProductVariants({ className, slug }: { className?: strin
       ))}
 
       <Button
+        type="button"
         onClick={addVariant}
         variant="outline"
         className="col-span-full ml-auto w-auto"

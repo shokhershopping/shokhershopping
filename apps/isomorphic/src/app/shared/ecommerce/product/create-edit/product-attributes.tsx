@@ -177,7 +177,7 @@ export default function ProductAttributes({ className }: { className?: string })
       )}
 
       {/* Add Custom Attribute Button */}
-      <Button onClick={addAttribute} variant="outline" className="w-auto">
+      <Button type="button" onClick={addAttribute} variant="outline" className="w-auto">
         <PiPlusBold className="me-2 h-4 w-4" /> Add Custom Attribute
       </Button>
     </div>
