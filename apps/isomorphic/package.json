@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "lint": "next lint",
-    "build": "next build",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "type:check": "tsc --noEmit",
     "start": "next start",
     "clean": "rm -rf node_modules .next .cache .turbo",
