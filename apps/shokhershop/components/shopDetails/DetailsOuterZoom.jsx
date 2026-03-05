@@ -10,6 +10,8 @@ import { useContextElement } from "@/context/Context";
 import { openCartModal } from "@/utlis/openCartModal";
 
 export default function DetailsOuterZoom({ product }) {
+  const hasVariants = product.variableProducts?.length > 0;
+
   // Deduplicate colors - show only one dot per unique color
   const variantColors = (() => {
     const seen = new Set();
@@ -32,23 +34,39 @@ export default function DetailsOuterZoom({ product }) {
     );
   })();
 
-  // Group all sizes by normalized color key
-  const colorWiseVariantSizes = product.variableProducts?.reduce(
-    (acc, variant) => {
-      const rawColor = variant.specifications?.color || variant.color;
-      const color = rawColor?.trim()?.toLowerCase();
-      if (!color) return acc;
-      if (!acc[color]) {
-        acc[color] = [];
-      }
-      acc[color].push({
-        id: variant.id,
-        value: variant.specifications?.size || variant.size || 'One Size',
-      });
-      return acc;
-    },
-    {}
-  );
+  const hasColors = variantColors.length > 0;
+
+  // Collect sizes from variants - works with or without colors
+  const colorWiseVariantSizes = hasColors
+    ? product.variableProducts?.reduce((acc, variant) => {
+        const rawColor = variant.specifications?.color || variant.color;
+        const color = rawColor?.trim()?.toLowerCase();
+        if (!color) return acc;
+        if (!acc[color]) acc[color] = [];
+        acc[color].push({
+          id: variant.id,
+          value: variant.specifications?.size || variant.size || 'One Size',
+        });
+        return acc;
+      }, {})
+    : null;
+
+  // Flat list of all variant sizes (for products WITHOUT colors)
+  const allVariantSizes = !hasColors && hasVariants
+    ? product.variableProducts
+        .filter((v) => {
+          const size = v.specifications?.size || v.size;
+          return !!size;
+        })
+        .map((v) => ({
+          id: v.id,
+          value: v.specifications?.size || v.size,
+        }))
+    : [];
+
+  const hasSizes = hasColors
+    ? colorWiseVariantSizes && Object.keys(colorWiseVariantSizes).length > 0
+    : allVariantSizes.length > 0;
 
   // Set initial color from first variant or product specs
   const initialColor = variantColors[0] || {
@@ -60,13 +78,16 @@ export default function DetailsOuterZoom({ product }) {
       product.specifications?.color?.toLowerCase(),
   };
 
-  // Set initial size based on first color's first size
-  const initialSize = colorWiseVariantSizes[
-    initialColor.value?.trim()?.toLowerCase()
-  ]?.[0] || {
-    id: product.id || "default-size",
-    value: product.specifications?.size || "M",
-  };
+  // Set initial size based on available data
+  const initialSize = hasColors
+    ? (colorWiseVariantSizes?.[initialColor.value?.trim()?.toLowerCase()]?.[0] || {
+        id: product.id || "default-size",
+        value: product.specifications?.size || "",
+      })
+    : (allVariantSizes[0] || {
+        id: hasVariants ? product.variableProducts[0]?.id : product.id || "default-size",
+        value: product.specifications?.size || "",
+      });
 
   const [currentColor, setCurrentColor] = useState(initialColor);
   const [currentSize, setCurrentSize] = useState(initialSize);
@@ -74,26 +95,21 @@ export default function DetailsOuterZoom({ product }) {
 
   // Update selected size when color changes
   useEffect(() => {
-    if (variantColors.length > 0) {
+    if (hasColors) {
       const sizesForColor =
-        colorWiseVariantSizes[currentColor.value?.trim()?.toLowerCase()];
+        colorWiseVariantSizes?.[currentColor.value?.trim()?.toLowerCase()];
       if (sizesForColor && sizesForColor.length > 0) {
         setCurrentSize(sizesForColor[0]);
       }
     }
-  }, [currentColor, variantColors.length]);
+  }, [currentColor, hasColors]);
 
-  // Find selected variant based on color
-  // const selectedVariant =
-  //   product.variableProducts?.find(
-  //     (v) =>
-  //       v.specifications?.color?.toLowerCase() ===
-  //       currentColor.value?.toLowerCase()
-  //   ) || product;
-
-  // Find selected variant based on color and size
-  const selectedVariant =
-    product.variableProducts?.find((v) => v.id === currentSize.id) || product;
+  // Find selected variant based on current selection
+  const selectedVariant = hasVariants
+    ? (product.variableProducts.find((v) => v.id === currentSize.id)
+      || product.variableProducts.find((v) => v.id === currentColor.variantId)
+      || product.variableProducts[0])
+    : product;
 
   // Get all variant images (from all color variants)
   const allVariantImages =
@@ -286,7 +302,7 @@ export default function DetailsOuterZoom({ product }) {
                     </div>
                   )}
 
-                  {colorWiseVariantSizes && Object.keys(colorWiseVariantSizes).length > 0 && (
+                  {hasSizes && (
                   <div className="variant-picker-item">
                     <div className="d-flex justify-content-between align-items-center">
                       <div className="variant-picker-label">
@@ -304,9 +320,10 @@ export default function DetailsOuterZoom({ product }) {
                       </a>
                     </div>
                     <form className="variant-picker-values">
-                      {colorWiseVariantSizes[
-                        currentColor.value?.trim()?.toLowerCase()
-                      ]?.map((size) => (
+                      {(hasColors
+                        ? colorWiseVariantSizes?.[currentColor.value?.trim()?.toLowerCase()] || []
+                        : allVariantSizes
+                      ).map((size) => (
                         <React.Fragment key={size.id}>
                           <input
                             type="radio"
