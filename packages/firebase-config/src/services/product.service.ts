@@ -412,7 +412,7 @@ export async function createProduct(data: {
   categoryIds?: string[];
   categoryNames?: string[];
   productAttributePreset?: string;
-  productAttributes?: Array<{ key: string; label: string; inputType: string; options: string[] }>;
+  productAttributes?: Array<{ key: string; label: string; inputType: 'text' | 'select'; options: string[] }>;
 }): Promise<IResponse<FirestoreProduct>> {
   try {
     // Validate SKU uniqueness
