@@ -34,6 +34,10 @@ export default function DetailsOuterZoom({ product }) {
     );
   })();
 
+  // Check productAttributes for color attribute definition
+  const colorAttribute = product.productAttributes?.find(
+    (attr) => attr.key === 'color'
+  );
   const hasColors = variantColors.length > 0;
 
   // Collect sizes from variants - works with or without colors
@@ -64,9 +68,20 @@ export default function DetailsOuterZoom({ product }) {
         }))
     : [];
 
+  // Fallback: if no sizes found in variants, check productAttributes for size options
+  const sizeAttribute = product.productAttributes?.find(
+    (attr) => attr.key === 'size' && attr.inputType === 'select' && attr.options?.length > 0
+  );
+  const fallbackSizes = sizeAttribute && allVariantSizes.length === 0 && (!colorWiseVariantSizes || Object.keys(colorWiseVariantSizes).length === 0)
+    ? sizeAttribute.options.map((opt, i) => ({
+        id: `attr-size-${i}`,
+        value: opt,
+      }))
+    : [];
+
   const hasSizes = hasColors
     ? colorWiseVariantSizes && Object.keys(colorWiseVariantSizes).length > 0
-    : allVariantSizes.length > 0;
+    : (allVariantSizes.length > 0 || fallbackSizes.length > 0);
 
   // Set initial color from first variant or product specs
   const initialColor = variantColors[0] || {
@@ -84,7 +99,7 @@ export default function DetailsOuterZoom({ product }) {
         id: product.id || "default-size",
         value: product.specifications?.size || "",
       })
-    : (allVariantSizes[0] || {
+    : (allVariantSizes[0] || fallbackSizes[0] || {
         id: hasVariants ? product.variableProducts[0]?.id : product.id || "default-size",
         value: product.specifications?.size || "",
       });
@@ -322,7 +337,7 @@ export default function DetailsOuterZoom({ product }) {
                     <form className="variant-picker-values">
                       {(hasColors
                         ? colorWiseVariantSizes?.[currentColor.value?.trim()?.toLowerCase()] || []
-                        : allVariantSizes
+                        : (allVariantSizes.length > 0 ? allVariantSizes : fallbackSizes)
                       ).map((size) => (
                         <React.Fragment key={size.id}>
                           <input
