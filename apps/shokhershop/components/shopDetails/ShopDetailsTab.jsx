@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const tabs = [
   { title: "Description", active: true },
   { title: "Review", active: false },
-  { title: "Shiping", active: false },
+  { title: "Shipping", active: false },
   { title: "Return Policies", active: false },
 ];
 
@@ -231,57 +231,42 @@ export default function ShopDetailsTab({ product }) {
                   } `}
                 >
                   <div className="tf-page-privacy-policy">
-                    <div className="title">
-                      The Company Private Limited Policy
-                    </div>
+                    <div className="title">Shipping Information</div>
+
+                    <h6 className="fw-6 mb_10" style={{ marginTop: "20px" }}>Delivery Areas</h6>
                     <p>
-                      The Company Private Limited and each of their respective
-                      subsidiary, parent and affiliated companies is deemed to
-                      operate this Website (“we” or “us”) recognizes that you
-                      care how information about you is used and shared. We have
-                      created this Privacy Policy to inform you what information
-                      we collect on the Website, how we use your information and
-                      the choices you have about the way your information is
-                      collected and used. Please read this Privacy Policy
-                      carefully. Your use of the Website indicates that you have
-                      read and accepted our privacy practices, as outlined in
-                      this Privacy Policy.
+                      We deliver across Bangladesh. Orders within Dhaka city are
+                      delivered within 1-3 business days. Orders outside Dhaka
+                      are delivered within 3-7 business days.
                     </p>
+
+                    <h6 className="fw-6 mb_10">Shipping Charges</h6>
+                    <ul className="mb_20">
+                      <li>Inside Dhaka: &#2547;60</li>
+                      <li>Outside Dhaka: &#2547;120</li>
+                      <li>Free shipping on orders above &#2547;2,000</li>
+                    </ul>
+
+                    <h6 className="fw-6 mb_10">Order Processing</h6>
                     <p>
-                      Please be advised that the practices described in this
-                      Privacy Policy apply to information gathered by us or our
-                      subsidiaries, affiliates or agents: (i) through this
-                      Website, (ii) where applicable, through our Customer
-                      Service Department in connection with this Website, (iii)
-                      through information provided to us in our free standing
-                      retail stores, and (iv) through information provided to us
-                      in conjunction with marketing promotions and sweepstakes.
+                      Orders are processed within 24-48 hours after confirmation.
+                      You will receive a tracking notification once your order
+                      has been dispatched.
                     </p>
+
+                    <h6 className="fw-6 mb_10">Cash on Delivery</h6>
                     <p>
-                      We are not responsible for the content or privacy
-                      practices on any websites.
+                      Cash on Delivery (COD) is available for all orders within
+                      Bangladesh. Please keep the exact amount ready at the time
+                      of delivery.
                     </p>
+
+                    <h6 className="fw-6 mb_10">Damaged or Lost Shipments</h6>
                     <p>
-                      We reserve the right, in our sole discretion, to modify,
-                      update, add to, discontinue, remove or otherwise change
-                      any portion of this Privacy Policy, in whole or in part,
-                      at any time. When we amend this Privacy Policy, we will
-                      revise the “last updated” date located at the top of this
-                      Privacy Policy.
-                    </p>
-                    <p>
-                      If you provide information to us or access or use the
-                      Website in any way after this Privacy Policy has been
-                      changed, you will be deemed to have unconditionally
-                      consented and agreed to such changes. The most current
-                      version of this Privacy Policy will be available on the
-                      Website and will supersede all previous versions of this
-                      Privacy Policy.
-                    </p>
-                    <p>
-                      If you have any questions regarding this Privacy Policy,
-                      you should contact our Customer Service Department by
-                      email at marketing@company.com
+                      If your order arrives damaged or is lost in transit, please
+                      contact our support team at <strong>+880-1841-917370</strong> within
+                      48 hours of delivery. We will arrange a replacement or full
+                      refund at no extra cost.
                     </p>
                   </div>
                 </div>

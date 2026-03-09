@@ -37,7 +37,6 @@ export default function Map2() {
                   <strong>Email</strong>
                 </p>
                 <p>shokhershopping@outlook.com</p>
-                <p>shokhershopping.ltd@gmail.com</p>
               </div>
               <div className="mb_36">
                 <p className="mb_15">
