@@ -1,7 +1,7 @@
 "use client";
 import Drift from "drift-zoom";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Gallery, Item } from "react-photoswipe-gallery";
 import { Navigation, Thumbs } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,7 +15,18 @@ export default function Slider1ZoomOuter({
 }) {
   const thumbsSwiperRef = useRef(null);
   const mainSwiperRef = useRef(null);
-  const zoomPaneRef = useRef(null);
+  const driftInstancesRef = useRef([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile/touch device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1150 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (currentVariantImages.length > 0 && mainSwiperRef.current) {
@@ -23,53 +34,64 @@ export default function Slider1ZoomOuter({
     }
   }, [currentColor, currentVariantImages]);
 
-  useEffect(() => {
-    // Function to initialize Drift
-    const imageZoom = () => {
-      const driftAll = document.querySelectorAll(".tf-image-zoom");
-      const pane = document.querySelector(".tf-zoom-main");
+  // Initialize Drift zoom — re-run when variant images change
+  const initDrift = useCallback(() => {
+    // Destroy previous Drift instances
+    driftInstancesRef.current.forEach((d) => {
+      try { d.destroy(); } catch (_) {}
+    });
+    driftInstancesRef.current = [];
 
-      driftAll.forEach((el) => {
-        new Drift(el, {
-          zoomFactor: 2,
-          paneContainer: pane,
-          inlinePane: false,
-          handleTouch: false,
-          hoverBoundingBox: true,
-          containInline: true,
-        });
+    const driftAll = document.querySelectorAll(".tf-image-zoom");
+    const pane = document.querySelector(".tf-zoom-main");
+
+    driftAll.forEach((el) => {
+      const instance = new Drift(el, {
+        zoomFactor: 2,
+        paneContainer: isMobile ? el.parentElement : pane,
+        inlinePane: isMobile,
+        handleTouch: isMobile,
+        hoverBoundingBox: !isMobile,
+        containInline: true,
+        touchDelay: 200,
       });
-    };
-    imageZoom();
-    const zoomElements = document.querySelectorAll(".tf-image-zoom");
+      driftInstancesRef.current.push(instance);
+    });
+  }, [isMobile]);
 
+  useEffect(() => {
+    // Small delay to let Swiper render the images first
+    const timer = setTimeout(initDrift, 100);
+    return () => clearTimeout(timer);
+  }, [currentVariantImages, initDrift]);
+
+  useEffect(() => {
     const handleMouseOver = (event) => {
       const parent = event.target.closest(".section-image-zoom");
-      if (parent) {
-        parent.classList.add("zoom-active");
-      }
+      if (parent) parent.classList.add("zoom-active");
     };
-
     const handleMouseLeave = (event) => {
       const parent = event.target.closest(".section-image-zoom");
-      if (parent) {
-        parent.classList.remove("zoom-active");
-      }
+      if (parent) parent.classList.remove("zoom-active");
     };
 
+    const zoomElements = document.querySelectorAll(".tf-image-zoom");
     zoomElements.forEach((element) => {
       element.addEventListener("mouseover", handleMouseOver);
       element.addEventListener("mouseleave", handleMouseLeave);
     });
 
-    // Cleanup event listeners on component unmount
     return () => {
       zoomElements.forEach((element) => {
         element.removeEventListener("mouseover", handleMouseOver);
         element.removeEventListener("mouseleave", handleMouseLeave);
       });
+      // Cleanup Drift instances on unmount
+      driftInstancesRef.current.forEach((d) => {
+        try { d.destroy(); } catch (_) {}
+      });
     };
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   return (
     <>

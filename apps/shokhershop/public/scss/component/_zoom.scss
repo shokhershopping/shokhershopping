@@ -27,6 +27,22 @@
     z-index: 5000;
 }
 
+/* Mobile inline zoom pane — fills the image area on touch */
+@media (max-width: 1149px) {
+    .tf-product-media-main .drift-zoom-pane.drift-inline {
+        width: 100% !important;
+        height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        border-radius: 0;
+        background: #fff;
+    }
+    /* Don't fade other elements on mobile zoom */
+    .section-image-zoom.zoom-active .other-image-zoom {
+        opacity: 1;
+    }
+}
+
 .section-image-zoom {
     .other-image-zoom {
         @include mixin.transition3;
