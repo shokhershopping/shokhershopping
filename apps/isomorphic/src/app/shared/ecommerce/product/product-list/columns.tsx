@@ -131,7 +131,7 @@ export const productsListColumns = [
           color="invert"
         >
           <Link
-            href={`${process.env.NEXT_PUBLIC_SHOKHERSHOP_URL}/product-detail/${row.original?.id || ''}`}
+            href={`${process.env.NEXT_PUBLIC_SHOKHERSHOP_URL || 'https://shokhershopping.com'}/product-detail/${row.original?.id || ''}`}
             target="_blank"
             rel="noopener noreferrer"
           >

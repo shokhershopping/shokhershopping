@@ -6,40 +6,65 @@ import { Navigation, Pagination } from "swiper/modules";
 import { ProductCard } from "../shopCards/ProductCard";
 import { getImageUrl } from "@/lib/getImageUrl";
 
+function toCardFormat(p) {
+  // API returns transformed data: images is [{id, path}], not imageUrls
+  const firstImage = p.imgSrc || p.images?.[0]?.path || p.imageUrls?.[0];
+  const secondImage =
+    p.imgHoverSrc ||
+    p.images?.[1]?.path ||
+    p.images?.[0]?.path ||
+    p.imageUrls?.[1] ||
+    p.imageUrls?.[0];
+
+  return {
+    ...p,
+    imgSrc: getImageUrl(firstImage),
+    imgHoverSrc: getImageUrl(secondImage),
+    title: p.title || p.name,
+    price: p.price,
+    salePrice: p.salePrice ?? p.price,
+  };
+}
+
 export default function RelatedProducts({ product }) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchRelated() {
-      if (!product?.categoryIds?.length) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        const categoryId = product.categoryIds[0];
-        const res = await fetch(
-          `/api/products?categoryId=${categoryId}&limit=10&status=PUBLISHED`
-        );
+        let url;
+        // Try category-based fetch first, fallback to latest products
+        if (product?.categoryIds?.length) {
+          url = `/api/products?categoryId=${product.categoryIds[0]}&limit=10&status=PUBLISHED`;
+        } else {
+          url = `/api/products/latest?limit=10`;
+        }
+
+        const res = await fetch(url);
         const result = await res.json();
 
         if (result.status === "success" && Array.isArray(result.data)) {
-          // Filter out the current product and map to card format
-          const filtered = result.data
-            .filter((p) => p.id !== product.id)
+          let items = result.data
+            .filter((p) => p.id !== product?.id)
             .slice(0, 8)
-            .map((p) => ({
-              ...p,
-              imgSrc: p.imgSrc || getImageUrl(p.imageUrls?.[0]),
-              imgHoverSrc:
-                p.imgHoverSrc || getImageUrl(p.imageUrls?.[1] || p.imageUrls?.[0]),
-              title: p.title || p.name,
-              price: p.price,
-              salePrice: p.salePrice ?? p.price,
-            }));
+            .map(toCardFormat);
 
-          setRelatedProducts(filtered);
+          // If category fetch returned too few, supplement with latest
+          if (items.length < 4 && product?.categoryIds?.length) {
+            const latestRes = await fetch(`/api/products/latest?limit=10`);
+            const latestResult = await latestRes.json();
+            if (latestResult.status === "success" && Array.isArray(latestResult.data)) {
+              const existingIds = new Set(items.map((p) => p.id));
+              const extra = latestResult.data
+                .filter((p) => p.id !== product?.id && !existingIds.has(p.id))
+                .slice(0, 8 - items.length)
+                .map(toCardFormat);
+              items = [...items, ...extra];
+            }
+          }
+
+          setRelatedProducts(items);
         }
       } catch (err) {
         console.error("Failed to fetch related products:", err);
