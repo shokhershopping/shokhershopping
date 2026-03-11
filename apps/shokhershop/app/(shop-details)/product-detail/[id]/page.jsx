@@ -1,8 +1,7 @@
 import Footer1 from "@/components/footers/Footer1";
 import Header1 from "@/components/headers/Header1";
 import Topbar1 from "@/components/headers/Topbar1";
-import Products from "@/components/shopDetails/Products";
-import RecentProducts from "@/components/shopDetails/RecentProducts";
+import RelatedProducts from "@/components/shopDetails/RelatedProducts";
 import ShopDetailsTab from "@/components/shopDetails/ShopDetailsTab";
 import React from "react";
 import Link from "next/link";
@@ -64,6 +63,7 @@ export default async function page({ params }) {
 
       <DetailsOuterZoom product={product} />
       <ShopDetailsTab product={product} />
+      <RelatedProducts product={product} />
       <Footer1 />
     </>
   );
