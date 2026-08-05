@@ -200,6 +200,18 @@ export {
   getSteadfastStatus,
   getSteadfastStatusByTracking,
 } from './services/steadfast.service';
+
+export {
+  normalizeContentPostSlug,
+  serializeContentPost,
+  isContentPostSlugAvailable,
+  getContentPosts,
+  getContentPostById,
+  getPublishedContentPostBySlug,
+  createContentPost,
+  updateContentPost,
+  deleteContentPost,
+} from './services/content-post.service';
 export type {
   SteadfastOrderData,
   SteadfastConsignment,

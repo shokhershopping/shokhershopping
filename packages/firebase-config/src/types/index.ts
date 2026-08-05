@@ -25,3 +25,9 @@ export type { FirestoreBanner } from './banner.types';
 export type { FirestoreMarquee } from './marquee.types';
 export type { FirestoreDeliveryArea } from './delivery-area.types';
 export type { FirestoreSettings } from './settings.types';
+export type {
+  FirestoreContentPost,
+  ContentPostDTO,
+  CreateContentPostInput,
+  UpdateContentPostInput,
+} from './content-post.types';

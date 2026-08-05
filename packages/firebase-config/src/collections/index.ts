@@ -23,6 +23,8 @@ export const Collections = {
   BANNERS: 'banners',
   MARQUEES: 'marquees',
   DELIVERY_AREAS: 'deliveryAreas',
+  CONTENT_POSTS: 'contentPosts',
+  CONTENT_POST_SLUGS: 'contentPostSlugs',
 } as const;
 
 export type CollectionName = (typeof Collections)[keyof typeof Collections];

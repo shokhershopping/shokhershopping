@@ -36,6 +36,14 @@ export const ProductStatus = {
 } as const;
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus];
 
+export const ContentPostStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED',
+} as const;
+export type ContentPostStatus =
+  (typeof ContentPostStatus)[keyof typeof ContentPostStatus];
+
 export const DiscountType = {
   PERCENTAGE: 'PERCENTAGE',
   FIXED: 'FIXED',

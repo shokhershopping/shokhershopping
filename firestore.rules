@@ -7,6 +7,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Content posts are accessed only through trusted Admin SDK routes.
+    match /contentPosts/{postId} {
+      allow read, write: if false;
+    }
+
+    // Slug reservations are an internal uniqueness mechanism.
+    match /contentPostSlugs/{slug} {
+      allow read, write: if false;
+    }
+
     // Users: authenticated users can read their own document
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
