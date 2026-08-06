@@ -5,6 +5,15 @@ export const api = {
     update: (id: string) => `/products/${id}`,
     delete: (id: string) => `/products/${id}`,
   },
+  contentPost: {
+    list: '/content-posts',
+    create: '/content-posts',
+    details: (id: string) => `/content-posts/${id}`,
+    update: (id: string) => `/content-posts/${id}`,
+    delete: (id: string) => `/content-posts/${id}`,
+    checkSlug: '/content-posts/check-slug',
+    upload: '/content-posts/upload',
+  },
   category: {
     list: '/categories',
     create: '/categories/create',

@@ -13,6 +13,7 @@ import {
   PiTextTDuotone,
   PiTruckDuotone,
   PiGearDuotone,
+  PiArticleDuotone,
 } from 'react-icons/pi';
 import type { UserRole } from '@/lib/firebase-auth-provider';
 
@@ -50,6 +51,22 @@ export const menuItems: MenuItem[] = [
       {
         name: 'Create Product',
         href: routes.eCommerce.createProduct,
+      },
+    ],
+  },
+  {
+    name: 'Content Posts',
+    href: '#',
+    icon: <PiArticleDuotone />,
+    roles: ['ADMIN', 'EDITOR'],
+    dropdownItems: [
+      {
+        name: 'All Content Posts',
+        href: routes.eCommerce.contentPosts,
+      },
+      {
+        name: 'Create Content Post',
+        href: routes.eCommerce.createContentPost,
       },
     ],
   },

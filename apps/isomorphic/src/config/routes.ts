@@ -7,6 +7,11 @@ export const routes = {
     productDetails: (slug: string) => `/products/${slug}`,
     editProduct: (slug: string) => `/products/${slug}/edit`,
 
+    // content posts
+    contentPosts: '/content-posts',
+    createContentPost: '/content-posts/create',
+    editContentPost: (id: string) => `/content-posts/${id}/edit`,
+
     // categories
     categories: '/categories',
     createCategory: '/categories/create',
